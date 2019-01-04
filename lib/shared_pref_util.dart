@@ -1,7 +1,6 @@
-import 'package:find_room/bloc/home_bloc.dart';
+import 'package:find_room/models/province.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 
 class SharedPrefUtil {
   static const _kSelectedProvinceId = 'com.hoc.findroom.selected_province_id';
@@ -11,35 +10,37 @@ class SharedPrefUtil {
   static const _kDaNangId = 'NtHjwobYdIi0YwTUHz05';
   static const _kDaNangName = 'TP. Đà Nẵng';
 
-  Stream<Province> get selectedProvince => _selectedProvinceController.stream;
+  static final SharedPrefUtil instance = SharedPrefUtil._();
+
   final _selectedProvinceController = BehaviorSubject<Province>();
 
-  static final SharedPrefUtil instance = SharedPrefUtil._();
+  ValueObservable<Province> get selectedProvince =>
+      _selectedProvinceController.stream;
 
   SharedPrefUtil._() {
     SharedPreferences.getInstance().then((preferences) {
-      var id = preferences.getString(_kSelectedProvinceId);
-      var name = preferences.getString(_kSelectedProvinceName);
-      var province = id != null && name != null
-          ? Province(
-              id: id,
-              name: name,
-            )
-          : Province(
-              id: _kDaNangId,
-              name: _kDaNangName,
-            );
+      final id = preferences.getString(_kSelectedProvinceId);
+      final name = preferences.getString(_kSelectedProvinceName);
+      final province = id != null && name != null
+          ? Province(id: id, name: name)
+          : Province(id: _kDaNangId, name: _kDaNangName);
       _selectedProvinceController.add(province);
-      debugPrint('##DEBUG SharedPrefUtil._ added province=$province');
+
+      print('##DEBUG SharedPrefUtil._ added province=$province');
     });
   }
 
-  saveSelectedProvince(Province province) async {
-    var preferences = await SharedPreferences.getInstance();
-    await Future.wait([
+  Future<void> saveSelectedProvince(Province province) async {
+    final preferences = await SharedPreferences.getInstance();
+    final list = await Future.wait([
       preferences.setString(_kSelectedProvinceId, province.id),
       preferences.setString(_kSelectedProvinceName, province.name),
     ]);
-    _selectedProvinceController.add(province);
+    if (list.reduce((acc, e) => acc && e)) {
+      print('##DEBUG saveSelectedProvince province=$province');
+      _selectedProvinceController.add(province);
+    } else {
+      print('##DEBUG saveSelectedProvince error');
+    }
   }
 }

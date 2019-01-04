@@ -38,7 +38,7 @@ class _BlocProviderState<T extends BaseBloc> extends State<BlocProvider<T>> {
   void dispose() {
     super.dispose();
     widget.bloc.dispose();
-    debugPrint('##DEBUG bloc dispose');
+    print('##DEBUG bloc dispose');
   }
 }
 

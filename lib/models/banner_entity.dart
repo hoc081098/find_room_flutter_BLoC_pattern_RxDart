@@ -25,4 +25,22 @@ class BannerEntity implements FirebaseModel {
 
   @override
   String get id => documentID;
+
+  @override
+  String toString() => 'BannerEntity{image: $image, description: $description, documentID: $documentID}';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is BannerEntity &&
+              runtimeType == other.runtimeType &&
+              image == other.image &&
+              description == other.description &&
+              documentID == other.documentID;
+
+  @override
+  int get hashCode =>
+      image.hashCode ^
+      description.hashCode ^
+      documentID.hashCode;
 }

@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:find_room/models/firebase_model.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -24,4 +23,20 @@ class ProvinceEntity implements FirebaseModel {
 
   @override
   String get id => documentID;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is ProvinceEntity &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              documentID == other.documentID;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      documentID.hashCode;
+
+  @override
+  String toString() => 'ProvinceEntity{name: $name, documentID: $documentID}';
 }

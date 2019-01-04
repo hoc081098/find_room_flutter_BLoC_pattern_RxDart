@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/bloc/home_bloc.dart';
-import 'package:find_room/pages/home_page.dart';
+import 'package:find_room/pages/home/home_bloc.dart';
+import 'package:find_room/pages/home/home_page.dart';
+import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,14 +17,50 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Phòng trọ tốt',
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: new BlocProvider<HomeBloc>(
-        child: MyHomePage(),
+      home: BlocProvider<HomeBloc>(
         bloc: HomeBloc(),
+        child: RootApp(),
       ),
+    );
+  }
+}
+
+class RootApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountEmail: Text('hoc081098@gmail.com'),
+              accountName: Text('Petrus'),
+            ),
+            ListTile(
+              title: Text('Trang chủ'),
+              onTap: () {},
+            ),
+            ListTile(
+              title: Text('Đã lưu'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => SavedPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: MyHomePage(),
     );
   }
 }

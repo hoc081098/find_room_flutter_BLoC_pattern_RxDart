@@ -1,19 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:find_room/models/firebase_model.dart';
+import 'package:find_room/utitls/collection_equality_const.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 
 part 'room_entity.g.dart';
 
 GeoPoint geoPointFromJson(GeoPoint geoPoint) => geoPoint;
+
 GeoPoint geoPointToJson(GeoPoint geoPoint) => geoPoint;
 
 DocumentReference documentReferenceFromJson(DocumentReference ref) => ref;
+
 DocumentReference documentReferenceToJson(DocumentReference ref) => ref;
 
 Timestamp timestampFromJson(Timestamp timestamp) => timestamp;
+
 Timestamp timestampToJson(Timestamp timestamp) => timestamp;
 
 Map<String, dynamic> withId(DocumentSnapshot doc) => CombinedMapView([
@@ -112,8 +115,8 @@ class RoomEntity implements FirebaseModel {
   });
 
   factory RoomEntity.fromDocument(DocumentSnapshot doc) {
-    debugPrint('##DEBUG ' + doc.data['utilities'].runtimeType.toString());
-    doc.data['utilities'] = (doc.data['utilities'] as Map).cast<String, dynamic>();
+    doc.data['utilities'] =
+        (doc.data['utilities'] as Map).cast<String, dynamic>();
     return _$RoomEntityFromJson(withId(doc));
   }
 
@@ -121,4 +124,66 @@ class RoomEntity implements FirebaseModel {
 
   @override
   String get id => this.documentID;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RoomEntity &&
+          runtimeType == other.runtimeType &&
+          documentID == other.documentID &&
+          title == other.title &&
+          description == other.description &&
+          price == other.price &&
+          countView == other.countView &&
+          size == other.size &&
+          address == other.address &&
+          addressGeoPoint == other.addressGeoPoint &&
+          kListStringEquality.equals(images, other.images) &&
+          phone == other.phone &&
+          isActive == other.isActive &&
+          approve == other.approve &&
+          kMapStringObjectEquality.equals(utilities, other.utilities) &&
+          user == other.user &&
+          category == other.category &&
+          province == other.province &&
+          ward == other.ward &&
+          district == other.district &&
+          districtName == other.districtName &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt &&
+          kListStringEquality.equals(userIdsSaved, other.userIdsSaved);
+
+  @override
+  int get hashCode =>
+      documentID.hashCode ^
+      title.hashCode ^
+      description.hashCode ^
+      price.hashCode ^
+      countView.hashCode ^
+      size.hashCode ^
+      address.hashCode ^
+      addressGeoPoint.hashCode ^
+      kListStringEquality.hash(images) ^
+      phone.hashCode ^
+      isActive.hashCode ^
+      approve.hashCode ^
+      kMapStringObjectEquality.hash(utilities) ^
+      user.hashCode ^
+      category.hashCode ^
+      province.hashCode ^
+      ward.hashCode ^
+      district.hashCode ^
+      districtName.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode ^
+      kListStringEquality.hash(userIdsSaved);
+
+  @override
+  String toString() => 'RoomEntity{documentID: $documentID, title: $title, '
+      'description: $description, price: $price, countView: $countView, size: $size,'
+      ' address: $address, addressGeoPoint: $addressGeoPoint, images: $images,'
+      ' phone: $phone, isActive: $isActive, approve: $approve, utilities: $utilities,'
+      ' user: $user, category: $category, province: $province, ward: $ward,'
+      ' district: $district, districtName: $districtName, createdAt: $createdAt,'
+      ' updatedAt: $updatedAt, userIdsSaved: $userIdsSaved}';
 }
