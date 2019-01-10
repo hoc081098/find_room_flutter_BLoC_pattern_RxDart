@@ -1,28 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:collection/collection.dart';
 import 'package:find_room/models/firebase_model.dart';
 import 'package:find_room/utitls/collection_equality_const.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:find_room/utitls/model_json_convert.dart';
 
 part 'room_entity.g.dart';
-
-GeoPoint geoPointFromJson(GeoPoint geoPoint) => geoPoint;
-
-GeoPoint geoPointToJson(GeoPoint geoPoint) => geoPoint;
-
-DocumentReference documentReferenceFromJson(DocumentReference ref) => ref;
-
-DocumentReference documentReferenceToJson(DocumentReference ref) => ref;
-
-Timestamp timestampFromJson(Timestamp timestamp) => timestamp;
-
-Timestamp timestampToJson(Timestamp timestamp) => timestamp;
-
-Map<String, dynamic> withId(DocumentSnapshot doc) => CombinedMapView([
-      doc.data,
-      <String, dynamic>{'documentID': doc.documentID}
-    ]);
 
 @immutable
 @JsonSerializable()
@@ -86,7 +69,10 @@ class RoomEntity implements FirebaseModel {
     toJson: timestampToJson,
   )
   final Timestamp updatedAt;
-  @JsonKey(name: 'user_ids_saved')
+  @JsonKey(
+    name: 'user_ids_saved',
+    defaultValue: <String>[]
+  )
   final List<String> userIdsSaved;
 
   RoomEntity({

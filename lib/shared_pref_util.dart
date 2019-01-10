@@ -24,23 +24,25 @@ class SharedPrefUtil {
       final province = id != null && name != null
           ? Province(id: id, name: name)
           : Province(id: _kDaNangId, name: _kDaNangName);
-      _selectedProvinceController.add(province);
 
-      print('##DEBUG SharedPrefUtil._ added province=$province');
+      _selectedProvinceController.add(province);
+      print('[DEBUG] SharedPrefUtil._() province=$province');
     });
   }
 
-  Future<void> saveSelectedProvince(Province province) async {
+  Future<bool> saveSelectedProvince(Province province) async {
     final preferences = await SharedPreferences.getInstance();
     final list = await Future.wait([
       preferences.setString(_kSelectedProvinceId, province.id),
       preferences.setString(_kSelectedProvinceName, province.name),
     ]);
-    if (list.reduce((acc, e) => acc && e)) {
-      print('##DEBUG saveSelectedProvince province=$province');
+    final result = list.reduce((acc, e) => acc && e);
+    if (result) {
+      print('[DEBUG] saveSelectedProvince(province=$province) [success]');
       _selectedProvinceController.add(province);
     } else {
-      print('##DEBUG saveSelectedProvince error');
+      print('[DEBUG] saveSelectedProvince(province=$province) [error]');
     }
+    return result;
   }
 }

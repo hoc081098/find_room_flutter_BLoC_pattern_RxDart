@@ -1,5 +1,5 @@
 import 'package:find_room/models/firebase_model.dart';
-import 'package:find_room/models/room_entity.dart';
+import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -45,7 +45,8 @@ RoomEntity _$RoomEntityFromJson(Map<String, dynamic> json) {
           ? null
           : timestampFromJson(json['updated_at'] as Timestamp),
       userIdsSaved:
-          (json['user_ids_saved'] as List)?.map((e) => e as String)?.toList(),
+          (json['user_ids_saved'] as List)?.map((e) => e as String)?.toList() ??
+              [],
       documentID: json['documentID'] as String);
 }
 

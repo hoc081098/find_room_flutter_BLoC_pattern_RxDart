@@ -5,135 +5,10 @@ import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/models/banner_entity.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/shared_pref_util.dart';
-import 'package:find_room/utitls/collection_equality_const.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
-
-const _kLimitRoom = 20;
-
-const _kBannerSliderInitial = const BannerSlider(
-  images: <BannerEntity>[],
-  selectedProvinceName: null,
-);
-
-const _kLatestRoomsInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.newest,
-    title: 'Mới nhất',
-  ),
-  <RoomItem>[],
-);
-
-const _kHottestInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.hottest,
-    title: 'Xem nhiều',
-  ),
-  <RoomItem>[],
-);
-
-enum BookmarkIconState { hide, showSaved, showNotSaved }
-
-enum SeeAllQuery { newest, hottest }
-
-@immutable
-class BannerSlider {
-  final List<BannerEntity> images;
-  final String selectedProvinceName;
-
-  const BannerSlider({
-    @required this.images,
-    @required this.selectedProvinceName,
-  });
-
-  @override
-  String toString() =>
-      'BannerSlider{images: $images, selectedProvinceName: $selectedProvinceName}';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is BannerSlider &&
-              runtimeType == other.runtimeType &&
-              kListBannerEntityEquality.equals(images, other.images) &&
-              selectedProvinceName == other.selectedProvinceName;
-
-  @override
-  int get hashCode =>
-      kListBannerEntityEquality.hash(images) ^ selectedProvinceName.hashCode;
-}
-
-@immutable
-class HeaderItem {
-  final String title;
-  final SeeAllQuery seeAllQuery;
-
-  const HeaderItem({@required this.title, @required this.seeAllQuery});
-
-  @override
-  String toString() => 'HeaderItem{title: $title, seeAllQuery: $seeAllQuery}';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is HeaderItem &&
-              runtimeType == other.runtimeType &&
-              title == other.title &&
-              seeAllQuery == other.seeAllQuery;
-
-  @override
-  int get hashCode => title.hashCode ^ seeAllQuery.hashCode;
-}
-
-@immutable
-class RoomItem {
-  final String id;
-  final String title;
-  final int price;
-  final String address;
-  final String districtName;
-  final String image;
-  final BookmarkIconState iconState;
-
-  const RoomItem({
-    @required this.id,
-    @required this.title,
-    @required this.price,
-    @required this.address,
-    @required this.districtName,
-    @required this.iconState,
-    @required this.image,
-  });
-
-  @override
-  String toString() => 'RoomItem{id: $id, title: $title, price: $price, '
-      'address: $address, districtName: $districtName, image: $image, iconState: $iconState}';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is RoomItem &&
-              runtimeType == other.runtimeType &&
-              id == other.id &&
-              title == other.title &&
-              price == other.price &&
-              address == other.address &&
-              districtName == other.districtName &&
-              image == other.image &&
-              iconState == other.iconState;
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      title.hashCode ^
-      price.hashCode ^
-      address.hashCode ^
-      districtName.hashCode ^
-      image.hashCode ^
-      iconState.hashCode;
-}
+import 'home_state.dart';
 
 class HomeBloc implements BaseBloc {
   static final _firestore = Firestore.instance;
@@ -141,26 +16,29 @@ class HomeBloc implements BaseBloc {
 
   final _addOrRemoveSavedController = PublishSubject<String>();
   final _bannerSlidersController =
-  BehaviorSubject<BannerSlider>(seedValue: _kBannerSliderInitial);
+      BehaviorSubject<List<BannerItem>>(seedValue: kBannerSliderInitial);
   final _latestRoomsController =
-  BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
-      seedValue: _kLatestRoomsInitial);
+      BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
+          seedValue: kLatestRoomsInitial);
   final _hottestRoomsController =
-  BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
-      seedValue: _kHottestInitial);
+      BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
+          seedValue: kHottestInitial);
   final _messageAddOrRemoveSavedRoomController = PublishSubject<String>();
+
   List<StreamSubscription<dynamic>> _subscriptions;
+  ValueObservable<List<BannerItem>> _bannersSliders$;
+  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> _latestRooms$;
+  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> _hottestRooms$;
 
   Sink<String> get addOrRemoveSaved => _addOrRemoveSavedController.sink;
 
-  ValueObservable<BannerSlider> get bannerSliders =>
-      _bannerSlidersController.stream;
+  ValueObservable<List<BannerItem>> get bannerSliders => _bannersSliders$;
 
   ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get latestRooms =>
-      _latestRoomsController.stream;
+      _latestRooms$;
 
   ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get hottestRooms =>
-      _hottestRoomsController.stream;
+      _hottestRooms$;
 
   Stream<String> get messageAddOrRemoveSavedRoom =>
       _messageAddOrRemoveSavedRoomController.stream;
@@ -170,43 +48,33 @@ class HomeBloc implements BaseBloc {
     final selectedProvinceDocumentRef$ = selectedProvince$
         .map((province) => province.id)
         .map((provinceId) => _firestore.document('provinces/$provinceId'))
-        .doOnData((docRef) => print('doOnData HomeBloc#docRef=$docRef'));
+        .share();
 
     _subscriptions = <StreamSubscription<dynamic>>[
       selectedProvince$
           .map((province) => province.name)
           .switchMap(_toBannerSliders)
-          .distinct()
-          .doOnData((data) => print('doOnData HomeBloc#Banners=$data'))
-          .listen(
-        _bannerSlidersController.add,
-        onError: _bannerSlidersController.addError,
-      ),
+          .listen(_bannerSlidersController.add),
       selectedProvinceDocumentRef$
           .switchMap(_toLatestRooms)
-          .distinct()
-          .doOnData((data) => print('doOnData HomeBloc#NewestRooms=$data'))
-          .listen(
-        _latestRoomsController.add,
-        onError: _latestRoomsController.addError,
-      ),
+          .listen(_latestRoomsController.add),
       selectedProvinceDocumentRef$
           .switchMap(_toHottestRooms)
-          .distinct()
-          .doOnData((data) => print('doOnData HomeBloc#HottersRooms=$data'))
-          .listen(
-        _hottestRoomsController.add,
-        onError: _hottestRoomsController.addError,
-      ),
+          .listen(_hottestRoomsController.add),
       _addOrRemoveSavedController
           .flatMap(_addOrRemoveSavedRoom)
-          .doOnData(
-              (data) => print('doOnData HomeBloc#MessageAddOrRemoved=$data'))
-          .listen(
-        _messageAddOrRemoveSavedRoomController.add,
-        onError: _messageAddOrRemoveSavedRoomController.addError,
-      ),
+          .listen(_messageAddOrRemoveSavedRoomController.add),
     ];
+
+    _bannersSliders$ = _bannerSlidersController.stream
+        .distinct(bannersListEquals)
+        .shareValue(seedValue: kBannerSliderInitial);
+    _latestRooms$ = _latestRoomsController.stream
+        .distinct(tuple2Equals)
+        .shareValue(seedValue: kLatestRoomsInitial);
+    _hottestRooms$ = _hottestRoomsController.stream
+        .distinct(tuple2Equals)
+        .shareValue(seedValue: kHottestInitial);
   }
 
   static Stream<String> _addOrRemoveSavedRoom(String roomId) {
@@ -234,60 +102,50 @@ class HomeBloc implements BaseBloc {
     };
 
     return Observable.fromFuture(_firestore.runTransaction(transactionHandler))
-        .doOnData((result) =>
-        print('Add or removed saved roomId=$roomId, result=$result'))
+        .doOnData((result) => print(
+            '[DEBUG] Add or removed saved rooms, roomId=$roomId, result=$result'))
         .map((_) => 'Thành công')
         .onErrorReturnWith((e) => 'Lỗi $e');
   }
 
-  static Stream<BannerSlider> _toBannerSliders(String provinceName) {
+  static Stream<List<BannerItem>> _toBannerSliders(String provinceName) {
     return _firestore
         .collection('banners')
         .orderBy('created_at', descending: true)
         .limit(3)
         .snapshots()
-        .map((snapshot) =>
-        snapshot.documents
+        .map((snapshot) => snapshot.documents
             .map((doc) => BannerEntity.fromDocument(doc))
-            .toList())
-        .map((images) =>
-        BannerSlider(images: images, selectedProvinceName: provinceName));
+            .map((entity) => BannerItem(
+                image: entity.image, description: entity.description))
+            .toList());
   }
 
   static Stream<Tuple2<HeaderItem, List<RoomItem>>> _toHottestRooms(
-      DocumentReference selectedProvinceRef,) {
-    print('_toHottestRooms...');
-
+      DocumentReference selectedProvinceRef) {
     final hottestRoomsStream$ = _firestore
         .collection('motelrooms')
         .where('approve', isEqualTo: true)
         .where('province', isEqualTo: selectedProvinceRef)
         .where('is_active', isEqualTo: true)
         .orderBy('count_view', descending: true)
-        .limit(_kLimitRoom)
+        .limit(kLimitRoom)
         .snapshots();
 
-    _firestore
-        .collection('motelrooms')
-        .where('approve', isEqualTo: true)
-        .where('province', isEqualTo: selectedProvinceRef)
-        .where('is_active', isEqualTo: true)
-        .orderBy('count_view', descending: true)
-        .limit(_kLimitRoom)
-        .getDocuments()
-        .then((snapshot) => print('##DEBUG $snapshot'))
-        .catchError((dynamic e, StackTrace s) => print('#DEBUG $e, $s'));
-
-    return Observable.combineLatest2(hottestRoomsStream$,
-        _firebaseAuth.onAuthStateChanged, _querySnapshotToRooms)
-        .map((rooms) => _kHottestInitial.withItem2(rooms))
-        .doOnData((data) => print('_toHottestRooms $data'));
+    return Observable.combineLatest2(
+      hottestRoomsStream$,
+      _firebaseAuth.onAuthStateChanged,
+      _querySnapshotToRooms,
+    ).map((rooms) => kHottestInitial.withItem2(rooms));
   }
 
-  static List<RoomItem> _querySnapshotToRooms(QuerySnapshot snapshot,
-      FirebaseUser user,) {
+  static List<RoomItem> _querySnapshotToRooms(
+    QuerySnapshot snapshot,
+    FirebaseUser user,
+  ) {
     return snapshot.documents.map((doc) {
       final roomEntity = RoomEntity.fromDocument(doc);
+
       BookmarkIconState iconState;
       if (user == null) {
         iconState = BookmarkIconState.hide;
@@ -310,20 +168,21 @@ class HomeBloc implements BaseBloc {
   }
 
   static Stream<Tuple2<HeaderItem, List<RoomItem>>> _toLatestRooms(
-      DocumentReference selectedProvinceRef,) {
+      DocumentReference selectedProvinceRef) {
     final latestRooms$ = _firestore
         .collection('motelrooms')
         .where('approve', isEqualTo: true)
         .where('province', isEqualTo: selectedProvinceRef)
         .where('is_active', isEqualTo: true)
         .orderBy('created_at', descending: true)
-        .limit(_kLimitRoom)
+        .limit(kLimitRoom)
         .snapshots();
 
-    return Observable.combineLatest2(latestRooms$,
-        _firebaseAuth.onAuthStateChanged, _querySnapshotToRooms)
-        .map((rooms) => _kLatestRoomsInitial.withItem2(rooms))
-        .doOnData((data) => print('_toLatestRooms $data'));
+    return Observable.combineLatest2(
+      latestRooms$,
+      _firebaseAuth.onAuthStateChanged,
+      _querySnapshotToRooms,
+    ).map((rooms) => kLatestRoomsInitial.withItem2(rooms));
   }
 
   @override
