@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/models/banner_entity.dart';
 import 'package:find_room/models/room_entity.dart';
@@ -14,7 +15,7 @@ class HomeBloc implements BaseBloc {
   static final _firestore = Firestore.instance;
   static final _firebaseAuth = FirebaseAuth.instance;
 
-  final _addOrRemoveSavedController = PublishSubject<String>();
+  final _addOrRemoveSavedController = PublishSubject<String>(sync: true);
   final _bannerSlidersController =
       BehaviorSubject<List<BannerItem>>(seedValue: kBannerSliderInitial);
   final _latestRoomsController =
@@ -26,19 +27,17 @@ class HomeBloc implements BaseBloc {
   final _messageAddOrRemoveSavedRoomController = PublishSubject<String>();
 
   List<StreamSubscription<dynamic>> _subscriptions;
-  ValueObservable<List<BannerItem>> _bannersSliders$;
-  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> _latestRooms$;
-  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> _hottestRooms$;
 
   Sink<String> get addOrRemoveSaved => _addOrRemoveSavedController.sink;
 
-  ValueObservable<List<BannerItem>> get bannerSliders => _bannersSliders$;
+  ValueObservable<List<BannerItem>> get bannerSliders =>
+      _bannerSlidersController.stream;
 
   ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get latestRooms =>
-      _latestRooms$;
+      _latestRoomsController.stream;
 
   ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get hottestRooms =>
-      _hottestRooms$;
+      _hottestRoomsController.stream;
 
   Stream<String> get messageAddOrRemoveSavedRoom =>
       _messageAddOrRemoveSavedRoomController.stream;
@@ -54,58 +53,84 @@ class HomeBloc implements BaseBloc {
       selectedProvince$
           .map((province) => province.name)
           .switchMap(_toBannerSliders)
+          .distinct(bannersListEquals)
           .listen(_bannerSlidersController.add),
       selectedProvinceDocumentRef$
           .switchMap(_toLatestRooms)
+          .distinct(tuple2Equals)
           .listen(_latestRoomsController.add),
       selectedProvinceDocumentRef$
           .switchMap(_toHottestRooms)
+          .distinct(tuple2Equals)
           .listen(_hottestRoomsController.add),
       _addOrRemoveSavedController
+          .throttle(Duration(milliseconds: 500))
+          .withLatestFrom(
+            _firebaseAuth.onAuthStateChanged,
+            (roomId, FirebaseUser user) => Tuple2(roomId, user),
+          )
           .flatMap(_addOrRemoveSavedRoom)
           .listen(_messageAddOrRemoveSavedRoomController.add),
     ];
-
-    _bannersSliders$ = _bannerSlidersController.stream
-        .distinct(bannersListEquals)
-        .shareValue(seedValue: kBannerSliderInitial);
-    _latestRooms$ = _latestRoomsController.stream
-        .distinct(tuple2Equals)
-        .shareValue(seedValue: kLatestRoomsInitial);
-    _hottestRooms$ = _hottestRoomsController.stream
-        .distinct(tuple2Equals)
-        .shareValue(seedValue: kHottestInitial);
   }
 
-  static Stream<String> _addOrRemoveSavedRoom(String roomId) {
+  Stream<String> _addOrRemoveSavedRoom(Tuple2<String, FirebaseUser> tuple) {
+    final roomId = tuple.item1;
+    final userId = tuple.item2?.uid;
+
+    if (userId == null) {
+      return Observable.just(
+        'Bạn phải đăng nhập mới thực hiện được chức năng này',
+      );
+    }
+
     final TransactionHandler transactionHandler = (transaction) async {
       final roomRef = _firestore.document('motelrooms/$roomId');
-      final data =
-          (await transaction.get(roomRef))?.data ?? <String, dynamic>{};
-      final ids = ((data['user_ids_saved'] ?? []) as List).cast<String>();
+      final documentSnapshot = await transaction.get(roomRef);
+      final roomEntity = RoomEntity.fromDocument(documentSnapshot);
 
-      if (ids.contains(roomId)) {
+      if (roomEntity.userIdsSaved.contains(userId)) {
         await transaction.update(
           roomRef,
           <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayRemove([roomId]),
+            'user_ids_saved': FieldValue.arrayRemove([userId]),
           },
         );
+
+        return <String, dynamic>{
+          'message': 'Xóa khỏi đã lưu thành công',
+          'updated': <String, String>{
+            'id': documentSnapshot.documentID,
+            'iconState': BookmarkIconState.showNotSaved.toString()
+          },
+        };
       } else {
         await transaction.update(
           roomRef,
           <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayUnion([roomId]),
+            'user_ids_saved': FieldValue.arrayUnion([userId]),
           },
         );
+        return <String, dynamic>{
+          'message': 'Thêm vào đã lưu thành công',
+          'updated': <String, String>{
+            'id': documentSnapshot.documentID,
+            'iconState': BookmarkIconState.showSaved.toString()
+          },
+        };
       }
     };
 
-    return Observable.fromFuture(_firestore.runTransaction(transactionHandler))
-        .doOnData((result) => print(
-            '[DEBUG] Add or removed saved rooms, roomId=$roomId, result=$result'))
-        .map((_) => 'Thành công')
-        .onErrorReturnWith((e) => 'Lỗi $e');
+    return Observable.fromFuture(_firestore.runTransaction(transactionHandler,
+            timeout: Duration(seconds: 10)))
+        .doOnData(
+          (result) {
+            final updated = (result['updated'] as Map).cast<String, String>();
+            _updateList(updated);
+          },
+        )
+        .map((result) => result['message'] as String)
+        .onErrorReturnWith((e) => 'Đã có lỗi xảy ra. Hãy thử lại');
   }
 
   static Stream<List<BannerItem>> _toBannerSliders(String provinceName) {
@@ -193,5 +218,28 @@ class HomeBloc implements BaseBloc {
     _latestRoomsController.close();
     _bannerSlidersController.close();
     _hottestRoomsController.close();
+  }
+
+  void _updateList(Map<String, String> result) {
+    final id = result['id'];
+    final iconState = result['iconState'];
+
+    _latestRoomsController.add(
+      kLatestRoomsInitial.withItem2(
+        _latestRoomsController.value.item2
+            .map((room) => room.id == id ? room.withIconState(iconState) : room)
+            .toList(),
+      ),
+    );
+
+    _hottestRoomsController.add(
+      kHottestInitial.withItem2(
+        _hottestRoomsController.value.item2
+            .map((room) => room.id == id ? room.withIconState(iconState) : room)
+            .toList(),
+      ),
+    );
+
+    print('Updated $result');
   }
 }

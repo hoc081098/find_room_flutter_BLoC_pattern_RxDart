@@ -29,12 +29,14 @@ const _kListBannerItemEquality = ListEquality<BannerItem>();
 bool tuple2Equals(
   Tuple2<HeaderItem, List<RoomItem>> previous,
   Tuple2<HeaderItem, List<RoomItem>> next,
-) => previous.item1 == next.item1 &&
-      _kListRoomItemEquality.equals(previous.item2, next.item2);
+) =>
+    previous.item1 == next.item1 &&
+    _kListRoomItemEquality.equals(previous.item2, next.item2);
 
-bool bannersListEquals(List<BannerItem> previous, List<BannerItem> next) => _kListBannerItemEquality.equals(previous, next);
+bool bannersListEquals(List<BannerItem> previous, List<BannerItem> next) =>
+    _kListBannerItemEquality.equals(previous, next);
 
-enum BookmarkIconState { hide, showSaved, showNotSaved }
+enum BookmarkIconState { hide, showSaved, showNotSaved, loading }
 
 enum SeeAllQuery { newest, hottest }
 
@@ -106,8 +108,21 @@ class RoomItem {
       districtName.hashCode ^
       image.hashCode ^
       iconState.hashCode;
+
+  RoomItem withIconState(String iconState) {
+    return RoomItem(
+      iconState: BookmarkIconState.values.firstWhere((v) => v.toString() == iconState),
+      address: address,
+      price: price,
+      id: id,
+      districtName: districtName,
+      image: image,
+      title: title,
+    );
+  }
 }
 
+@immutable
 class BannerItem {
   final String image;
   final String description;

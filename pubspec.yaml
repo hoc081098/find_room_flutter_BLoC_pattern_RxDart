@@ -44,12 +44,15 @@ flutter:
     - family: SF-Pro-Display
       fonts:
         - asset: assets/fonts/SF-Pro-Display-Regular.ttf
+        - asset: assets/fonts/SF-Pro-Display-Medium.ttf
+          weight: 500
         - asset: assets/fonts/SF-Pro-Display-Bold.ttf
           weight: 700
     - family: SF-Pro-Text
       fonts:
         - asset: assets/fonts/SF-Pro-Text-Regular.ttf
-        - asset: assets/fonts/SF-Pro-Text-Bold.ttf
-          weight: 700
         - asset: assets/fonts/SF-Pro-Text-Semibold.ttf
           weight: 600
+        - asset: assets/fonts/SF-Pro-Text-Bold.ttf
+          weight: 700
+

@@ -35,10 +35,16 @@ class _MyHomePageState extends State<MyHomePage> {
         final list = snapshot.data.item2;
         final Widget sliver = list.isEmpty
             ? SliverToBoxAdapter(
-                child: Text(
-                  'Chưa có nhà trọ nào...',
-                  style: Theme.of(context).textTheme.body1,
-                  textAlign: TextAlign.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(
+                    'Chưa có nhà trọ nào...',
+                    style: Theme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               )
             : SliverGrid(
@@ -186,6 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
     BuildContext context,
     void Function(String roomId) addOrRemoveSaved,
   ) {
+    final themeData = Theme.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
@@ -228,18 +235,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(4.0),
                 color: Colors.black26,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Text(
                       item.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.subhead.copyWith(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontFamily: 'SF-Pro-Text',
-                            fontWeight: FontWeight.w600,
-                          ),
+                      style: themeData.textTheme.subhead.copyWith(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'SF-Pro-Text',
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     SizedBox(height: 2.0),
                     Text(
@@ -247,12 +255,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       maxLines: 1,
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.subtitle.copyWith(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontFamily: 'SF-Pro-Text',
-                            fontWeight: FontWeight.w400,
-                          ),
+                      style: themeData.textTheme.subtitle.copyWith(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'SF-Pro-Display',
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     SizedBox(height: 2.0),
                     Text(
@@ -260,12 +268,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       textAlign: TextAlign.left,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.subtitle.copyWith(
-                            color: Colors.grey[50],
-                            fontSize: 12,
-                            fontFamily: 'SF-Pro-Text',
-                            fontWeight: FontWeight.w400,
-                          ),
+                      style: themeData.textTheme.subtitle.copyWith(
+                        color: Colors.grey[50],
+                        fontSize: 12,
+                        fontFamily: 'SF-Pro-Text',
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     SizedBox(height: 2.0),
                     Text(
@@ -273,12 +281,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       textAlign: TextAlign.left,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.subtitle.copyWith(
-                            color: Colors.grey[50],
-                            fontSize: 12,
-                            fontFamily: 'SF-Pro-Text',
-                            fontWeight: FontWeight.w400,
-                          ),
+                      style: themeData.textTheme.subtitle.copyWith(
+                        color: Colors.grey[50],
+                        fontSize: 12,
+                        fontFamily: 'SF-Pro-Text',
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ],
                 ),
@@ -287,25 +295,46 @@ class _MyHomePageState extends State<MyHomePage> {
             Positioned(
               right: 4.0,
               top: 4.0,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: item.iconState == BookmarkIconState.hide
-                    ? Container()
-                    : IconButton(
-                        icon: item.iconState == BookmarkIconState.showNotSaved
-                            ? Icon(Icons.bookmark_border)
-                            : Icon(Icons.bookmark),
-                        onPressed: () => addOrRemoveSaved(item.id),
-                        tooltip:
-                            item.iconState == BookmarkIconState.showNotSaved
-                                ? 'Thêm vào đã lưu'
-                                : 'Xóa khỏi đã lưu',
-                      ),
+              child: _buildBookmarkIcon(
+                item,
+                addOrRemoveSaved,
+                context,
               ),
             )
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBookmarkIcon(
+    RoomItem item,
+    void addOrRemoveSaved(String roomId),
+    BuildContext context,
+  ) {
+    final accentColor = Theme.of(context).accentColor;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: item.iconState == BookmarkIconState.hide
+          ? Container(
+              width: 0,
+              height: 0,
+            )
+          : IconButton(
+              icon: item.iconState == BookmarkIconState.showNotSaved
+                  ? Icon(
+                      Icons.bookmark_border,
+                      color: accentColor,
+                    )
+                  : Icon(
+                      Icons.bookmark,
+                      color: accentColor,
+                    ),
+              onPressed: () => addOrRemoveSaved(item.id),
+              tooltip: item.iconState == BookmarkIconState.showNotSaved
+                  ? 'Thêm vào đã lưu'
+                  : 'Xóa khỏi đã lưu',
+            ),
     );
   }
 
@@ -318,6 +347,7 @@ class _MyHomePageState extends State<MyHomePage> {
         AsyncSnapshot<List<BannerItem>> snapshot,
       ) {
         final items = snapshot.data;
+        final themeData = Theme.of(context);
 
         return SliverToBoxAdapter(
           child: Container(
@@ -326,14 +356,44 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 250,
               child: Swiper(
                 itemBuilder: (BuildContext context, int index) {
+                  if (items.isEmpty) {
+                    return Container(
+                      constraints: BoxConstraints.expand(),
+                      color: Colors.white,
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            CircularProgressIndicator(
+                              strokeWidth: 3.0,
+                            ),
+                            Text(
+                              'Loading...',
+                              style: themeData.textTheme.subtitle,
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                   return Image.network(
                     items[index].image,
                     fit: BoxFit.cover,
                   );
                 },
-                itemCount: items.length,
-                pagination: SwiperPagination(),
-                control: SwiperControl(),
+                itemCount: items.isEmpty ? 1 : items.length,
+                pagination: SwiperPagination(
+                  builder: DotSwiperPaginationBuilder(
+                    size: 8.0,
+                    activeSize: 12.0,
+                    activeColor: themeData.accentColor,
+                  ),
+                ),
+                control: SwiperControl(
+                    color: themeData.accentColor,
+                    padding: const EdgeInsets.all(8)),
                 autoplay: true,
                 autoplayDelay: 2500,
                 duration: 1000,
@@ -374,10 +434,16 @@ class _MyHomePageState extends State<MyHomePage> {
         final list = snapshot.data.item2;
         final Widget silver = list.isEmpty
             ? SliverToBoxAdapter(
-                child: Text(
-                  'Chưa có nhà trọ nào...',
-                  style: Theme.of(context).textTheme.body1,
-                  textAlign: TextAlign.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(
+                    'Chưa có nhà trọ nào...',
+                    style: Theme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               )
             : SliverList(
@@ -406,6 +472,8 @@ class _MyHomePageState extends State<MyHomePage> {
     BuildContext context,
     void Function(String) addOrRemoveSaved,
   ) {
+    final themeData = Theme.of(context);
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -424,75 +492,71 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         },
-        child: ListTile(
-          leading: CircleAvatar(
-            radius: 40,
-            backgroundImage: NetworkImage(item.image),
-          ),
-          title: Text(
-            item.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.subtitle.copyWith(
-                  fontSize: 14,
-                  fontFamily: 'SF-Pro-Text',
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          subtitle: Column(
-            children: <Widget>[
-              Text(
-                priceFormat.format(item.price),
-                textAlign: TextAlign.left,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.subtitle.copyWith(
-                      color: Theme.of(context).accentColor,
-                      fontSize: 12.0,
-                      fontFamily: 'SF-Pro-Text',
-                      fontWeight: FontWeight.w400,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: CircleAvatar(
+              radius: 40,
+              backgroundImage: CachedNetworkImageProvider(item.image),
+              backgroundColor: Colors.transparent,
+            ),
+            title: Text(
+              item.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: themeData.textTheme.subtitle.copyWith(
+                fontSize: 14,
+                fontFamily: 'SF-Pro-Text',
+                fontWeight: FontWeight.w600,
               ),
-              Text(
-                item.address,
-                textAlign: TextAlign.left,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.subtitle.copyWith(
-                      color: Colors.black87,
-                      fontSize: 12,
-                      fontFamily: 'SF-Pro-Text',
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-              Text(
-                item.districtName,
-                maxLines: 1,
-                textAlign: TextAlign.left,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.subtitle.copyWith(
-                      color: Colors.black87,
-                      fontSize: 12,
-                      fontFamily: 'SF-Pro-Text',
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-            ],
-          ),
-          isThreeLine: true,
-          trailing: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: item.iconState == BookmarkIconState.hide
-                ? Container()
-                : IconButton(
-                    icon: item.iconState == BookmarkIconState.showNotSaved
-                        ? Icon(Icons.bookmark_border)
-                        : Icon(Icons.bookmark),
-                    onPressed: () => addOrRemoveSaved(item.id),
-                    tooltip: item.iconState == BookmarkIconState.showNotSaved
-                        ? 'Thêm vào đã lưu'
-                        : 'Xóa khỏi đã lưu',
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  priceFormat.format(item.price),
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: themeData.accentColor,
+                    fontSize: 12.0,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
                   ),
+                ),
+                Text(
+                  item.address,
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: Colors.black87,
+                    fontSize: 12,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  item.districtName,
+                  maxLines: 1,
+                  textAlign: TextAlign.left,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: Colors.black87,
+                    fontSize: 12,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+            isThreeLine: true,
+            trailing: _buildBookmarkIcon(
+              item,
+              addOrRemoveSaved,
+              context,
+            ),
           ),
         ),
       ),

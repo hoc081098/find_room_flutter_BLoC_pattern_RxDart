@@ -10,6 +10,8 @@ class SharedPrefUtil {
   static const _kDaNangId = 'NtHjwobYdIi0YwTUHz05';
   static const _kDaNangName = 'TP. Đà Nẵng';
 
+  static const DaNang = Province(id: _kDaNangId, name: _kDaNangName);
+
   static final SharedPrefUtil instance = SharedPrefUtil._();
 
   final _selectedProvinceController = BehaviorSubject<Province>();
@@ -21,10 +23,8 @@ class SharedPrefUtil {
     SharedPreferences.getInstance().then((preferences) {
       final id = preferences.getString(_kSelectedProvinceId);
       final name = preferences.getString(_kSelectedProvinceName);
-      final province = id != null && name != null
-          ? Province(id: id, name: name)
-          : Province(id: _kDaNangId, name: _kDaNangName);
-
+      final province =
+          id != null && name != null ? Province(id: id, name: name) : DaNang;
       _selectedProvinceController.add(province);
       print('[DEBUG] SharedPrefUtil._() province=$province');
     });
