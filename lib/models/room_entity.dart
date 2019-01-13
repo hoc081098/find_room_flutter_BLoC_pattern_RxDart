@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/firebase_model.dart';
 import 'package:find_room/utitls/collection_equality_const.dart';
+import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:find_room/utitls/model_json_convert.dart';
 
 part 'room_entity.g.dart';
 
@@ -69,13 +69,10 @@ class RoomEntity implements FirebaseModel {
     toJson: timestampToJson,
   )
   final Timestamp updatedAt;
-  @JsonKey(
-    name: 'user_ids_saved',
-    defaultValue: <String>[]
-  )
+  @JsonKey(name: 'user_ids_saved', defaultValue: <String>[])
   final List<String> userIdsSaved;
 
-  RoomEntity({
+  const RoomEntity({
     this.title,
     this.description,
     this.price,
@@ -100,7 +97,7 @@ class RoomEntity implements FirebaseModel {
     this.documentID,
   });
 
-  factory RoomEntity.fromDocument(DocumentSnapshot doc) {
+  factory RoomEntity.fromDocumentSnapshot(DocumentSnapshot doc) {
     doc.data['utilities'] =
         (doc.data['utilities'] as Map).cast<String, dynamic>();
     return _$RoomEntityFromJson(withId(doc));

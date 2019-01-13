@@ -5,7 +5,7 @@ abstract class UserLoginState {
   const UserLoginState();
 }
 
-class UserLogin extends UserLoginState {
+class UserLogin implements UserLoginState {
   final String id;
   final String email;
   final String fullName;
@@ -37,25 +37,6 @@ class UserLogin extends UserLoginState {
       'User{id: $id, email: $email, fullName: $fullName, avatar: $avatar}';
 }
 
-class NotLogin extends UserLoginState {
+class NotLogin implements UserLoginState {
   const NotLogin();
-}
-
-class ErrorState extends UserLoginState{
-  final Object error;
-
-  const ErrorState(this.error);
-
-  @override
-  String toString() => 'Error{error: $error}';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is ErrorState &&
-              runtimeType == other.runtimeType &&
-              error == other.error;
-
-  @override
-  int get hashCode => error.hashCode;
 }

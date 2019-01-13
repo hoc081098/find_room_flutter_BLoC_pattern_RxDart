@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/firebase_model.dart';
+import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_room/utitls/model_json_convert.dart';
 
 part 'user_entity.g.dart';
 
@@ -31,7 +31,7 @@ class UserEntity implements FirebaseModel {
   )
   final Timestamp updatedAt;
 
-  UserEntity({
+  const UserEntity({
     this.documentID,
     this.email,
     this.phone,
@@ -46,8 +46,8 @@ class UserEntity implements FirebaseModel {
   @override
   String get id => this.documentID;
 
-
-  factory UserEntity.fromDocument(DocumentSnapshot doc) => _$UserEntityFromJson(withId(doc));
+  factory UserEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
+      _$UserEntityFromJson(withId(doc));
 
   Map<String, dynamic> toJson() => _$UserEntityToJson(this);
 
@@ -59,17 +59,17 @@ class UserEntity implements FirebaseModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is UserEntity &&
-              runtimeType == other.runtimeType &&
-              documentID == other.documentID &&
-              email == other.email &&
-              phone == other.phone &&
-              fullName == other.fullName &&
-              address == other.address &&
-              avatar == other.avatar &&
-              isActive == other.isActive &&
-              createdAt == other.createdAt &&
-              updatedAt == other.updatedAt;
+      other is UserEntity &&
+          runtimeType == other.runtimeType &&
+          documentID == other.documentID &&
+          email == other.email &&
+          phone == other.phone &&
+          fullName == other.fullName &&
+          address == other.address &&
+          avatar == other.avatar &&
+          isActive == other.isActive &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt;
 
   @override
   int get hashCode =>

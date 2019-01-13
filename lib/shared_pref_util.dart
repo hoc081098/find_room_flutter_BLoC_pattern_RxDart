@@ -16,7 +16,7 @@ class SharedPrefUtil {
 
   final _selectedProvinceController = BehaviorSubject<Province>();
 
-  ValueObservable<Province> get selectedProvince =>
+  ValueObservable<Province> get selectedProvince$ =>
       _selectedProvinceController.stream;
 
   SharedPrefUtil._() {

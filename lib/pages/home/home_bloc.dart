@@ -1,183 +1,235 @@
-import 'dart:async';
+﻿import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:collection/collection.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/models/banner_entity.dart';
+import 'package:find_room/data/banners/firestore_banner_repository.dart';
+import 'package:find_room/data/rooms/firestore_room_repository.dart';
+import 'package:find_room/models/province.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/shared_pref_util.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:find_room/user_bloc/user_bloc.dart';
+import 'package:find_room/user_bloc/user_login_state.dart';
+import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
+
 import 'home_state.dart';
 
 class HomeBloc implements BaseBloc {
-  static final _firestore = Firestore.instance;
-  static final _firebaseAuth = FirebaseAuth.instance;
+  ///
+  /// Sinks
+  ///
+  final Sink<String> addOrRemoveSaved;
 
-  final _addOrRemoveSavedController = PublishSubject<String>(sync: true);
-  final _bannerSlidersController =
-      BehaviorSubject<List<BannerItem>>(seedValue: kBannerSliderInitial);
-  final _latestRoomsController =
-      BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
-          seedValue: kLatestRoomsInitial);
-  final _hottestRoomsController =
-      BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>(
-          seedValue: kHottestInitial);
-  final _messageAddOrRemoveSavedRoomController = PublishSubject<String>();
+  ///
+  /// Streams
+  ///
+  final ValueObservable<List<BannerItem>> banner$;
+  final ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$;
+  final ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$;
+  final ValueObservable<Province> selectedProvince$;
+  final Stream<String> messageAddOrRemoveSavedRoom$;
 
-  List<StreamSubscription<dynamic>> _subscriptions;
+  ///
+  /// Clean up
+  ///
+  final List<StreamSubscription<dynamic>> _subscriptions;
+  final Function() _closeSink;
 
-  Sink<String> get addOrRemoveSaved => _addOrRemoveSavedController.sink;
+  HomeBloc._({
+    @required this.newestRooms$,
+    @required this.mostViewedRooms$,
+    @required this.addOrRemoveSaved,
+    @required this.banner$,
+    @required this.messageAddOrRemoveSavedRoom$,
+    @required this.selectedProvince$,
+    @required List<StreamSubscription<dynamic>> subscriptions,
+    @required Function() closeSink,
+  })  : this._subscriptions = subscriptions,
+        this._closeSink = closeSink;
 
-  ValueObservable<List<BannerItem>> get bannerSliders =>
-      _bannerSlidersController.stream;
+  factory HomeBloc({
+    @required FirestoreRoomRepository roomRepository,
+    @required UserBloc userBloc,
+    @required FirestoreBannerRepository bannerRepository,
+    @required SharedPrefUtil sharedPrefUtil,
+  }) {
+    final addOrRemoveSavedController = PublishSubject<String>(sync: true);
+    final newestRoomsController =
+        BehaviorSubject(seedValue: kNewestRoomsInitial);
+    final mostViewedRoomsController =
+        BehaviorSubject(seedValue: kMostViewedRoomsInitial);
 
-  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get latestRooms =>
-      _latestRoomsController.stream;
+    final ValueConnectableObservable<List<BannerItem>> banner$ =
+        Observable.fromFuture(bannerRepository.banners())
+            .map(
+              (bannerEntities) => bannerEntities
+                  .map(
+                    (bannerEntity) => BannerItem(
+                          image: null,
+                          description: null,
+                        ),
+                  )
+                  .toList(),
+            )
+            .publishValue(seedValue: kBannerSliderInitial);
 
-  ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> get hottestRooms =>
-      _hottestRoomsController.stream;
+    final Observable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$ =
+        _getMostViewedRooms(sharedPrefUtil, roomRepository, userBloc);
 
-  Stream<String> get messageAddOrRemoveSavedRoom =>
-      _messageAddOrRemoveSavedRoomController.stream;
+    final Observable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$ =
+        _getNewestRooms(sharedPrefUtil, roomRepository, userBloc);
 
-  HomeBloc() {
-    final selectedProvince$ = SharedPrefUtil.instance.selectedProvince;
-    final selectedProvinceDocumentRef$ = selectedProvince$
-        .map((province) => province.id)
-        .map((provinceId) => _firestore.document('provinces/$provinceId'))
-        .share();
+    final ConnectableObservable<String> messageAddOrRemoveSavedRoom$ =
+        _getMessageAddOrRemoveSavedRoom(
+      addOrRemoveSavedController,
+      userBloc,
+      roomRepository,
+      [newestRoomsController, mostViewedRoomsController],
+    );
 
-    _subscriptions = <StreamSubscription<dynamic>>[
-      selectedProvince$
-          .map((province) => province.name)
-          .switchMap(_toBannerSliders)
-          .distinct(bannersListEquals)
-          .listen(_bannerSlidersController.add),
-      selectedProvinceDocumentRef$
-          .switchMap(_toLatestRooms)
-          .distinct(tuple2Equals)
-          .listen(_latestRoomsController.add),
-      selectedProvinceDocumentRef$
-          .switchMap(_toHottestRooms)
-          .distinct(tuple2Equals)
-          .listen(_hottestRoomsController.add),
-      _addOrRemoveSavedController
-          .throttle(Duration(milliseconds: 500))
-          .withLatestFrom(
-            _firebaseAuth.onAuthStateChanged,
-            (roomId, FirebaseUser user) => Tuple2(roomId, user),
-          )
-          .flatMap(_addOrRemoveSavedRoom)
-          .listen(_messageAddOrRemoveSavedRoomController.add),
+    final subscriptions = <StreamSubscription>[
+      mostViewedRooms$.listen(mostViewedRoomsController.add),
+      newestRooms$.listen(newestRoomsController.add),
+      messageAddOrRemoveSavedRoom$.connect(),
+      banner$.connect(),
     ];
+
+    return HomeBloc._(
+      selectedProvince$: sharedPrefUtil.selectedProvince$,
+      newestRooms$: newestRoomsController.stream,
+      mostViewedRooms$: mostViewedRoomsController.stream,
+      addOrRemoveSaved: addOrRemoveSavedController.sink,
+      banner$: banner$,
+      messageAddOrRemoveSavedRoom$: messageAddOrRemoveSavedRoom$,
+      subscriptions: subscriptions,
+      closeSink: () {
+        addOrRemoveSavedController.close();
+        newestRoomsController.close();
+        mostViewedRoomsController.close();
+      },
+    );
   }
 
-  Stream<String> _addOrRemoveSavedRoom(Tuple2<String, FirebaseUser> tuple) {
-    final roomId = tuple.item1;
-    final userId = tuple.item2?.uid;
+  static ConnectableObservable<String> _getMessageAddOrRemoveSavedRoom(
+    PublishSubject<String> addOrRemoveSavedController,
+    UserBloc userBloc,
+    FirestoreRoomRepository roomRepository,
+    List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
+  ) {
+    return addOrRemoveSavedController.stream
+        .throttle(Duration(milliseconds: 500))
+        .withLatestFrom(
+          userBloc.user$,
+          (roomId, UserLoginState userLoginState) =>
+              Tuple2(roomId, userLoginState),
+        )
+        .flatMap(
+          (tuple2) => _addOrRemoveSavedRoom(
+                tuple2,
+                roomRepository,
+                subjects,
+              ),
+        )
+        .publish();
+  }
 
+  static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getNewestRooms(
+    SharedPrefUtil sharedPrefUtil,
+    FirestoreRoomRepository roomRepository,
+    UserBloc userBloc,
+  ) {
+    return sharedPrefUtil.selectedProvince$
+        .switchMap(
+          (province) => Observable.combineLatest2(
+                roomRepository.newestRooms(
+                  selectedProvince: province,
+                  limit: kLimitRoom,
+                ),
+                userBloc.user$,
+                HomeBloc._toRoomItems,
+              ).map((rooms) => kMostViewedRoomsInitial.withItem2(rooms)),
+        )
+        .distinct(tuple2Equals);
+  }
+
+  static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getMostViewedRooms(
+    SharedPrefUtil sharedPrefUtil,
+    FirestoreRoomRepository roomRepository,
+    UserBloc userBloc,
+  ) {
+    return sharedPrefUtil.selectedProvince$
+        .switchMap(
+          (province) => Observable.combineLatest2(
+                roomRepository.mostViewedRooms(
+                  selectedProvince: province,
+                  limit: kLimitRoom,
+                ),
+                userBloc.user$,
+                HomeBloc._toRoomItems,
+              ).map((rooms) => kMostViewedRoomsInitial.withItem2(rooms)),
+        )
+        .distinct(tuple2Equals);
+  }
+
+  static Stream<String> _addOrRemoveSavedRoom(
+    Tuple2<String, UserLoginState> tuple,
+    FirestoreRoomRepository roomRepository,
+    List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
+  ) {
+    final roomId = tuple.item1;
+    final loginState = tuple.item2;
+
+    final userId = loginState is UserLogin ? loginState.id : null;
     if (userId == null) {
       return Observable.just(
-        'Bạn phải đăng nhập mới thực hiện được chức năng này',
-      );
+          'Bạn phải đăng nhập mới thực hiện được chức năng này');
     }
-
-    final TransactionHandler transactionHandler = (transaction) async {
-      final roomRef = _firestore.document('motelrooms/$roomId');
-      final documentSnapshot = await transaction.get(roomRef);
-      final roomEntity = RoomEntity.fromDocument(documentSnapshot);
-
-      if (roomEntity.userIdsSaved.contains(userId)) {
-        await transaction.update(
-          roomRef,
-          <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayRemove([userId]),
-          },
-        );
-
-        return <String, dynamic>{
-          'message': 'Xóa khỏi đã lưu thành công',
-          'updated': <String, String>{
-            'id': documentSnapshot.documentID,
-            'iconState': BookmarkIconState.showNotSaved.toString()
-          },
-        };
-      } else {
-        await transaction.update(
-          roomRef,
-          <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayUnion([userId]),
-          },
-        );
-        return <String, dynamic>{
-          'message': 'Thêm vào đã lưu thành công',
-          'updated': <String, String>{
-            'id': documentSnapshot.documentID,
-            'iconState': BookmarkIconState.showSaved.toString()
-          },
-        };
-      }
-    };
-
-    return Observable.fromFuture(_firestore.runTransaction(transactionHandler,
-            timeout: Duration(seconds: 10)))
+    return Observable.fromFuture(
+            roomRepository.addOrRemoveSavedRoom(roomId: roomId, userId: userId))
         .doOnData(
-          (result) {
-            final updated = (result['updated'] as Map).cast<String, String>();
-            _updateList(updated);
-          },
+          (result) =>
+              _updateListRoomsAfterAddedOrRemovedSavedRoom(result, subjects),
         )
-        .map((result) => result['message'] as String)
+        .map((result) => result['message'])
         .onErrorReturnWith((e) => 'Đã có lỗi xảy ra. Hãy thử lại');
   }
 
-  static Stream<List<BannerItem>> _toBannerSliders(String provinceName) {
-    return _firestore
-        .collection('banners')
-        .orderBy('created_at', descending: true)
-        .limit(3)
-        .snapshots()
-        .map((snapshot) => snapshot.documents
-            .map((doc) => BannerEntity.fromDocument(doc))
-            .map((entity) => BannerItem(
-                image: entity.image, description: entity.description))
-            .toList());
+  static void _updateListRoomsAfterAddedOrRemovedSavedRoom(
+      Map<String, String> result,
+      List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects) {
+    final String id = result['id'];
+    final String status = result['status'];
+    final BookmarkIconState iconState = status == 'added'
+        ? BookmarkIconState.showSaved
+        : status == 'removed'
+            ? BookmarkIconState.showNotSaved
+            : BookmarkIconState.hide;
+
+    subjects.forEach((subject) {
+      final value = subject.value;
+      final newValue = value.withItem2(
+        value.item2
+            .map((room) => room.id == id ? room.withIconState(iconState) : room)
+            .toList(),
+      );
+      subject.add(newValue);
+    });
   }
 
-  static Stream<Tuple2<HeaderItem, List<RoomItem>>> _toHottestRooms(
-      DocumentReference selectedProvinceRef) {
-    final hottestRoomsStream$ = _firestore
-        .collection('motelrooms')
-        .where('approve', isEqualTo: true)
-        .where('province', isEqualTo: selectedProvinceRef)
-        .where('is_active', isEqualTo: true)
-        .orderBy('count_view', descending: true)
-        .limit(kLimitRoom)
-        .snapshots();
-
-    return Observable.combineLatest2(
-      hottestRoomsStream$,
-      _firebaseAuth.onAuthStateChanged,
-      _querySnapshotToRooms,
-    ).map((rooms) => kHottestInitial.withItem2(rooms));
-  }
-
-  static List<RoomItem> _querySnapshotToRooms(
-    QuerySnapshot snapshot,
-    FirebaseUser user,
+  static List<RoomItem> _toRoomItems(
+    List<RoomEntity> roomEntities,
+    UserLoginState loginState,
   ) {
-    return snapshot.documents.map((doc) {
-      final roomEntity = RoomEntity.fromDocument(doc);
-
+    return roomEntities.map((roomEntity) {
       BookmarkIconState iconState;
-      if (user == null) {
+      if (loginState is NotLogin) {
         iconState = BookmarkIconState.hide;
-      } else if (roomEntity.userIdsSaved.contains(user.uid)) {
-        iconState = BookmarkIconState.showSaved;
-      } else {
-        iconState = BookmarkIconState.showNotSaved;
+      } else if (loginState is UserLogin) {
+        if (roomEntity.userIdsSaved.contains(loginState.id)) {
+          iconState = BookmarkIconState.showSaved;
+        } else {
+          iconState = BookmarkIconState.showNotSaved;
+        }
       }
 
       return RoomItem(
@@ -192,54 +244,11 @@ class HomeBloc implements BaseBloc {
     }).toList();
   }
 
-  static Stream<Tuple2<HeaderItem, List<RoomItem>>> _toLatestRooms(
-      DocumentReference selectedProvinceRef) {
-    final latestRooms$ = _firestore
-        .collection('motelrooms')
-        .where('approve', isEqualTo: true)
-        .where('province', isEqualTo: selectedProvinceRef)
-        .where('is_active', isEqualTo: true)
-        .orderBy('created_at', descending: true)
-        .limit(kLimitRoom)
-        .snapshots();
-
-    return Observable.combineLatest2(
-      latestRooms$,
-      _firebaseAuth.onAuthStateChanged,
-      _querySnapshotToRooms,
-    ).map((rooms) => kLatestRoomsInitial.withItem2(rooms));
-  }
-
   @override
   void dispose() {
+    if (_closeSink != null) {
+      _closeSink();
+    }
     _subscriptions.forEach((subscription) => subscription.cancel());
-    _messageAddOrRemoveSavedRoomController.close();
-    _addOrRemoveSavedController.close();
-    _latestRoomsController.close();
-    _bannerSlidersController.close();
-    _hottestRoomsController.close();
-  }
-
-  void _updateList(Map<String, String> result) {
-    final id = result['id'];
-    final iconState = result['iconState'];
-
-    _latestRoomsController.add(
-      kLatestRoomsInitial.withItem2(
-        _latestRoomsController.value.item2
-            .map((room) => room.id == id ? room.withIconState(iconState) : room)
-            .toList(),
-      ),
-    );
-
-    _hottestRoomsController.add(
-      kHottestInitial.withItem2(
-        _hottestRoomsController.value.item2
-            .map((room) => room.id == id ? room.withIconState(iconState) : room)
-            .toList(),
-      ),
-    );
-
-    print('Updated $result');
   }
 }

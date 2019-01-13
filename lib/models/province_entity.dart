@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/firebase_model.dart';
 import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'province_entity.g.dart';
 
@@ -12,12 +12,13 @@ class ProvinceEntity implements FirebaseModel {
   final String name;
   final String documentID;
 
-  ProvinceEntity({
+  const ProvinceEntity({
     this.name,
     this.documentID,
   });
 
-  factory ProvinceEntity.fromDocument(DocumentSnapshot doc) => _$ProvinceEntityFromJson(withId(doc));
+  factory ProvinceEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
+      _$ProvinceEntityFromJson(withId(doc));
 
   Map<String, dynamic> toJson() => _$ProvinceEntityToJson(this);
 
@@ -27,15 +28,13 @@ class ProvinceEntity implements FirebaseModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ProvinceEntity &&
-              runtimeType == other.runtimeType &&
-              name == other.name &&
-              documentID == other.documentID;
+      other is ProvinceEntity &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          documentID == other.documentID;
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      documentID.hashCode;
+  int get hashCode => name.hashCode ^ documentID.hashCode;
 
   @override
   String toString() => 'ProvinceEntity{name: $name, documentID: $documentID}';

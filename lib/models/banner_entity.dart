@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/firebase_model.dart';
 import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'banner_entity.g.dart';
 
@@ -13,13 +13,14 @@ class BannerEntity implements FirebaseModel {
   final String description;
   final String documentID;
 
-  BannerEntity({
+  const BannerEntity({
     this.image,
     this.description,
     this.documentID,
   });
 
-  factory BannerEntity.fromDocument(DocumentSnapshot doc) => _$BannerEntityFromJson(withId(doc));
+  factory BannerEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
+      _$BannerEntityFromJson(withId(doc));
 
   Map<String, dynamic> toJson() => _$BannerEntityToJson(this);
 
@@ -27,20 +28,19 @@ class BannerEntity implements FirebaseModel {
   String get id => documentID;
 
   @override
-  String toString() => 'BannerEntity{image: $image, description: $description, documentID: $documentID}';
+  String toString() =>
+      'BannerEntity{image: $image, description: $description, documentID: $documentID}';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is BannerEntity &&
-              runtimeType == other.runtimeType &&
-              image == other.image &&
-              description == other.description &&
-              documentID == other.documentID;
+      other is BannerEntity &&
+          runtimeType == other.runtimeType &&
+          image == other.image &&
+          description == other.description &&
+          documentID == other.documentID;
 
   @override
   int get hashCode =>
-      image.hashCode ^
-      description.hashCode ^
-      documentID.hashCode;
+      image.hashCode ^ description.hashCode ^ documentID.hashCode;
 }

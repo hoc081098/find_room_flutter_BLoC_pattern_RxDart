@@ -1,15 +1,17 @@
-import 'dart:async';
+﻿import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/models/province.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_state.dart';
+import 'package:find_room/pages/home/see_all_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 final priceFormat = NumberFormat.currency();
 
@@ -80,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (_streamSubscription == null) {
       _streamSubscription = BlocProvider.of<HomeBloc>(context)
-          .messageAddOrRemoveSavedRoom
+          .messageAddOrRemoveSavedRoom$
           .listen(_showMessage);
     }
   }
@@ -117,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: <Color>[
-                          Colors.black87,
+                          Colors.black38,
                           Colors.transparent,
                         ],
                         begin: AlignmentDirectional.bottomCenter,
@@ -131,15 +133,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        _buildHeaderItem(homeBloc.latestRooms, context),
+        _buildSelectedProvince(homeBloc.selectedProvince$),
+        _buildHeaderItem(homeBloc.newestRooms$, context),
         _buildNewestRoomsList(
-          homeBloc.latestRooms,
+          homeBloc.newestRooms$,
           homeBloc.addOrRemoveSaved.add,
         ),
-        _buildBannerItem(homeBloc.bannerSliders),
-        _buildHeaderItem(homeBloc.hottestRooms, context),
-        _buildHottestRoomsList(
-          homeBloc.hottestRooms,
+        _buildBannerItem(homeBloc.banner$),
+        _buildHeaderItem(homeBloc.mostViewedRooms$, context),
+        _buildMostViewedRoomsList(
+          homeBloc.mostViewedRooms$,
           homeBloc.addOrRemoveSaved.add,
         ),
       ],
@@ -155,6 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
       initialData: rooms$.value,
       builder: (BuildContext context,
           AsyncSnapshot<Tuple2<HeaderItem, List<RoomItem>>> snapshot) {
+        final HeaderItem headerItem = snapshot.data.item1;
+
         return SliverToBoxAdapter(
           child: Container(
             color: Theme.of(context).accentColor,
@@ -163,19 +168,30 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  snapshot.data.item1.title,
+                  headerItem.title,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                MaterialButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Xem tất cả",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: MaterialButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              SeeAllPage(headerItem.seeAllQuery),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Xem tất cả",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
@@ -420,7 +436,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildHottestRoomsList(
+  Widget _buildMostViewedRoomsList(
     ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> rooms$,
     void Function(String) addOrRemoveSaved,
   ) {
@@ -449,7 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
             : SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    return _buildHottestRoomItem(
+                    return _buildMostViewedRoomItem(
                       list[index],
                       context,
                       addOrRemoveSaved,
@@ -467,7 +483,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildHottestRoomItem(
+  Widget _buildMostViewedRoomItem(
     RoomItem item,
     BuildContext context,
     void Function(String) addOrRemoveSaved,
@@ -493,7 +509,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: ListTile(
             leading: CircleAvatar(
               radius: 40,
@@ -517,7 +533,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   priceFormat.format(item.price),
                   textAlign: TextAlign.left,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.fade,
                   style: themeData.textTheme.subtitle.copyWith(
                     color: themeData.accentColor,
                     fontSize: 12.0,
@@ -560,6 +576,49 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSelectedProvince(
+      ValueObservable<Province> selectedProvince$) {
+    return StreamBuilder<Province>(
+      initialData: selectedProvince$.value,
+      stream: selectedProvince$,
+      builder: (BuildContext context, AsyncSnapshot<Province> snapshot) {
+        return SliverToBoxAdapter(
+          child: Container(
+            constraints: BoxConstraints.expand(
+              height: 200,
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              elevation: 4,
+              shadowColor: Theme.of(context).accentColor,
+              child: Center(
+                child: DropdownButtonFormField(
+                  items: <DropdownMenuItem<dynamic>>[
+                    DropdownMenuItem(
+                      child: Text('Hà Nội'),
+                      value: 1,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('TP. Đà Nẵng'),
+                      value: 2,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('TP. Hồ Chí Minh'),
+                      value: 3,
+                    ),
+                  ],
+                  hint: Text('Thay đổi tỉnh, thành phố'),
+                  onChanged: (value) {},
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

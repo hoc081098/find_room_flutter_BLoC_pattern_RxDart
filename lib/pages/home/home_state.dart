@@ -1,12 +1,12 @@
+import 'package:collection/collection.dart' show ListEquality;
 import 'package:meta/meta.dart';
 import 'package:tuple/tuple.dart';
-import 'package:collection/collection.dart' show ListEquality;
 
 const kLimitRoom = 20;
 
 const kBannerSliderInitial = <BannerItem>[];
 
-const kLatestRoomsInitial = Tuple2(
+const kNewestRoomsInitial = Tuple2(
   HeaderItem(
     seeAllQuery: SeeAllQuery.newest,
     title: 'Mới nhất',
@@ -14,31 +14,24 @@ const kLatestRoomsInitial = Tuple2(
   <RoomItem>[],
 );
 
-const kHottestInitial = Tuple2(
+const kMostViewedRoomsInitial = Tuple2(
   HeaderItem(
-    seeAllQuery: SeeAllQuery.hottest,
+    seeAllQuery: SeeAllQuery.mostViewed,
     title: 'Xem nhiều',
   ),
   <RoomItem>[],
 );
-
-const _kListRoomItemEquality = ListEquality<RoomItem>();
-
-const _kListBannerItemEquality = ListEquality<BannerItem>();
 
 bool tuple2Equals(
   Tuple2<HeaderItem, List<RoomItem>> previous,
   Tuple2<HeaderItem, List<RoomItem>> next,
 ) =>
     previous.item1 == next.item1 &&
-    _kListRoomItemEquality.equals(previous.item2, next.item2);
+    const ListEquality<RoomItem>().equals(previous.item2, next.item2);
 
-bool bannersListEquals(List<BannerItem> previous, List<BannerItem> next) =>
-    _kListBannerItemEquality.equals(previous, next);
+enum BookmarkIconState { hide, showSaved, showNotSaved }
 
-enum BookmarkIconState { hide, showSaved, showNotSaved, loading }
-
-enum SeeAllQuery { newest, hottest }
+enum SeeAllQuery { newest, mostViewed }
 
 @immutable
 class HeaderItem {
@@ -109,9 +102,9 @@ class RoomItem {
       image.hashCode ^
       iconState.hashCode;
 
-  RoomItem withIconState(String iconState) {
+  RoomItem withIconState(BookmarkIconState iconState) {
     return RoomItem(
-      iconState: BookmarkIconState.values.firstWhere((v) => v.toString() == iconState),
+      iconState: iconState,
       address: address,
       price: price,
       id: id,
