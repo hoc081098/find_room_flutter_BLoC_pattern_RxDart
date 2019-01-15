@@ -12,11 +12,12 @@ class FirestoreBannerRepositoryImpl implements FirestoreBannerRepository {
     Query query = _firestore
         .collection('banners')
         .orderBy('created_at', descending: true);
-    query = limit != null ? query : query.limit(limit);
+    query = limit != null ? query.limit(limit) : query;
+
     final querySnapshot = await query.getDocuments();
     return querySnapshot.documents
         .map((documentSnapshot) =>
-            BannerEntity.fromDocumentSnapshot(documentSnapshot))
+        BannerEntity.fromDocumentSnapshot(documentSnapshot))
         .toList();
   }
 }

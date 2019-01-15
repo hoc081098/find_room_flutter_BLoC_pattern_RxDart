@@ -1,33 +1,4 @@
-import 'package:collection/collection.dart' show ListEquality;
 import 'package:meta/meta.dart';
-import 'package:tuple/tuple.dart';
-
-const kLimitRoom = 20;
-
-const kBannerSliderInitial = <BannerItem>[];
-
-const kNewestRoomsInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.newest,
-    title: 'Mới nhất',
-  ),
-  <RoomItem>[],
-);
-
-const kMostViewedRoomsInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.mostViewed,
-    title: 'Xem nhiều',
-  ),
-  <RoomItem>[],
-);
-
-bool tuple2Equals(
-  Tuple2<HeaderItem, List<RoomItem>> previous,
-  Tuple2<HeaderItem, List<RoomItem>> next,
-) =>
-    previous.item1 == next.item1 &&
-    const ListEquality<RoomItem>().equals(previous.item2, next.item2);
 
 enum BookmarkIconState { hide, showSaved, showNotSaved }
 

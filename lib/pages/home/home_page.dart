@@ -95,6 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
       slivers: <Widget>[
         SliverAppBar(
           pinned: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: 'Cài đặt',
+              onPressed: () {
+                print('Setting pressed');
+              },
+            ),
+          ],
           expandedHeight: 200,
           flexibleSpace: FlexibleSpaceBar(
             title: Text(
@@ -133,7 +142,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        _buildSelectedProvince(homeBloc.selectedProvince$),
+        _buildSelectedProvince(homeBloc.selectedProvinceAndAllProvinces$,
+            homeBloc.changeProvince.add),
         _buildHeaderItem(homeBloc.newestRooms$, context),
         _buildNewestRoomsList(
           homeBloc.newestRooms$,
@@ -580,40 +590,45 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildSelectedProvince(
-      ValueObservable<Province> selectedProvince$) {
-    return StreamBuilder<Province>(
-      initialData: selectedProvince$.value,
-      stream: selectedProvince$,
-      builder: (BuildContext context, AsyncSnapshot<Province> snapshot) {
+    ValueObservable<Tuple2<Province, List<Province>>>
+        selectedProvinceAndAllProvinces$,
+    void Function(Province) changeSelectedProvince,
+  ) {
+    return StreamBuilder<Tuple2<Province, List<Province>>>(
+      initialData: selectedProvinceAndAllProvinces$.value,
+      stream: selectedProvinceAndAllProvinces$,
+      builder: (BuildContext context,
+          AsyncSnapshot<Tuple2<Province, List<Province>>> snapshot) {
+        Tuple2<Province, List<Province>> data = snapshot.data;
         return SliverToBoxAdapter(
-          child: Container(
-            constraints: BoxConstraints.expand(
-              height: 200,
-            ),
-            child: Material(
-              borderRadius: BorderRadius.circular(12),
-              clipBehavior: Clip.antiAlias,
-              elevation: 4,
-              shadowColor: Theme.of(context).accentColor,
-              child: Center(
-                child: DropdownButtonFormField(
-                  items: <DropdownMenuItem<dynamic>>[
-                    DropdownMenuItem(
-                      child: Text('Hà Nội'),
-                      value: 1,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('TP. Đà Nẵng'),
-                      value: 2,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('TP. Hồ Chí Minh'),
-                      value: 3,
-                    ),
-                  ],
-                  hint: Text('Thay đổi tỉnh, thành phố'),
-                  onChanged: (value) {},
-                ),
+          child: Material(
+            elevation: 2,
+            shadowColor: Theme.of(context).accentColor,
+            borderRadius: BorderRadius.circular(4),
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              constraints: BoxConstraints.expand(
+                height: 200,
+              ),
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.location_on,
+                    size: 28,
+                    color: Colors.white,
+                  ),
+                  DropdownButton<Province>(
+                    value: data.item1,
+                    items: data.item2.map((province) {
+                      return DropdownMenuItem<Province>(
+                        child: Text(province.name),
+                        value: province,
+                      );
+                    }).toList(),
+                    onChanged: changeSelectedProvince,
+                  ),
+                ],
               ),
             ),
           ),

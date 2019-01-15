@@ -4,23 +4,23 @@ import 'package:find_room/utitls/model_json_convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
-part 'province_entity.g.dart';
+part 'district_entity.g.dart';
 
 @JsonSerializable()
 @immutable
-class ProvinceEntity implements FirebaseModel {
+class DistrictEntity implements FirebaseModel {
   final String name;
   final String documentID;
 
-  const ProvinceEntity({
+  const DistrictEntity({
     this.name,
     this.documentID,
   });
 
-  factory ProvinceEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
-      _$ProvinceEntityFromJson(withId(doc));
+  factory DistrictEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
+      _$DistrictEntityFromJson(withId(doc));
 
-  Map<String, dynamic> toJson() => _$ProvinceEntityToJson(this);
+  Map<String, dynamic> toJson() => _$DistrictEntityToJson(this);
 
   @override
   String get id => documentID;
@@ -28,7 +28,7 @@ class ProvinceEntity implements FirebaseModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ProvinceEntity &&
+      other is DistrictEntity &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           documentID == other.documentID;
@@ -37,5 +37,5 @@ class ProvinceEntity implements FirebaseModel {
   int get hashCode => name.hashCode ^ documentID.hashCode;
 
   @override
-  String toString() => 'ProvinceEntity{name: $name, documentID: $documentID}';
+  String toString() => 'DistrictEntity{name: $name, documentID: $documentID}';
 }
