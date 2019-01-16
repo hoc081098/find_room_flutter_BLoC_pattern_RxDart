@@ -9,13 +9,12 @@ import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/pages/home/see_all_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
-final priceFormat = NumberFormat.currency();
-
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key key}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -39,8 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ? _buildEmptyListSliver(context)
             : SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  mainAxisSpacing: 1,
-                  crossAxisSpacing: 1,
+                  mainAxisSpacing: 0,
+                  crossAxisSpacing: 0,
                   childAspectRatio: 1 / 1.618,
                   crossAxisCount: 2,
                 ),
@@ -235,7 +234,18 @@ class _MyHomePageState extends State<MyHomePage> {
             right: 0.0,
             child: Container(
               padding: const EdgeInsets.all(4.0),
-              color: Colors.black26,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: <Color>[
+                    Colors.black38,
+                    Colors.black26,
+                    Colors.black12,
+                    Colors.transparent,
+                  ],
+                  begin: AlignmentDirectional.bottomCenter,
+                  end: AlignmentDirectional.topCenter,
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
@@ -253,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   SizedBox(height: 2.0),
                   Text(
-                    priceFormat.format(item.price),
+                    item.price,
                     maxLines: 1,
                     textAlign: TextAlign.left,
                     overflow: TextOverflow.ellipsis,
@@ -294,21 +304,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          Positioned(
-            right: 4.0,
-            top: 4.0,
-            child: _buildBookmarkIcon(
-              item,
-              addOrRemoveSaved,
-              context,
-            ),
-          ),
           Positioned.fill(
             child: Material(
               clipBehavior: Clip.antiAlias,
               color: Colors.transparent,
               child: InkWell(
-                splashColor: themeData.accentColor,
+                splashColor: themeData.accentColor.withOpacity(0.5),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -318,7 +319,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
-          )
+          ),
+          Positioned(
+            right: 4.0,
+            top: 4.0,
+            child: _buildBookmarkIcon(
+              item,
+              addOrRemoveSaved,
+              context,
+            ),
+          ),
         ],
       ),
     );
@@ -380,7 +390,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             CircularProgressIndicator(
                               strokeWidth: 3.0,
@@ -589,7 +599,7 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Text(
-                  priceFormat.format(item.price),
+                  item.price,
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.fade,
@@ -652,44 +662,109 @@ class _MyHomePageState extends State<MyHomePage> {
       ) {
         print(snapshot);
         final Tuple2<Province, List<Province>> data = snapshot.data;
-        final subtitle = Theme.of(context).textTheme.subtitle;
+        var themeData = Theme.of(context);
+        final subtitle = themeData.textTheme.subtitle.copyWith(fontSize: 16);
 
         return SliverToBoxAdapter(
           child: Container(
-            constraints: BoxConstraints.expand(height: 120),
-            child: Center(
-              child: Material(
-                elevation: 2.0,
-                borderRadius: BorderRadius.circular(32),
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            child: Material(
+              type: MaterialType.card,
+              elevation: 3.0,
+              borderRadius: BorderRadius.circular(24),
+              child: Center(
                 child: Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Icon(
-                        Icons.location_on,
-                        size: 28,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      data.item1 == null || data.item2.isEmpty
-                          ? Text(
-                              'Loading...',
-                              style: subtitle,
-                            )
-                          : DropdownButton<Province>(
-                              value: data.item1,
-                              items: data.item2.map((province) {
-                                return DropdownMenuItem<Province>(
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.location_on,
+                              size: 30,
+                              color: themeData.primaryColor,
+                            ),
+                          ),
+                          PopupMenuButton<Province>(
+                            initialValue: data.item1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text(
+                                    data.item1?.name ?? '',
+                                    style: subtitle,
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: themeData.accentColor,
+                                    size: 28,
+                                  )
+                                ],
+                              ),
+                            ),
+                            tooltip: 'Thay đổi khu vực',
+                            onSelected: changeSelectedProvince,
+                            itemBuilder: (BuildContext context) {
+                              return data.item2.map((province) {
+                                return PopupMenuItem<Province>(
                                   child: Text(
                                     province.name,
                                     style: subtitle,
                                   ),
                                   value: province,
                                 );
-                              }).toList(),
-                              onChanged: changeSelectedProvince,
+                              }).toList();
+                            },
+                          ),
+                        ],
+                      ),
+                      TextField(
+                        onChanged: (value) {
+                          //TODO: search text changed
+                        },
+                        style: subtitle,
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 14,
                             ),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                end: 4,
+                                top: 4,
+                                bottom: 4,
+                              ),
+                              child: Material(
+                                elevation: 2,
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                child: InkWell(
+                                  onTap: () {
+                                    //TODO: navigate to search
+                                  },
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: themeData.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                            )),
+                      )
                     ],
                   ),
                 ),

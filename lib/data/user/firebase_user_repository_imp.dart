@@ -24,4 +24,15 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     return Observable(_firestore.document('users/$uid').snapshots())
         .map((snapshot) => UserEntity.fromDocumentSnapshot(snapshot));
   }
+
+  @override
+  Future<void> signOut() => _firebaseAuth.signOut();
+
+  @override
+  Future<void> signInWithEmailAndPassword({String email, String password}) {
+    return _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
 }

@@ -30,6 +30,7 @@ dependencies:
   tuple: ^1.0.2
   collection: ^1.14.11
   cached_network_image: ^0.5.1
+  wave: ^0.0.8
 
 dev_dependencies:
   flutter_test:

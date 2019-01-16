@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class SavedPage extends StatefulWidget {
@@ -9,13 +7,8 @@ class SavedPage extends StatefulWidget {
 class _SavedPageState extends State<SavedPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Nhà trọ đã lưu'),
-      ),
-      body: Center(
-        child: Text('Saved page...'),
-      ),
+    return Center(
+      child: Text('Saved page...'),
     );
   }
 }

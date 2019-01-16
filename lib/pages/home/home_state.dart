@@ -30,7 +30,7 @@ class HeaderItem {
 class RoomItem {
   final String id;
   final String title;
-  final int price;
+  final String price;
   final String address;
   final String districtName;
   final String image;

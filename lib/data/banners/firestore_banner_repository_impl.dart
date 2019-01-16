@@ -17,7 +17,7 @@ class FirestoreBannerRepositoryImpl implements FirestoreBannerRepository {
     final querySnapshot = await query.getDocuments();
     return querySnapshot.documents
         .map((documentSnapshot) =>
-        BannerEntity.fromDocumentSnapshot(documentSnapshot))
+            BannerEntity.fromDocumentSnapshot(documentSnapshot))
         .toList();
   }
 }

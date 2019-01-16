@@ -13,6 +13,7 @@ import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/shared_pref_util.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
@@ -83,6 +84,7 @@ class HomeBloc implements BaseBloc {
     @required FirestoreBannerRepository bannerRepository,
     @required ProvinceDistrictWardRepository provinceDistrictWardRepository,
     @required SharedPrefUtil sharedPrefUtil,
+    @required NumberFormat priceFormat,
   }) {
     ///Assert
     assert(userBloc != null, 'userBloc cannot be null');
@@ -91,6 +93,7 @@ class HomeBloc implements BaseBloc {
     assert(provinceDistrictWardRepository != null,
         'provinceDistrictWardRepository cannot be null');
     assert(sharedPrefUtil != null, 'sharedPrefUtil cannot be null');
+    assert(priceFormat != null, 'priceFormat cannot be null');
 
     ///Controller
     final addOrRemoveSavedController = PublishSubject<String>(sync: true);
@@ -105,10 +108,20 @@ class HomeBloc implements BaseBloc {
         _getBanners(bannerRepository);
 
     final Observable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$ =
-        _getMostViewedRooms(sharedPrefUtil, roomRepository, userBloc);
+        _getMostViewedRooms(
+      sharedPrefUtil,
+      roomRepository,
+      userBloc,
+      priceFormat,
+    );
 
     final Observable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$ =
-        _getNewestRooms(sharedPrefUtil, roomRepository, userBloc);
+        _getNewestRooms(
+      sharedPrefUtil,
+      roomRepository,
+      userBloc,
+      priceFormat,
+    );
 
     final ValueConnectableObservable<Tuple2<Province, List<Province>>>
         selectedProvinceAndAllProvinces$ = _getSelectedProvinceAndAllProvinces(
@@ -255,6 +268,7 @@ class HomeBloc implements BaseBloc {
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
+    NumberFormat priceFormat,
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
@@ -263,7 +277,12 @@ class HomeBloc implements BaseBloc {
                 limit: _kLimitRoom,
               ),
               userBloc.user$,
-              HomeBloc._toRoomItems)
+              (List<RoomEntity> entities, UserLoginState loginState) =>
+                  HomeBloc._toRoomItems(
+                    entities,
+                    loginState,
+                    priceFormat,
+                  ))
           .map((rooms) => _kNewestRoomsInitial.withItem2(rooms))
           .startWith(_kNewestRoomsInitial.withItem2([]));
     }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
@@ -273,6 +292,7 @@ class HomeBloc implements BaseBloc {
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
+    NumberFormat priceFormat,
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
@@ -281,7 +301,12 @@ class HomeBloc implements BaseBloc {
                 limit: _kLimitRoom,
               ),
               userBloc.user$,
-              HomeBloc._toRoomItems)
+              (List<RoomEntity> entities, UserLoginState loginState) =>
+                  HomeBloc._toRoomItems(
+                    entities,
+                    loginState,
+                    priceFormat,
+                  ))
           .map((rooms) => _kMostViewedRoomsInitial.withItem2(rooms))
           .startWith(_kMostViewedRoomsInitial.withItem2([]));
     }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
@@ -346,6 +371,7 @@ class HomeBloc implements BaseBloc {
   static List<RoomItem> _toRoomItems(
     List<RoomEntity> roomEntities,
     UserLoginState loginState,
+    NumberFormat priceFormat,
   ) {
     return roomEntities.map((roomEntity) {
       BookmarkIconState iconState;
@@ -364,7 +390,7 @@ class HomeBloc implements BaseBloc {
         districtName: roomEntity.districtName,
         iconState: iconState,
         id: roomEntity.id,
-        price: roomEntity.price,
+        price: priceFormat.format(roomEntity.price),
         title: roomEntity.title,
         image: roomEntity.images.isEmpty ? null : roomEntity.images.first,
       );
