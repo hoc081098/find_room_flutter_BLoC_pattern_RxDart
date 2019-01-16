@@ -6,13 +6,13 @@ abstract class UserLoginState {
 }
 
 class UserLogin implements UserLoginState {
-  final String id;
+  final String uid;
   final String email;
   final String fullName;
   final String avatar;
 
   const UserLogin({
-    @required this.id,
+    @required this.uid,
     @required this.email,
     @required this.fullName,
     @required this.avatar,
@@ -23,18 +23,18 @@ class UserLogin implements UserLoginState {
       identical(this, other) ||
       other is UserLogin &&
           runtimeType == other.runtimeType &&
-          id == other.id &&
+          uid == other.uid &&
           email == other.email &&
           fullName == other.fullName &&
           avatar == other.avatar;
 
   @override
   int get hashCode =>
-      id.hashCode ^ email.hashCode ^ fullName.hashCode ^ avatar.hashCode;
+      uid.hashCode ^ email.hashCode ^ fullName.hashCode ^ avatar.hashCode;
 
   @override
   String toString() =>
-      'User{id: $id, email: $email, fullName: $fullName, avatar: $avatar}';
+      'User{uid: $uid, email: $email, fullName: $fullName, avatar: $avatar}';
 }
 
 class NotLogin implements UserLoginState {

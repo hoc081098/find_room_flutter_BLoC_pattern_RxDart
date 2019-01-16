@@ -59,7 +59,7 @@ class HomeBloc implements BaseBloc {
   final ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$;
   final ValueObservable<Tuple2<Province, List<Province>>>
       selectedProvinceAndAllProvinces$;
-  final Stream<String> messageAddOrRemoveSavedRoom$;
+  final Stream<String> message$;
 
   ///
   /// Clean up
@@ -71,7 +71,7 @@ class HomeBloc implements BaseBloc {
     @required this.mostViewedRooms$,
     @required this.addOrRemoveSaved,
     @required this.banner$,
-    @required this.messageAddOrRemoveSavedRoom$,
+    @required this.message$,
     @required this.selectedProvinceAndAllProvinces$,
     @required this.changeProvince,
     @required Function() dispose,
@@ -84,6 +84,15 @@ class HomeBloc implements BaseBloc {
     @required ProvinceDistrictWardRepository provinceDistrictWardRepository,
     @required SharedPrefUtil sharedPrefUtil,
   }) {
+    ///Assert
+    assert(userBloc != null, 'userBloc cannot be null');
+    assert(roomRepository != null, 'roomRepository cannot be null');
+    assert(bannerRepository != null, 'bannerRepository cannot be null');
+    assert(provinceDistrictWardRepository != null,
+        'provinceDistrictWardRepository cannot be null');
+    assert(sharedPrefUtil != null, 'sharedPrefUtil cannot be null');
+
+    ///Controller
     final addOrRemoveSavedController = PublishSubject<String>(sync: true);
     final changeProvinceController = PublishSubject<Province>(sync: true);
     final newestRoomsController =
@@ -91,6 +100,7 @@ class HomeBloc implements BaseBloc {
     final mostViewedRoomsController =
         BehaviorSubject(seedValue: _kMostViewedRoomsInitial);
 
+    ///Streams
     final ValueConnectableObservable<List<BannerItem>> banner$ =
         _getBanners(bannerRepository);
 
@@ -100,45 +110,44 @@ class HomeBloc implements BaseBloc {
     final Observable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$ =
         _getNewestRooms(sharedPrefUtil, roomRepository, userBloc);
 
-    final ConnectableObservable<String> messageAddOrRemoveSavedRoom$ =
-        _getMessageAddOrRemoveSavedRoom(
-      addOrRemoveSavedController,
-      userBloc,
-      roomRepository,
-      [newestRoomsController, mostViewedRoomsController],
-    );
-
     final ValueConnectableObservable<Tuple2<Province, List<Province>>>
         selectedProvinceAndAllProvinces$ = _getSelectedProvinceAndAllProvinces(
       sharedPrefUtil,
       provinceDistrictWardRepository,
     );
 
-    final Observable<bool> changeProvince$ =
-        changeProvinceController.stream.switchMap(
-      (province) {
-        return Observable.fromFuture(
-          sharedPrefUtil.saveSelectedProvince(province),
-        );
-      },
-    );
+    final ConnectableObservable<String> message$ = Observable.merge(
+      <Stream<String>>[
+        _getMessageAddOrRemoveSavedRoom(
+          addOrRemoveSavedController,
+          userBloc,
+          roomRepository,
+          [newestRoomsController, mostViewedRoomsController],
+        ),
+        _getMessageChangeProvince(changeProvinceController, sharedPrefUtil),
+      ],
+    ).publish();
 
-    final subscriptions = <StreamSubscription>[
+    ///Subscriptions
+    final subscriptions = <StreamSubscription<dynamic>>[
+      /// Listen
       mostViewedRooms$.listen(mostViewedRoomsController.add),
       newestRooms$.listen(newestRoomsController.add),
-      messageAddOrRemoveSavedRoom$.connect(),
+
+      /// Connect
       banner$.connect(),
       selectedProvinceAndAllProvinces$.connect(),
-      (changeProvince$.listen((result) => print('Change province $result'))),
+      message$.connect(),
     ];
 
+    ///Return
     return HomeBloc._(
       selectedProvinceAndAllProvinces$: selectedProvinceAndAllProvinces$,
       newestRooms$: newestRoomsController.stream,
       mostViewedRooms$: mostViewedRoomsController.stream,
       addOrRemoveSaved: addOrRemoveSavedController.sink,
       banner$: banner$,
-      messageAddOrRemoveSavedRoom$: messageAddOrRemoveSavedRoom$,
+      message$: message$,
       dispose: () {
         addOrRemoveSavedController.close();
         newestRoomsController.close();
@@ -150,13 +159,34 @@ class HomeBloc implements BaseBloc {
     );
   }
 
+  static Observable<String> _getMessageChangeProvince(
+    PublishSubject<Province> changeProvinceController,
+    SharedPrefUtil sharedPrefUtil,
+  ) {
+    return changeProvinceController.stream.distinct().switchMap(
+      (province) {
+        return Observable.fromFuture(
+                sharedPrefUtil.saveSelectedProvince(province))
+            .map((result) => Tuple2(result, province));
+      },
+    ).map((tuple) {
+      final result = tuple.item1;
+      final province = tuple.item2;
+      if (result) {
+        return 'Chuyển sang ${province.name} thành công';
+      }
+      return 'Lỗi xảy ra khi chuyển sang ${province.name}!!';
+    });
+  }
+
   static ValueConnectableObservable<Tuple2<Province, List<Province>>>
       _getSelectedProvinceAndAllProvinces(
     SharedPrefUtil sharedPrefUtil,
     ProvinceDistrictWardRepository provinceDistrictWardRepository,
   ) {
+    var seedValue = sharedPrefUtil.selectedProvince$.value;
+
     return sharedPrefUtil.selectedProvince$
-        .distinct()
         .switchMap((province) {
           final convert = (List<ProvinceEntity> provinceEntities) {
             return provinceEntities.map((entity) {
@@ -170,13 +200,14 @@ class HomeBloc implements BaseBloc {
           return Observable.fromFuture(
                   provinceDistrictWardRepository.getAllProvinces())
               .map(convert)
-              .map((provinces) => Tuple2(province, provinces));
+              .map((provinces) => Tuple2(province, provinces))
+              .startWith(Tuple2(province, [province]));
         })
         .distinct((prev, next) => _tuple2Equals<Province>(prev, next))
         .publishValue(
           seedValue: Tuple2(
-            sharedPrefUtil.selectedProvince$.value,
-            [],
+            seedValue,
+            [seedValue],
           ),
         );
   }
@@ -187,8 +218,8 @@ class HomeBloc implements BaseBloc {
       return bannerEntities.map(
         (bannerEntity) {
           return BannerItem(
-            image: null,
-            description: null,
+            image: bannerEntity.image,
+            description: bannerEntity.description,
           );
         },
       ).toList();
@@ -198,7 +229,7 @@ class HomeBloc implements BaseBloc {
         .publishValue(seedValue: _kBannerSliderInitial);
   }
 
-  static ConnectableObservable<String> _getMessageAddOrRemoveSavedRoom(
+  static Observable<String> _getMessageAddOrRemoveSavedRoom(
     PublishSubject<String> addOrRemoveSavedController,
     UserBloc userBloc,
     FirestoreRoomRepository roomRepository,
@@ -217,8 +248,7 @@ class HomeBloc implements BaseBloc {
                 roomRepository,
                 subjects,
               ),
-        )
-        .publish();
+        );
   }
 
   static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getNewestRooms(
@@ -226,18 +256,17 @@ class HomeBloc implements BaseBloc {
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
   ) {
-    return sharedPrefUtil.selectedProvince$
-        .switchMap(
-          (province) => Observable.combineLatest2(
-                roomRepository.newestRooms(
-                  selectedProvince: province,
-                  limit: _kLimitRoom,
-                ),
-                userBloc.user$,
-                HomeBloc._toRoomItems,
-              ).map((rooms) => _kMostViewedRoomsInitial.withItem2(rooms)),
-        )
-        .distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
+    return sharedPrefUtil.selectedProvince$.switchMap((province) {
+      return Observable.combineLatest2(
+              roomRepository.newestRooms(
+                selectedProvince: province,
+                limit: _kLimitRoom,
+              ),
+              userBloc.user$,
+              HomeBloc._toRoomItems)
+          .map((rooms) => _kNewestRoomsInitial.withItem2(rooms))
+          .startWith(_kNewestRoomsInitial.withItem2([]));
+    }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
   }
 
   static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getMostViewedRooms(
@@ -245,18 +274,17 @@ class HomeBloc implements BaseBloc {
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
   ) {
-    return sharedPrefUtil.selectedProvince$
-        .switchMap(
-          (province) => Observable.combineLatest2(
-                roomRepository.mostViewedRooms(
-                  selectedProvince: province,
-                  limit: _kLimitRoom,
-                ),
-                userBloc.user$,
-                HomeBloc._toRoomItems,
-              ).map((rooms) => _kMostViewedRoomsInitial.withItem2(rooms)),
-        )
-        .distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
+    return sharedPrefUtil.selectedProvince$.switchMap((province) {
+      return Observable.combineLatest2(
+              roomRepository.mostViewedRooms(
+                selectedProvince: province,
+                limit: _kLimitRoom,
+              ),
+              userBloc.user$,
+              HomeBloc._toRoomItems)
+          .map((rooms) => _kMostViewedRoomsInitial.withItem2(rooms))
+          .startWith(_kMostViewedRoomsInitial.withItem2([]));
+    }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
   }
 
   static Stream<String> _addOrRemoveSavedRoom(
@@ -267,29 +295,37 @@ class HomeBloc implements BaseBloc {
     final roomId = tuple.item1;
     final loginState = tuple.item2;
 
-    final userId = loginState is UserLogin ? loginState.id : null;
+    final userId = loginState is UserLogin ? loginState.uid : null;
     if (userId == null) {
       return Observable.just(
         'Bạn phải đăng nhập mới thực hiện được chức năng này',
       );
     }
+
+    final getMessageFromResult = (Map<String, String> result) {
+      if (result['status'] == 'added') {
+        return 'Thêm vào danh sách đã lưu thành công';
+      }
+      if (result['status'] == 'removed') {
+        return 'Xóa khỏi danh sách đã lưu thành công';
+      }
+    };
     return Observable.fromFuture(
             roomRepository.addOrRemoveSavedRoom(roomId: roomId, userId: userId))
         .doOnData((result) =>
             _updateListRoomsAfterAddedOrRemovedSavedRoom(result, subjects))
-        .map((result) => result['message'])
-        .onErrorReturnWith((e) {
-      print(e);
-      return 'Đã có lỗi xảy ra. Hãy thử lại';
-    });
+        .map(getMessageFromResult)
+        .onErrorReturnWith((e) => 'Đã có lỗi xảy ra. Hãy thử lại');
   }
 
   static void _updateListRoomsAfterAddedOrRemovedSavedRoom(
     Map<String, String> result,
     List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
   ) {
+    print(result);
     final String id = result['id'];
     final String status = result['status'];
+
     final BookmarkIconState iconState = status == 'added'
         ? BookmarkIconState.showSaved
         : status == 'removed'
@@ -316,7 +352,7 @@ class HomeBloc implements BaseBloc {
       if (loginState is NotLogin) {
         iconState = BookmarkIconState.hide;
       } else if (loginState is UserLogin) {
-        if (roomEntity.userIdsSaved.contains(loginState.id)) {
+        if (roomEntity.userIdsSaved.contains(loginState.uid)) {
           iconState = BookmarkIconState.showSaved;
         } else {
           iconState = BookmarkIconState.showNotSaved;

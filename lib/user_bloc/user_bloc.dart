@@ -26,13 +26,14 @@ class UserBloc implements BaseBloc {
   }
 
   static UserLoginState _toLoginState(UserEntity userEntity) {
-    return userEntity == null
-        ? const NotLogin()
-        : UserLogin(
-            avatar: userEntity.avatar,
-            fullName: userEntity.fullName,
-            email: userEntity.email,
-            id: userEntity.id,
-          );
+    if (userEntity == null) {
+      return const NotLogin();
+    }
+    return UserLogin(
+      avatar: userEntity.avatar,
+      fullName: userEntity.fullName,
+      email: userEntity.email,
+      uid: userEntity.id,
+    );
   }
 }

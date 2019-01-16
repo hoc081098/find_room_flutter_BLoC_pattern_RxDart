@@ -36,19 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ) {
         final list = snapshot.data.item2;
         final Widget sliver = list.isEmpty
-            ? SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Text(
-                    'Chưa có nhà trọ nào...',
-                    style: Theme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+            ? _buildEmptyListSliver(context)
             : SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   mainAxisSpacing: 1,
@@ -80,11 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (_streamSubscription == null) {
-      _streamSubscription = BlocProvider.of<HomeBloc>(context)
-          .messageAddOrRemoveSavedRoom$
-          .listen(_showMessage);
-    }
+    _streamSubscription?.cancel();
+    _streamSubscription =
+        BlocProvider.of<HomeBloc>(context).message$.listen(_showMessage);
   }
 
   @override
@@ -149,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
           homeBloc.newestRooms$,
           homeBloc.addOrRemoveSaved.add,
         ),
-        _buildBannerItem(homeBloc.banner$),
+        _buildBannersSlider(homeBloc.banner$),
         _buildHeaderItem(homeBloc.mostViewedRooms$, context),
         _buildMostViewedRoomsList(
           homeBloc.mostViewedRooms$,
@@ -172,8 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
         return SliverToBoxAdapter(
           child: Container(
-            color: Theme.of(context).accentColor,
             padding: const EdgeInsets.all(8.0),
+            color: Theme.of(context).accentColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -184,24 +170,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: MaterialButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              SeeAllPage(headerItem.seeAllQuery),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      "Xem tất cả",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            SeeAllPage(headerItem.seeAllQuery),
                       ),
+                    );
+                  },
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    "Xem tất cả",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -227,108 +211,115 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       elevation: 2.0,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => RoomDetailPage()),
-          );
-        },
-        child: Stack(
-          children: <Widget>[
-            Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: item.image,
-                fit: BoxFit.cover,
-                placeholder: Center(
-                  child: new CircularProgressIndicator(
-                    strokeWidth: 2.0,
-                  ),
+      child: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: CachedNetworkImage(
+              imageUrl: item.image,
+              fit: BoxFit.cover,
+              placeholder: Center(
+                child: new CircularProgressIndicator(
+                  strokeWidth: 2.0,
                 ),
-                errorWidget: Center(
-                  child: new Icon(
-                    Icons.image,
-                  ),
+              ),
+              errorWidget: Center(
+                child: new Icon(
+                  Icons.image,
                 ),
               ),
             ),
-            Positioned(
-              bottom: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: Container(
-                padding: const EdgeInsets.all(4.0),
-                color: Colors.black26,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      item.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                      style: themeData.textTheme.subhead.copyWith(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontFamily: 'SF-Pro-Text',
-                        fontWeight: FontWeight.w600,
-                      ),
+          ),
+          Positioned(
+            bottom: 0.0,
+            left: 0.0,
+            right: 0.0,
+            child: Container(
+              padding: const EdgeInsets.all(4.0),
+              color: Colors.black26,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                    style: themeData.textTheme.subhead.copyWith(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'SF-Pro-Text',
+                      fontWeight: FontWeight.w600,
                     ),
-                    SizedBox(height: 2.0),
-                    Text(
-                      priceFormat.format(item.price),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      overflow: TextOverflow.ellipsis,
-                      style: themeData.textTheme.subtitle.copyWith(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontFamily: 'SF-Pro-Display',
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ),
+                  SizedBox(height: 2.0),
+                  Text(
+                    priceFormat.format(item.price),
+                    maxLines: 1,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                    style: themeData.textTheme.subtitle.copyWith(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'SF-Pro-Display',
+                      fontWeight: FontWeight.w500,
                     ),
-                    SizedBox(height: 2.0),
-                    Text(
-                      item.address,
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: themeData.textTheme.subtitle.copyWith(
-                        color: Colors.grey[50],
-                        fontSize: 12,
-                        fontFamily: 'SF-Pro-Text',
-                        fontWeight: FontWeight.w400,
-                      ),
+                  ),
+                  SizedBox(height: 2.0),
+                  Text(
+                    item.address,
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: themeData.textTheme.subtitle.copyWith(
+                      color: Colors.grey[50],
+                      fontSize: 12,
+                      fontFamily: 'SF-Pro-Text',
+                      fontWeight: FontWeight.w400,
                     ),
-                    SizedBox(height: 2.0),
-                    Text(
-                      item.districtName,
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: themeData.textTheme.subtitle.copyWith(
-                        color: Colors.grey[50],
-                        fontSize: 12,
-                        fontFamily: 'SF-Pro-Text',
-                        fontWeight: FontWeight.w400,
-                      ),
+                  ),
+                  SizedBox(height: 2.0),
+                  Text(
+                    item.districtName,
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: themeData.textTheme.subtitle.copyWith(
+                      color: Colors.grey[50],
+                      fontSize: 12,
+                      fontFamily: 'SF-Pro-Text',
+                      fontWeight: FontWeight.w400,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              right: 4.0,
-              top: 4.0,
-              child: _buildBookmarkIcon(
-                item,
-                addOrRemoveSaved,
-                context,
+          ),
+          Positioned(
+            right: 4.0,
+            top: 4.0,
+            child: _buildBookmarkIcon(
+              item,
+              addOrRemoveSaved,
+              context,
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              clipBehavior: Clip.antiAlias,
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: themeData.accentColor,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => RoomDetailPage()),
+                  );
+                },
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -338,33 +329,32 @@ class _MyHomePageState extends State<MyHomePage> {
     void addOrRemoveSaved(String roomId),
     BuildContext context,
   ) {
+    if (item.iconState == BookmarkIconState.hide) {
+      return SizedBox(width: 0, height: 0);
+    }
     final accentColor = Theme.of(context).accentColor;
+    final Widget iconButton = IconButton(
+      icon: item.iconState == BookmarkIconState.showNotSaved
+          ? Icon(
+              Icons.bookmark_border,
+              color: accentColor,
+            )
+          : Icon(
+              Icons.bookmark,
+              color: accentColor,
+            ),
+      onPressed: () => addOrRemoveSaved(item.id),
+      tooltip: item.iconState == BookmarkIconState.showNotSaved
+          ? 'Thêm vào đã lưu'
+          : 'Xóa khỏi đã lưu',
+    );
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: item.iconState == BookmarkIconState.hide
-          ? Container(
-              width: 0,
-              height: 0,
-            )
-          : IconButton(
-              icon: item.iconState == BookmarkIconState.showNotSaved
-                  ? Icon(
-                      Icons.bookmark_border,
-                      color: accentColor,
-                    )
-                  : Icon(
-                      Icons.bookmark,
-                      color: accentColor,
-                    ),
-              onPressed: () => addOrRemoveSaved(item.id),
-              tooltip: item.iconState == BookmarkIconState.showNotSaved
-                  ? 'Thêm vào đã lưu'
-                  : 'Xóa khỏi đã lưu',
-            ),
+      child: iconButton,
     );
   }
 
-  Widget _buildBannerItem(ValueObservable<List<BannerItem>> banners$) {
+  Widget _buildBannersSlider(ValueObservable<List<BannerItem>> banners$) {
     return StreamBuilder<List<BannerItem>>(
       stream: banners$,
       initialData: banners$.value,
@@ -404,9 +394,51 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     );
                   }
-                  return Image.network(
-                    items[index].image,
-                    fit: BoxFit.cover,
+                  return Stack(
+                    children: <Widget>[
+                      Positioned.fill(
+                        child: CachedNetworkImage(
+                          imageUrl: items[index].image,
+                          fit: BoxFit.cover,
+                          placeholder: CircularProgressIndicator(
+                            strokeWidth: 3.0,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                Colors.black38,
+                                Colors.transparent,
+                              ],
+                              begin: AlignmentDirectional.bottomCenter,
+                              end: AlignmentDirectional.topCenter,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 30,
+                        child: Center(
+                          child: Text(
+                            items[index].description,
+                            style: themeData.textTheme.caption.copyWith(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
                 itemCount: items.isEmpty ? 1 : items.length,
@@ -418,8 +450,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 control: SwiperControl(
-                    color: themeData.accentColor,
-                    padding: const EdgeInsets.all(8)),
+                  color: themeData.accentColor,
+                  padding: const EdgeInsets.all(8),
+                ),
                 autoplay: true,
                 autoplayDelay: 2500,
                 duration: 1000,
@@ -439,11 +472,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showMessage(String message) {
-    Scaffold.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
+    if (message != null) {
+      Scaffold.of(context, nullOk: true)?.showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text(message),
+        ),
+      );
+    }
   }
 
   Widget _buildMostViewedRoomsList(
@@ -459,19 +495,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ) {
         final list = snapshot.data.item2;
         final Widget silver = list.isEmpty
-            ? SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Text(
-                    'Chưa có nhà trọ nào...',
-                    style: Theme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+            ? _buildEmptyListSliver(context)
             : SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
@@ -490,6 +514,31 @@ class _MyHomePageState extends State<MyHomePage> {
           sliver: silver,
         );
       },
+    );
+  }
+
+  SliverToBoxAdapter _buildEmptyListSliver(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.home,
+              size: 48,
+              color: Theme.of(context).primaryColor,
+            ),
+            Text(
+              'Chưa có nhà trọ nào...',
+              style: Theme.of(context).textTheme.body1.copyWith(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -597,38 +646,53 @@ class _MyHomePageState extends State<MyHomePage> {
     return StreamBuilder<Tuple2<Province, List<Province>>>(
       initialData: selectedProvinceAndAllProvinces$.value,
       stream: selectedProvinceAndAllProvinces$,
-      builder: (BuildContext context,
-          AsyncSnapshot<Tuple2<Province, List<Province>>> snapshot) {
-        Tuple2<Province, List<Province>> data = snapshot.data;
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<Tuple2<Province, List<Province>>> snapshot,
+      ) {
+        print(snapshot);
+        final Tuple2<Province, List<Province>> data = snapshot.data;
+        final subtitle = Theme.of(context).textTheme.subtitle;
+
         return SliverToBoxAdapter(
-          child: Material(
-            elevation: 2,
-            shadowColor: Theme.of(context).accentColor,
-            borderRadius: BorderRadius.circular(4),
-            clipBehavior: Clip.antiAlias,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              constraints: BoxConstraints.expand(
-                height: 200,
-              ),
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.location_on,
-                    size: 28,
-                    color: Colors.white,
+          child: Container(
+            constraints: BoxConstraints.expand(height: 120),
+            child: Center(
+              child: Material(
+                elevation: 2.0,
+                borderRadius: BorderRadius.circular(32),
+                child: Container(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.location_on,
+                        size: 28,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      data.item1 == null || data.item2.isEmpty
+                          ? Text(
+                              'Loading...',
+                              style: subtitle,
+                            )
+                          : DropdownButton<Province>(
+                              value: data.item1,
+                              items: data.item2.map((province) {
+                                return DropdownMenuItem<Province>(
+                                  child: Text(
+                                    province.name,
+                                    style: subtitle,
+                                  ),
+                                  value: province,
+                                );
+                              }).toList(),
+                              onChanged: changeSelectedProvince,
+                            ),
+                    ],
                   ),
-                  DropdownButton<Province>(
-                    value: data.item1,
-                    items: data.item2.map((province) {
-                      return DropdownMenuItem<Province>(
-                        child: Text(province.name),
-                        value: province,
-                      );
-                    }).toList(),
-                    onChanged: changeSelectedProvince,
-                  ),
-                ],
+                ),
               ),
             ),
           ),

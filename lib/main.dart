@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/app.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
+import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';
 import 'package:find_room/data/rooms/firestore_room_repository_impl.dart';
 import 'package:find_room/data/user/firebase_user_repository_imp.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
@@ -29,6 +30,8 @@ Future<void> main() async {
   final userRepository = FirebaseUserRepositoryImpl(firebaseAuth, firestore);
   final roomRepository = FirestoreRoomRepositoryImpl(firestore);
   final bannerRepository = FirestoreBannerRepositoryImpl(firestore);
+  final provinceDistrictWardRepository =
+      ProvinceDistrictWardRepositoryImpl(firestore);
   final sharedPrefUtil = SharedPrefUtil.instance;
 
   final userBloc = UserBloc(userRepository);
@@ -37,6 +40,7 @@ Future<void> main() async {
     userBloc: userBloc,
     roomRepository: roomRepository,
     bannerRepository: bannerRepository,
+    provinceDistrictWardRepository: provinceDistrictWardRepository,
   );
 
   runApp(
