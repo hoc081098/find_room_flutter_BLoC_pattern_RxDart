@@ -9,26 +9,30 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
 class MyApp extends StatelessWidget {
+  final appTheme = ThemeData(
+    brightness: Brightness.light,
+    fontFamily: 'SF-Pro-Text',
+    primaryColorDark: const Color(0xff512DA8),
+    primaryColorLight: const Color(0xffD1C4E9),
+    primaryColor: const Color(0xff673AB7),
+    accentColor: const Color(0xff00BCD4),
+    dividerColor: const Color(0xffBDBDBD),
+  );
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Phòng trọ tốt',
-      theme: ThemeData(
-        brightness: Brightness.light,
-        fontFamily: 'SF-Pro-Text',
-        primaryColorDark: const Color(0xff00796B),
-        primaryColorLight: const Color(0xffB2DFDB),
-        primaryColor: const Color(0xff009688),
-        accentColor: const Color(0xffFF5722),
-        dividerColor: const Color(0xffBDBDBD),
-      ),
-      home: RootApp(),
+      theme: appTheme,
+      home: const RootApp(),
     );
   }
 }
 
 class RootApp extends StatefulWidget {
+  const RootApp({Key key}) : super(key: key);
+
   @override
   _RootAppState createState() => _RootAppState();
 }
