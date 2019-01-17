@@ -12,4 +12,6 @@ abstract class FirebaseUserRepository {
     @required String email,
     @required String password,
   });
+
+  Future<void> googleSignIn();
 }

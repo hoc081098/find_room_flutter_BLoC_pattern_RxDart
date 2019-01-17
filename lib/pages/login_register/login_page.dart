@@ -1,9 +1,14 @@
 import 'dart:async';
 
 import 'package:find_room/app/app.dart';
+import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
-import 'package:find_room/pages/login_register/login_bloc.dart';
+import 'package:find_room/pages/login_register/email_login_bloc.dart';
+import 'package:find_room/pages/login_register/google_sign_in_bloc.dart';
+import 'package:find_room/user_bloc/user_bloc.dart';
+import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
@@ -15,7 +20,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin<LoginPage> {
-  LoginBloc _loginBloc;
+  EmailLoginBloc _emailLoginBloc;
+  GoogleSignInBloc _googleSignInBloc;
 
   AnimationController _fadeAnimationController;
   Animation<double> _fadeAnim;
@@ -38,63 +44,78 @@ class _LoginPageState extends State<LoginPage>
     print('_LoginPageState#didChangeDependencies');
 
     final userRepository = Injector.of(context).userRepository;
-    _loginBloc = LoginBloc(userRepository);
-    _subscription =
-        _loginBloc.messageAndLoginResult$.listen(_handleMessageAndResult);
+    final userBloc = BlocProvider.of<UserBloc>(context);
+
+    _emailLoginBloc = EmailLoginBloc(userRepository);
+    _googleSignInBloc = GoogleSignInBloc(userRepository);
+
+    _subscription?.cancel();
+    _subscription = Observable.merge([
+      userBloc.userLoginState$
+          .where((state) => state is UserLogin)
+          .map((_) => Tuple2(null, true)),
+      _emailLoginBloc.messageAndLoginResult$,
+      _googleSignInBloc.messageAndLoginResult$,
+    ]).listen(_handleMessageAndResult);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        title: Text('Đăng nhập'),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () => RootScaffold.openDrawer(context),
+    return WillPopScope(
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        appBar: AppBar(
+          title: Text('Đăng nhập'),
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => RootScaffold.openDrawer(context),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            _buildWaveBackground(),
-            Positioned.fill(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(height: 12.0),
-                    _buildEmailField(),
-                    _buildPasswordField(),
-                    _buildLoadingIndicator(),
-                    _buildLoginButton(context),
-                    FlatButton(
-                      child: Text(
-                        "Bạn quên mật khẩu?",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () {},
-                    ),
-                    SizedBox(height: 48.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: SafeArea(
+          child: Stack(
+            children: <Widget>[
+              _buildWaveBackground(),
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  child: Form(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Divider(color: Theme.of(context).accentColor),
-                        Text("hoặc kết nối qua"),
-                        Divider(color: Theme.of(context).accentColor),
+                        SizedBox(height: 12.0),
+                        _buildEmailField(),
+                        _buildPasswordField(),
+                        _buildLoadingIndicator(),
+                        _buildLoginButton(context),
+                        FlatButton(
+                          child: Text(
+                            "Bạn quên mật khẩu?",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () {},
+                        ),
+                        SizedBox(height: 48.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Divider(color: Theme.of(context).accentColor),
+                            Text("hoặc kết nối qua"),
+                            Divider(color: Theme.of(context).accentColor),
+                          ],
+                        ),
+                        SizedBox(height: 8.0),
+                        _buildFacebookGoogleLogin(),
+                        _buildSignUp()
                       ],
                     ),
-                    SizedBox(height: 8.0),
-                    _buildFacebookGoogleLogin(),
-                    _buildSignUp()
-                  ],
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
+      onWillPop: _onWillPop,
     );
   }
 
@@ -102,7 +123,7 @@ class _LoginPageState extends State<LoginPage>
   void dispose() {
     super.dispose();
 
-    _loginBloc.dispose();
+    _emailLoginBloc.dispose();
     _subscription?.cancel();
   }
 
@@ -113,8 +134,14 @@ class _LoginPageState extends State<LoginPage>
         child: WaveWidget(
           config: CustomConfig(
             gradients: [
-              [Colors.deepPurple, Colors.deepPurple.shade300],
-              [Colors.indigo.shade300, Colors.purple.shade300],
+              [
+                Colors.deepPurple,
+                Colors.deepPurple.shade400,
+              ],
+              [
+                Colors.indigo.shade400,
+                Colors.purple.shade400,
+              ],
             ],
             durations: [19440, 10800],
             heightPercentages: [0.15, 0.2],
@@ -149,31 +176,45 @@ class _LoginPageState extends State<LoginPage>
   Widget _buildFacebookGoogleLogin() {
     return Row(
       children: <Widget>[
-        SizedBox(width: 16.0),
+        SizedBox(width: 12.0),
         Expanded(
-          child: RaisedButton(
-            child: Text("Facebook"),
-            textColor: Colors.white,
-            color: Colors.indigo,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(40)),
-            ),
-            onPressed: () {},
-          ),
+          child: StreamBuilder<bool>(
+              stream: _googleSignInBloc.isLoading$,
+              initialData: _googleSignInBloc.isLoading$.value,
+              builder: (context, snapshot) {
+                if (snapshot.data) {
+                  return Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+                return RaisedButton(
+                  child: Text("Google"),
+                  elevation: 8,
+                  textColor: Colors.white,
+                  color: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(40),
+                    ),
+                  ),
+                  onPressed: () => _googleSignInBloc.submitLogin.add(null),
+                );
+              }),
         ),
         SizedBox(width: 8.0),
         Expanded(
           child: RaisedButton(
-            child: Text("Google"),
+            child: Text("Facebook"),
+            color: Colors.indigo,
             textColor: Colors.white,
-            color: Colors.red,
+            elevation: 8,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(40)),
             ),
             onPressed: () {},
           ),
         ),
-        SizedBox(width: 16.0),
+        SizedBox(width: 12.0),
       ],
     );
   }
@@ -185,8 +226,8 @@ class _LoginPageState extends State<LoginPage>
       child: RaisedButton(
         padding: EdgeInsets.symmetric(vertical: 16.0),
         color: Colors.deepOrange,
-        splashColor: Colors.deepOrange.shade200,
-        onPressed: () => _loginBloc.submitLogin.add(null),
+        splashColor: Colors.deepOrange.shade50,
+        onPressed: () => _emailLoginBloc.submitLogin.add(null),
         elevation: 11,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
@@ -211,11 +252,12 @@ class _LoginPageState extends State<LoginPage>
         borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       child: StreamBuilder<String>(
-          stream: _loginBloc.passwordError$,
+          stream: _emailLoginBloc.passwordError$,
           builder: (context, AsyncSnapshot<String> snapshot) {
             return TextField(
               maxLines: 1,
-              onChanged: _loginBloc.password.add,
+              textInputAction: TextInputAction.done,
+              onChanged: _emailLoginBloc.password.add,
               decoration: InputDecoration(
                 errorText: snapshot.data,
                 prefixIcon: Icon(
@@ -256,11 +298,12 @@ class _LoginPageState extends State<LoginPage>
         borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       child: StreamBuilder<String>(
-          stream: _loginBloc.emailError$,
+          stream: _emailLoginBloc.emailError$,
           builder: (context, AsyncSnapshot<String> snapshot) {
             return TextField(
+              textInputAction: TextInputAction.next,
               maxLines: 1,
-              onChanged: _loginBloc.email.add,
+              onChanged: _emailLoginBloc.email.add,
               decoration: InputDecoration(
                 errorText: snapshot.data,
                 prefixIcon: Icon(
@@ -290,14 +333,16 @@ class _LoginPageState extends State<LoginPage>
   }
 
   _handleMessageAndResult(Tuple2<String, bool> messageAndResult) async {
-    await Scaffold.of(context, nullOk: true)
-        ?.showSnackBar(
-          SnackBar(
-            content: Text(messageAndResult.item1),
-            duration: Duration(seconds: 2),
-          ),
-        )
-        ?.closed;
+    if (messageAndResult.item1 != null) {
+      await Scaffold.of(context, nullOk: true)
+          ?.showSnackBar(
+            SnackBar(
+              content: Text(messageAndResult.item1),
+              duration: Duration(seconds: 2),
+            ),
+          )
+          ?.closed;
+    }
     if (messageAndResult.item2) {
       Navigator.popUntil(context, ModalRoute.withName('/'));
     }
@@ -305,8 +350,8 @@ class _LoginPageState extends State<LoginPage>
 
   Widget _buildLoadingIndicator() {
     return StreamBuilder<bool>(
-      stream: _loginBloc.isLoading$,
-      initialData: _loginBloc.isLoading$.value,
+      stream: _emailLoginBloc.isLoading$,
+      initialData: _emailLoginBloc.isLoading$.value,
       builder: (context, AsyncSnapshot<bool> snapshot) {
         if (_prevIsLoading != null && _prevIsLoading != snapshot.data) {
           _prevIsLoading = snapshot.data;
@@ -326,7 +371,7 @@ class _LoginPageState extends State<LoginPage>
             ),
             child: FadeTransition(
               child: CircularProgressIndicator(
-                valueColor: const AlwaysStoppedAnimation(Colors.deepOrange),
+                valueColor: const AlwaysStoppedAnimation(Colors.orangeAccent),
                 strokeWidth: 3,
               ),
               opacity: _fadeAnim,
@@ -341,7 +386,7 @@ class _LoginPageState extends State<LoginPage>
                 top: 30,
               ),
               child: CircularProgressIndicator(
-                valueColor: const AlwaysStoppedAnimation(Colors.deepOrange),
+                valueColor: const AlwaysStoppedAnimation(Colors.orangeAccent),
                 strokeWidth: 3,
               ),
             );
@@ -350,5 +395,32 @@ class _LoginPageState extends State<LoginPage>
         }
       },
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_emailLoginBloc.isLoading$.value) {
+      final exitSignIn = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Bạn muốn thoát đăng nhập'),
+            content:
+                const Text('Đang xử lí đăng nhập, bạn có chắc chắn muốn thoát'),
+            actions: <Widget>[
+              FlatButton(
+                child: const Text('Không'),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              FlatButton(
+                child: const Text('Thoát'),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          );
+        },
+      );
+      return (exitSignIn ?? false);
+    }
+    return true;
   }
 }

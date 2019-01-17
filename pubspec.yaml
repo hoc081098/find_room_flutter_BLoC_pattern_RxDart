@@ -21,7 +21,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   cloud_firestore: ^0.8.2+3
   firebase_auth: ^0.6.6
-  json_serializable: ^2.0.0 #flutter packages pub run build_runner build
+  json_serializable: ^2.0.1 #flutter packages pub run build_runner build
   rxdart: ^0.19.0
   shared_preferences: ^0.4.3
   flutter_staggered_grid_view: ^0.2.4
@@ -31,6 +31,7 @@ dependencies:
   collection: ^1.14.11
   cached_network_image: ^0.5.1
   wave: ^0.0.8
+  google_sign_in: ^3.2.4
 
 dev_dependencies:
   flutter_test:
