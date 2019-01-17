@@ -8,7 +8,7 @@ import 'package:rxdart/rxdart.dart';
 
 class UserBloc implements BaseBloc {
   ///Streams and sinks
-  final ValueObservable<UserLoginState> user$;
+  final ValueObservable<UserLoginState> userLoginState$;
   final Sink<void> signOut;
 
   ///Cleanup
@@ -39,7 +39,7 @@ class UserBloc implements BaseBloc {
     );
   }
 
-  UserBloc._(this._dispose, this.user$, this.signOut);
+  UserBloc._(this._dispose, this.userLoginState$, this.signOut);
 
   @override
   void dispose() => _dispose();

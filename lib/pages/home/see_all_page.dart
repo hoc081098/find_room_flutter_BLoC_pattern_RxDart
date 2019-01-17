@@ -13,12 +13,12 @@ class SeeAllPage extends StatefulWidget {
 class _SeeAllPageState extends State<SeeAllPage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Xem tất cả'),
-        ),
-        body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Xem tất cả'),
+      ),
+      body: SafeArea(
+        child: Center(
           child: Text('See all page ${widget.seeAllQuery}...'),
         ),
       ),

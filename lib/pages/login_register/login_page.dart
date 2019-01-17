@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:find_room/app/page_bloc.dart';
-import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/app/app.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/pages/login_register/login_bloc.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin<LoginPage> {
   LoginBloc _loginBloc;
-  PageBloc _pageBloc;
 
   AnimationController _fadeAnimationController;
   Animation<double> _fadeAnim;
@@ -37,8 +35,8 @@ class _LoginPageState extends State<LoginPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    print('_LoginPageState#didChangeDependencies');
 
-    _pageBloc = BlocProvider.of<PageBloc>(context);
     final userRepository = Injector.of(context).userRepository;
     _loginBloc = LoginBloc(userRepository);
     _subscription =
@@ -47,44 +45,56 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        _buildWaveBackground(),
-        Positioned.fill(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox(height: 12.0),
-                _buildEmailField(),
-                _buildPasswordField(),
-                _buildLoadingIndicator(),
-                _buildLoginButton(context),
-                FlatButton(
-                  child: Text(
-                    "Bạn quên mật khẩu?",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {},
-                ),
-                SizedBox(height: 48.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        title: Text('Đăng nhập'),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () => RootScaffold.openDrawer(context),
+        ),
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: <Widget>[
+            _buildWaveBackground(),
+            Positioned.fill(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Divider(color: Theme.of(context).accentColor),
-                    Text("hoặc kết nối qua"),
-                    Divider(color: Theme.of(context).accentColor),
+                    SizedBox(height: 12.0),
+                    _buildEmailField(),
+                    _buildPasswordField(),
+                    _buildLoadingIndicator(),
+                    _buildLoginButton(context),
+                    FlatButton(
+                      child: Text(
+                        "Bạn quên mật khẩu?",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {},
+                    ),
+                    SizedBox(height: 48.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Divider(color: Theme.of(context).accentColor),
+                        Text("hoặc kết nối qua"),
+                        Divider(color: Theme.of(context).accentColor),
+                      ],
+                    ),
+                    SizedBox(height: 8.0),
+                    _buildFacebookGoogleLogin(),
+                    _buildSignUp()
                   ],
                 ),
-                SizedBox(height: 8.0),
-                _buildFacebookGoogleLogin(),
-                _buildSignUp()
-              ],
-            ),
-          ),
-        )
-      ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -97,15 +107,14 @@ class _LoginPageState extends State<LoginPage>
   }
 
   Widget _buildWaveBackground() {
-    return Container(
-      height: double.infinity,
+    return Positioned.fill(
       child: RotatedBox(
         quarterTurns: 2,
         child: WaveWidget(
           config: CustomConfig(
             gradients: [
-              [Colors.deepPurple, Colors.deepPurple.shade200],
-              [Colors.indigo.shade200, Colors.purple.shade200],
+              [Colors.deepPurple, Colors.deepPurple.shade300],
+              [Colors.indigo.shade300, Colors.purple.shade300],
             ],
             durations: [19440, 10800],
             heightPercentages: [0.15, 0.2],
@@ -175,7 +184,8 @@ class _LoginPageState extends State<LoginPage>
       padding: EdgeInsets.all(30.0),
       child: RaisedButton(
         padding: EdgeInsets.symmetric(vertical: 16.0),
-        color: Theme.of(context).accentColor,
+        color: Colors.deepOrange,
+        splashColor: Colors.deepOrange.shade200,
         onPressed: () => _loginBloc.submitLogin.add(null),
         elevation: 11,
         shape: RoundedRectangleBorder(
@@ -186,7 +196,7 @@ class _LoginPageState extends State<LoginPage>
         child: Text(
           "Đăng nhập",
           style: TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
           ),
         ),
       ),
@@ -281,10 +291,15 @@ class _LoginPageState extends State<LoginPage>
 
   _handleMessageAndResult(Tuple2<String, bool> messageAndResult) async {
     await Scaffold.of(context, nullOk: true)
-        ?.showSnackBar(SnackBar(content: Text(messageAndResult.item1)))
+        ?.showSnackBar(
+          SnackBar(
+            content: Text(messageAndResult.item1),
+            duration: Duration(seconds: 2),
+          ),
+        )
         ?.closed;
     if (messageAndResult.item2) {
-      _pageBloc.changePage.add(Page.home);
+      Navigator.popUntil(context, ModalRoute.withName('/'));
     }
   }
 
@@ -303,13 +318,33 @@ class _LoginPageState extends State<LoginPage>
             _fadeAnimationController.reverse(from: 1);
           }
 
-          return FadeTransition(
-            child: CircularProgressIndicator(),
-            opacity: _fadeAnim,
+          return Container(
+            margin: const EdgeInsets.only(
+              left: 30,
+              right: 30,
+              top: 30,
+            ),
+            child: FadeTransition(
+              child: CircularProgressIndicator(
+                valueColor: const AlwaysStoppedAnimation(Colors.deepOrange),
+                strokeWidth: 3,
+              ),
+              opacity: _fadeAnim,
+            ),
           );
         } else {
           if (snapshot.data) {
-            return CircularProgressIndicator();
+            return Container(
+              margin: const EdgeInsets.only(
+                left: 30,
+                right: 30,
+                top: 30,
+              ),
+              child: CircularProgressIndicator(
+                valueColor: const AlwaysStoppedAnimation(Colors.deepOrange),
+                strokeWidth: 3,
+              ),
+            );
           }
           return Container(width: 0, height: 0);
         }

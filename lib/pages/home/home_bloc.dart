@@ -251,7 +251,7 @@ class HomeBloc implements BaseBloc {
     return addOrRemoveSavedController.stream
         .throttle(Duration(milliseconds: 500))
         .withLatestFrom(
-          userBloc.user$,
+          userBloc.userLoginState$,
           (roomId, UserLoginState userLoginState) =>
               Tuple2(roomId, userLoginState),
         )
@@ -276,7 +276,7 @@ class HomeBloc implements BaseBloc {
                 selectedProvince: province,
                 limit: _kLimitRoom,
               ),
-              userBloc.user$,
+              userBloc.userLoginState$,
               (List<RoomEntity> entities, UserLoginState loginState) =>
                   HomeBloc._toRoomItems(
                     entities,
@@ -300,7 +300,7 @@ class HomeBloc implements BaseBloc {
                 selectedProvince: province,
                 limit: _kLimitRoom,
               ),
-              userBloc.user$,
+              userBloc.userLoginState$,
               (List<RoomEntity> entities, UserLoginState loginState) =>
                   HomeBloc._toRoomItems(
                     entities,

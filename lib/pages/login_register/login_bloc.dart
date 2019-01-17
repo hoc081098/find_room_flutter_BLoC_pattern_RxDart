@@ -143,6 +143,8 @@ class LoginBloc implements BaseBloc {
     if (e == null) {
       return Tuple2("Đăng nhập thành công", true);
     }
-    return Tuple2("Lỗi xảy ra khi đăng nhập ${e is PlatformException ? e.message : e}", false);
+    return Tuple2(
+        "Lỗi xảy ra khi đăng nhập ${e is PlatformException ? e.message : e}",
+        false);
   }
 }

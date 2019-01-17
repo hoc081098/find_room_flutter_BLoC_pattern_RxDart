@@ -22,6 +22,28 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription<String> _streamSubscription;
 
+  Future<bool> _onWillPop() async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Thoát khỏi ứng dụng'),
+          content: const Text('Bạn chắc chắn muốn thoát khỏi ứng dụng'),
+          actions: <Widget>[
+            FlatButton(
+              child: const Text('Không'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            FlatButton(
+              child: const Text('Thoát'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildNewestRoomsList(
     ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> rooms$,
     void Function(String) addOrRemoveSaved,
@@ -76,71 +98,74 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final homeBloc = BlocProvider.of<HomeBloc>(context);
 
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverAppBar(
-          pinned: true,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              tooltip: 'Cài đặt',
-              onPressed: () {
-                print('Setting pressed');
-              },
-            ),
-          ],
-          expandedHeight: 200,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(
-              'Phòng trọ tốt',
-              style: const TextStyle(
-                color: Colors.white,
-                letterSpacing: 0.41,
-                fontFamily: 'SF-Pro-Display',
-                fontWeight: FontWeight.w700,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            pinned: true,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.settings),
+                tooltip: 'Cài đặt',
+                onPressed: () {
+                  print('Setting pressed');
+                },
               ),
-            ),
-            background: Stack(
-              children: <Widget>[
-                Image.asset(
-                  'assets/images/home_appbar_image.jpg',
-                  fit: BoxFit.cover,
+            ],
+            expandedHeight: 200,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Phòng trọ tốt',
+                style: const TextStyle(
+                  color: Colors.white,
+                  letterSpacing: 0.41,
+                  fontFamily: 'SF-Pro-Display',
+                  fontWeight: FontWeight.w700,
                 ),
-                Align(
-                  alignment: AlignmentDirectional.bottomCenter,
-                  child: Container(
-                    constraints: BoxConstraints.expand(height: 50),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: <Color>[
-                          Colors.black38,
-                          Colors.transparent,
-                        ],
-                        begin: AlignmentDirectional.bottomCenter,
-                        end: AlignmentDirectional.topCenter,
+              ),
+              background: Stack(
+                children: <Widget>[
+                  Image.asset(
+                    'assets/images/home_appbar_image.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.bottomCenter,
+                    child: Container(
+                      constraints: BoxConstraints.expand(height: 50),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Colors.black38,
+                            Colors.transparent,
+                          ],
+                          begin: AlignmentDirectional.bottomCenter,
+                          end: AlignmentDirectional.topCenter,
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ],
-              fit: StackFit.expand,
+                  )
+                ],
+                fit: StackFit.expand,
+              ),
             ),
           ),
-        ),
-        _buildSelectedProvince(homeBloc.selectedProvinceAndAllProvinces$,
-            homeBloc.changeProvince.add),
-        _buildHeaderItem(homeBloc.newestRooms$, context),
-        _buildNewestRoomsList(
-          homeBloc.newestRooms$,
-          homeBloc.addOrRemoveSaved.add,
-        ),
-        _buildBannersSlider(homeBloc.banner$),
-        _buildHeaderItem(homeBloc.mostViewedRooms$, context),
-        _buildMostViewedRoomsList(
-          homeBloc.mostViewedRooms$,
-          homeBloc.addOrRemoveSaved.add,
-        ),
-      ],
+          _buildSelectedProvince(homeBloc.selectedProvinceAndAllProvinces$,
+              homeBloc.changeProvince.add),
+          _buildHeaderItem(homeBloc.newestRooms$, context),
+          _buildNewestRoomsList(
+            homeBloc.newestRooms$,
+            homeBloc.addOrRemoveSaved.add,
+          ),
+          _buildBannersSlider(homeBloc.banner$),
+          _buildHeaderItem(homeBloc.mostViewedRooms$, context),
+          _buildMostViewedRoomsList(
+            homeBloc.mostViewedRooms$,
+            homeBloc.addOrRemoveSaved.add,
+          ),
+        ],
+      ),
     );
   }
 

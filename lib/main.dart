@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/app/app.dart';
-import 'package:find_room/app/page_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';
@@ -41,7 +40,6 @@ Future<void> main() async {
   final sharedPrefUtil = SharedPrefUtil.instance;
 
   final userBloc = UserBloc(userRepository);
-  final pageBloc = PageBloc(userBloc: userBloc);
   final homeBloc = HomeBloc(
     sharedPrefUtil: sharedPrefUtil,
     userBloc: userBloc,
@@ -56,12 +54,9 @@ Future<void> main() async {
       userRepository: userRepository,
       child: BlocProvider<UserBloc>(
         bloc: userBloc,
-        child: BlocProvider<PageBloc>(
-          bloc: pageBloc,
-          child: BlocProvider<HomeBloc>(
-            bloc: homeBloc,
-            child: MyApp(),
-          ),
+        child: BlocProvider<HomeBloc>(
+          bloc: homeBloc,
+          child: MyApp(),
         ),
       ),
     ),
