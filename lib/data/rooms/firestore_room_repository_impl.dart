@@ -26,10 +26,10 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
     return _firestore
         .collection('motelrooms')
-        .where('approve', isEqualTo: true)
         .where('province', isEqualTo: selectedProvinceRef)
-        .where('is_active', isEqualTo: true)
-        .orderBy('created_at', descending: true)
+        .where('approve', isEqualTo: true)
+        .where('available', isEqualTo: true)
+        .orderBy('updated_at', descending: true)
         .limit(limit)
         .snapshots()
         .map(
@@ -56,9 +56,9 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
     return _firestore
         .collection('motelrooms')
-        .where('approve', isEqualTo: true)
         .where('province', isEqualTo: selectedProvinceRef)
-        .where('is_active', isEqualTo: true)
+        .where('approve', isEqualTo: true)
+        .where('available', isEqualTo: true)
         .orderBy('count_view', descending: true)
         .limit(limit)
         .snapshots()
@@ -88,13 +88,13 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     final TransactionHandler transactionHandler = (transaction) async {
       final roomRef = _firestore.document('motelrooms/$roomId');
       final documentSnapshot = await transaction.get(roomRef);
-      final roomEntity = RoomEntity.fromDocumentSnapshot(documentSnapshot);
+      final userIdsSaved = documentSnapshot['user_ids_saved'] as Map;
 
-      if (roomEntity.userIdsSaved.contains(userId)) {
+      if (userIdsSaved.containsKey(userId)) {
         await transaction.update(
           roomRef,
           <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayRemove([userId]),
+            'user_ids_saved.$userId': FieldValue.delete(),
           },
         );
 
@@ -106,9 +106,10 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         await transaction.update(
           roomRef,
           <String, dynamic>{
-            'user_ids_saved': FieldValue.arrayUnion([userId]),
+            'user_ids_saved.$userId': FieldValue.serverTimestamp(),
           },
         );
+
         return <String, String>{
           'id': documentSnapshot.documentID,
           'status': 'added',

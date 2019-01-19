@@ -33,10 +33,6 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
   @override
   Future<void> signOut() async {
-    final firebaseUser = await _firebaseAuth.currentUser();
-    if (firebaseUser.providerData
-        .map((userInfo) => userInfo.providerId)
-        .any((providerId) => providerId == 'facebook.com')) {}
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }

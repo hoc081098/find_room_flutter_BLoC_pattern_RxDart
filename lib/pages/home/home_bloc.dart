@@ -378,7 +378,7 @@ class HomeBloc implements BaseBloc {
       if (loginState is NotLogin) {
         iconState = BookmarkIconState.hide;
       } else if (loginState is UserLogin) {
-        if (roomEntity.userIdsSaved.contains(loginState.uid)) {
+        if (roomEntity.userIdsSaved.containsKey(loginState.uid)) {
           iconState = BookmarkIconState.showSaved;
         } else {
           iconState = BookmarkIconState.showNotSaved;

@@ -7,9 +7,16 @@ import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UserBloc implements BaseBloc {
-  ///Streams and sinks
-  final ValueObservable<UserLoginState> userLoginState$;
+  ///
+  /// Sinks
+  ///
   final Sink<void> signOut;
+
+  ///
+  /// Streams
+  ///
+  final ValueObservable<UserLoginState> userLoginState$;
+  final Stream<String> signOutMessage$;
 
   ///Cleanup
   final void Function() _dispose;
@@ -22,11 +29,16 @@ class UserBloc implements BaseBloc {
         .distinct()
         .publishValue(seedValue: const NotLogin());
 
+    final signOutMessage$ = signOutController.exhaustMap((_) {
+      return Observable.fromFuture(userRepository.signOut())
+          .doOnError((e) => print('[DEBUG] logout error=$e'))
+          .onErrorReturn('Lỗi xảy ra khi đăng xuất')
+          .map((_) => 'Đăng xuất thành công');
+    }).publish();
+
     final subscriptions = <StreamSubscription<dynamic>>[
-      signOutController
-          .concatMap((_) => Observable.fromFuture(userRepository.signOut()))
-          .listen(null),
       user$.connect(),
+      signOutMessage$.connect(),
     ];
 
     return UserBloc._(
@@ -36,10 +48,16 @@ class UserBloc implements BaseBloc {
       },
       user$,
       signOutController.sink,
+      signOutMessage$,
     );
   }
 
-  UserBloc._(this._dispose, this.userLoginState$, this.signOut);
+  UserBloc._(
+    this._dispose,
+    this.userLoginState$,
+    this.signOut,
+    this.signOutMessage$,
+  );
 
   @override
   void dispose() => _dispose();

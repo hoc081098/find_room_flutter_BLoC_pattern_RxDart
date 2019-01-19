@@ -411,21 +411,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     return Container(
                       constraints: BoxConstraints.expand(),
                       color: Colors.white,
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            CircularProgressIndicator(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(
                               strokeWidth: 3.0,
                             ),
-                            Text(
-                              'Loading...',
-                              style: themeData.textTheme.subtitle,
-                            )
-                          ],
-                        ),
+                          ),
+                          Text(
+                            'Loading...',
+                            style: themeData.textTheme.subtitle,
+                          )
+                        ],
                       ),
                     );
                   }

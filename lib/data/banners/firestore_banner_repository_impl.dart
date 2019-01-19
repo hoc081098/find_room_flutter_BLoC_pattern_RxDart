@@ -11,7 +11,7 @@ class FirestoreBannerRepositoryImpl implements FirestoreBannerRepository {
   Future<List<BannerEntity>> banners({int limit}) async {
     Query query = _firestore
         .collection('banners')
-        .orderBy('created_at', descending: true);
+        .orderBy('updated_at', descending: true);
     query = limit != null ? query.limit(limit) : query;
 
     final querySnapshot = await query.getDocuments();

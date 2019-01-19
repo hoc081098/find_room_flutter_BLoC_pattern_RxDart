@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/firebase_model.dart';
-import 'package:find_room/utitls/collection_equality_const.dart';
-import 'package:find_room/utitls/model_json_convert.dart';
+import 'package:find_room/utils/model_util.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
@@ -26,10 +25,9 @@ class RoomEntity implements FirebaseModel {
   final GeoPoint addressGeoPoint;
   final List<String> images;
   final String phone;
-  @JsonKey(name: 'is_active')
-  final bool isActive;
+  final bool available;
   final bool approve;
-  final Map<String, Object> utilities;
+  final List<String> utilities;
   @JsonKey(
     fromJson: documentReferenceFromJson,
     toJson: documentReferenceToJson,
@@ -40,6 +38,8 @@ class RoomEntity implements FirebaseModel {
     toJson: documentReferenceToJson,
   )
   final DocumentReference category;
+  @JsonKey(name: 'category_name')
+  final String categoryName;
   @JsonKey(
     fromJson: documentReferenceFromJson,
     toJson: documentReferenceToJson,
@@ -69,8 +69,12 @@ class RoomEntity implements FirebaseModel {
     toJson: timestampToJson,
   )
   final Timestamp updatedAt;
-  @JsonKey(name: 'user_ids_saved', defaultValue: <String>[])
-  final List<String> userIdsSaved;
+  @JsonKey(
+    name: 'user_ids_saved',
+    fromJson: mapStringTimestampFromJson,
+    toJson: mapStringTimestampToJson,
+  )
+  final Map<String, Timestamp> userIdsSaved;
 
   const RoomEntity({
     this.title,
@@ -82,11 +86,12 @@ class RoomEntity implements FirebaseModel {
     this.addressGeoPoint,
     this.images,
     this.phone,
-    this.isActive,
+    this.available,
     this.approve,
     this.utilities,
     this.user,
     this.category,
+    this.categoryName,
     this.province,
     this.ward,
     this.district,
@@ -97,11 +102,7 @@ class RoomEntity implements FirebaseModel {
     this.documentID,
   });
 
-  factory RoomEntity.fromDocumentSnapshot(DocumentSnapshot doc) {
-    doc.data['utilities'] =
-        (doc.data['utilities'] as Map).cast<String, dynamic>();
-    return _$RoomEntityFromJson(withId(doc));
-  }
+  factory RoomEntity.fromDocumentSnapshot(DocumentSnapshot doc) => _$RoomEntityFromJson(withId(doc));
 
   Map<String, dynamic> toJson() => _$RoomEntityToJson(this);
 
@@ -123,9 +124,9 @@ class RoomEntity implements FirebaseModel {
           addressGeoPoint == other.addressGeoPoint &&
           kListStringEquality.equals(images, other.images) &&
           phone == other.phone &&
-          isActive == other.isActive &&
+          available == other.available &&
           approve == other.approve &&
-          kMapStringObjectEquality.equals(utilities, other.utilities) &&
+          kListStringEquality.equals(utilities, other.utilities) &&
           user == other.user &&
           category == other.category &&
           province == other.province &&
@@ -134,7 +135,7 @@ class RoomEntity implements FirebaseModel {
           districtName == other.districtName &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt &&
-          kListStringEquality.equals(userIdsSaved, other.userIdsSaved);
+          kMapStringTimestampEquality.equals(userIdsSaved, other.userIdsSaved);
 
   @override
   int get hashCode =>
@@ -148,9 +149,9 @@ class RoomEntity implements FirebaseModel {
       addressGeoPoint.hashCode ^
       kListStringEquality.hash(images) ^
       phone.hashCode ^
-      isActive.hashCode ^
+      available.hashCode ^
       approve.hashCode ^
-      kMapStringObjectEquality.hash(utilities) ^
+      kListStringEquality.hash(utilities) ^
       user.hashCode ^
       category.hashCode ^
       province.hashCode ^
@@ -159,14 +160,14 @@ class RoomEntity implements FirebaseModel {
       districtName.hashCode ^
       createdAt.hashCode ^
       updatedAt.hashCode ^
-      kListStringEquality.hash(userIdsSaved);
+      kMapStringTimestampEquality.hash(userIdsSaved);
 
   @override
   String toString() => 'RoomEntity{documentID: $documentID, title: $title, '
       'description: $description, price: $price, countView: $countView, size: $size,'
       ' address: $address, addressGeoPoint: $addressGeoPoint, images: $images,'
-      ' phone: $phone, isActive: $isActive, approve: $approve, utilities: $utilities,'
-      ' user: $user, category: $category, province: $province, ward: $ward,'
+      ' phone: $phone, available: $available, approve: $approve, utilities: $utilities,'
+      ' user: $user, category: $category, categoryName: $category, province: $province, ward: $ward,'
       ' district: $district, districtName: $districtName, createdAt: $createdAt,'
       ' updatedAt: $updatedAt, userIdsSaved: $userIdsSaved}';
 }

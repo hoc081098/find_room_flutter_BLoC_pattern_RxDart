@@ -21,7 +21,7 @@ class _SavedPageState extends State<SavedPage> {
     _subscription?.cancel();
     _subscription = BlocProvider.of<UserBloc>(context)
         .userLoginState$
-        .ofType(const TypeToken<NotLogin>())
+        .where((state) => state is NotLogin)
         .listen((_) => Navigator.popUntil(context, ModalRoute.withName('/')));
   }
 

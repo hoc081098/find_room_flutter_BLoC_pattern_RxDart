@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
@@ -25,11 +27,12 @@ class MyApp extends StatelessWidget {
       title: 'Phòng trọ tốt',
       theme: appTheme,
       builder: (BuildContext context, Widget child) {
+        print('[DEBUG] App builder');
         return Scaffold(
           drawer: MyDrawer(
             navigator: child.key as GlobalKey<NavigatorState>,
           ),
-          body: child,
+          body: BodyChild(child: child),
         );
       },
       initialRoute: '/',
@@ -42,6 +45,48 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class BodyChild extends StatefulWidget {
+  final Widget child;
+
+  const BodyChild({@required this.child, Key key}) : super(key: key);
+
+  @override
+  _BodyChildState createState() => _BodyChildState();
+}
+
+class _BodyChildState extends State<BodyChild> {
+  StreamSubscription _subscription;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    print('[DEBUG] _BodyChildState didChangeDependencies');
+    _subscription?.cancel();
+    _subscription = BlocProvider.of<UserBloc>(context).signOutMessage$.listen((message) {
+      RootScaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    print('[DEBUG] _BodyChildState dispose');
+    _subscription.cancel();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('[DEBUG] _BodyChildState build');
+    return widget.child;
+  }
+}
+
 class MyDrawer extends StatelessWidget {
   final GlobalKey<NavigatorState> navigator;
 
@@ -49,6 +94,8 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[DEBUG] MyDrawer build');
+
     final userBloc = BlocProvider.of<UserBloc>(context);
 
     final DrawerControllerState drawerControllerState =
@@ -58,7 +105,10 @@ class MyDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          _buildUserAccountsDrawerHeader(userBloc.userLoginState$, drawerControllerState),
+          _buildUserAccountsDrawerHeader(
+            userBloc.userLoginState$,
+            drawerControllerState,
+          ),
           ListTile(
             title: Text('Trang chủ'),
             onTap: () {
@@ -67,9 +117,15 @@ class MyDrawer extends StatelessWidget {
             },
             leading: Icon(Icons.home),
           ),
-          _buildSavedListTile(userBloc.userLoginState$, drawerControllerState),
+          _buildSavedListTile(
+            userBloc.userLoginState$,
+            drawerControllerState,
+          ),
           Divider(),
-          _buildLoginLogoutButton(userBloc, drawerControllerState),
+          _buildLoginLogoutButton(
+            userBloc,
+            drawerControllerState,
+          ),
         ],
       ),
     );

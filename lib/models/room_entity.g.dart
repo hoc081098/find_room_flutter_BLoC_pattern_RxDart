@@ -19,15 +19,16 @@ RoomEntity _$RoomEntityFromJson(Map<String, dynamic> json) {
           : geoPointFromJson(json['address_geopoint'] as GeoPoint),
       images: (json['images'] as List)?.map((e) => e as String)?.toList(),
       phone: json['phone'] as String,
-      isActive: json['is_active'] as bool,
+      available: json['available'] as bool,
       approve: json['approve'] as bool,
-      utilities: json['utilities'] as Map<String, dynamic>,
+      utilities: (json['utilities'] as List)?.map((e) => e as String)?.toList(),
       user: json['user'] == null
           ? null
           : documentReferenceFromJson(json['user'] as DocumentReference),
       category: json['category'] == null
           ? null
           : documentReferenceFromJson(json['category'] as DocumentReference),
+      categoryName: json['category_name'] as String,
       province: json['province'] == null
           ? null
           : documentReferenceFromJson(json['province'] as DocumentReference),
@@ -44,9 +45,9 @@ RoomEntity _$RoomEntityFromJson(Map<String, dynamic> json) {
       updatedAt: json['updated_at'] == null
           ? null
           : timestampFromJson(json['updated_at'] as Timestamp),
-      userIdsSaved:
-          (json['user_ids_saved'] as List)?.map((e) => e as String)?.toList() ??
-              [],
+      userIdsSaved: json['user_ids_saved'] == null
+          ? null
+          : mapStringTimestampFromJson(json['user_ids_saved'] as Map),
       documentID: json['documentID'] as String);
 }
 
@@ -64,7 +65,7 @@ Map<String, dynamic> _$RoomEntityToJson(RoomEntity instance) =>
           : geoPointToJson(instance.addressGeoPoint),
       'images': instance.images,
       'phone': instance.phone,
-      'is_active': instance.isActive,
+      'available': instance.available,
       'approve': instance.approve,
       'utilities': instance.utilities,
       'user':
@@ -72,6 +73,7 @@ Map<String, dynamic> _$RoomEntityToJson(RoomEntity instance) =>
       'category': instance.category == null
           ? null
           : documentReferenceToJson(instance.category),
+      'category_name': instance.categoryName,
       'province': instance.province == null
           ? null
           : documentReferenceToJson(instance.province),
@@ -87,5 +89,7 @@ Map<String, dynamic> _$RoomEntityToJson(RoomEntity instance) =>
       'updated_at': instance.updatedAt == null
           ? null
           : timestampToJson(instance.updatedAt),
-      'user_ids_saved': instance.userIdsSaved
+      'user_ids_saved': instance.userIdsSaved == null
+          ? null
+          : mapStringTimestampToJson(instance.userIdsSaved)
     };
