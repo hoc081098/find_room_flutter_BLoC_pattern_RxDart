@@ -32,14 +32,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .orderBy('updated_at', descending: true)
         .limit(limit)
         .snapshots()
-        .map(
-          (querySnapshot) => querySnapshot.documents
-              .map(
-                (documentSnapshot) =>
-                    RoomEntity.fromDocumentSnapshot(documentSnapshot),
-              )
-              .toList(),
-        );
+        .map(_toEntities);
   }
 
   @override
@@ -62,14 +55,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .orderBy('count_view', descending: true)
         .limit(limit)
         .snapshots()
-        .map(
-          (querySnapshot) => querySnapshot.documents
-              .map(
-                (documentSnapshot) =>
-                    RoomEntity.fromDocumentSnapshot(documentSnapshot),
-              )
-              .toList(),
-        );
+        .map(_toEntities);
   }
 
   @override
@@ -120,5 +106,20 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     return _firestore
         .runTransaction(transactionHandler, timeout: timeout)
         .then((result) => result.cast<String, String>());
+  }
+
+  @override
+  Stream<List<RoomEntity>> savedList({String uid}) {
+    return _firestore
+        .collection('motelrooms')
+        .orderBy('user_ids_saved.$uid', descending: true)
+        .snapshots()
+        .map(_toEntities);
+  }
+
+  List<RoomEntity> _toEntities(QuerySnapshot querySnapshot) {
+    return querySnapshot.documents.map((documentSnapshot) {
+      return RoomEntity.fromDocumentSnapshot(documentSnapshot);
+    }).toList();
   }
 }

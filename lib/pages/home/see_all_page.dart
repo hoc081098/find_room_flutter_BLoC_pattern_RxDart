@@ -1,3 +1,4 @@
+import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/home/home_state.dart';
 import 'package:flutter/material.dart';
 
@@ -15,11 +16,11 @@ class _SeeAllPageState extends State<SeeAllPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Xem tất cả'),
+        title: Text(S.of(context).see_all),
       ),
       body: SafeArea(
         child: Center(
-          child: Text('See all page ${widget.seeAllQuery}...'),
+          child: Text('${S.of(context).see_all} ${widget.seeAllQuery}...'),
         ),
       ),
     );

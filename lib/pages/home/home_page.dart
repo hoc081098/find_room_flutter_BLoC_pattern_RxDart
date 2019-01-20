@@ -2,11 +2,13 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/pages/home/see_all_page.dart';
+import 'package:find_room/pages/setting/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:rxdart/rxdart.dart';
@@ -27,15 +29,15 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Thoát khỏi ứng dụng'),
-          content: const Text('Bạn chắc chắn muốn thoát khỏi ứng dụng'),
+          title: Text(S.of(context).exit_app),
+          content: Text(S.of(context).sure_want_to_exit_app),
           actions: <Widget>[
             FlatButton(
-              child: const Text('Không'),
+              child: Text(S.of(context).no),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             FlatButton(
-              child: const Text('Thoát'),
+              child: Text(S.of(context).exit),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -45,17 +47,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildNewestRoomsList(
-    ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> rooms$,
+    ValueObservable<List<RoomItem>> rooms$,
     void Function(String) addOrRemoveSaved,
   ) {
-    return StreamBuilder<Tuple2<HeaderItem, List<RoomItem>>>(
+    return StreamBuilder<List<RoomItem>>(
       stream: rooms$,
       initialData: rooms$.value,
       builder: (
         BuildContext context,
-        AsyncSnapshot<Tuple2<HeaderItem, List<RoomItem>>> snapshot,
+        AsyncSnapshot<List<RoomItem>> snapshot,
       ) {
-        final list = snapshot.data.item2;
+        final list = snapshot.data;
+
         final Widget sliver = list.isEmpty
             ? _buildEmptyListSliver(context)
             : SliverGrid(
@@ -101,22 +104,28 @@ class _MyHomePageState extends State<MyHomePage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: CustomScrollView(
+        physics: BouncingScrollPhysics(),
         slivers: <Widget>[
           SliverAppBar(
             pinned: true,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.settings),
-                tooltip: 'Cài đặt',
+                tooltip: S.of(context).settings,
                 onPressed: () {
-                  print('Setting pressed');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingPage(),
+                    ),
+                  );
                 },
               ),
             ],
             expandedHeight: 200,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Phòng trọ tốt',
+                S.of(context).app_title,
                 style: const TextStyle(
                   color: Colors.white,
                   letterSpacing: 0.41,
@@ -153,13 +162,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _buildSelectedProvince(homeBloc.selectedProvinceAndAllProvinces$,
               homeBloc.changeProvince.add),
-          _buildHeaderItem(homeBloc.newestRooms$, context),
+          _buildHeaderItem(SeeAllQuery.newest, context),
           _buildNewestRoomsList(
             homeBloc.newestRooms$,
             homeBloc.addOrRemoveSaved.add,
           ),
           _buildBannersSlider(homeBloc.banner$),
-          _buildHeaderItem(homeBloc.mostViewedRooms$, context),
+          _buildHeaderItem(SeeAllQuery.mostViewed, context),
           _buildMostViewedRoomsList(
             homeBloc.mostViewedRooms$,
             homeBloc.addOrRemoveSaved.add,
@@ -169,55 +178,49 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildHeaderItem(
-    ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> rooms$,
-    BuildContext context,
-  ) {
-    return StreamBuilder<Tuple2<HeaderItem, List<RoomItem>>>(
-      stream: rooms$,
-      initialData: rooms$.value,
-      builder: (BuildContext context,
-          AsyncSnapshot<Tuple2<HeaderItem, List<RoomItem>>> snapshot) {
-        final HeaderItem headerItem = snapshot.data.item1;
+  Widget _buildHeaderItem(SeeAllQuery seeAllQuery, BuildContext context) {
+    String headerItemTitle;
+    if (seeAllQuery == SeeAllQuery.mostViewed) {
+      headerItemTitle = S.of(context).mostViewed;
+    } else if (seeAllQuery == SeeAllQuery.newest) {
+      headerItemTitle = S.of(context).newest;
+    }
 
-        return SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            color: Theme.of(context).accentColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  headerItem.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                MaterialButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            SeeAllPage(headerItem.seeAllQuery),
-                      ),
-                    );
-                  },
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    "Xem tất cả",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
+    return SliverToBoxAdapter(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        color: Theme.of(context).accentColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              headerItemTitle,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        );
-      },
+            MaterialButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => SeeAllPage(seeAllQuery),
+                  ),
+                );
+              },
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                S.of(context).see_all,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -380,8 +383,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
       onPressed: () => addOrRemoveSaved(item.id),
       tooltip: item.iconState == BookmarkIconState.showNotSaved
-          ? 'Thêm vào đã lưu'
-          : 'Xóa khỏi đã lưu',
+          ? S.of(context).add_to_saved
+          : S.of(context).remove_from_saved,
     );
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -524,17 +527,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildMostViewedRoomsList(
-    ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> rooms$,
+    ValueObservable<List<RoomItem>> rooms$,
     void Function(String) addOrRemoveSaved,
   ) {
-    return StreamBuilder<Tuple2<HeaderItem, List<RoomItem>>>(
+    return StreamBuilder<List<RoomItem>>(
       stream: rooms$,
       initialData: rooms$.value,
       builder: (
         BuildContext context,
-        AsyncSnapshot<Tuple2<HeaderItem, List<RoomItem>>> snapshot,
+        AsyncSnapshot<List<RoomItem>> snapshot,
       ) {
-        final list = snapshot.data.item2;
+        final list = snapshot.data;
+
         final Widget silver = list.isEmpty
             ? _buildEmptyListSliver(context)
             : SliverList(
@@ -570,10 +574,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Icon(
               Icons.home,
               size: 48,
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).accentColor,
             ),
             Text(
-              'Chưa có nhà trọ nào...',
+              S.of(context).empty_rooms,
               style: Theme.of(context).textTheme.body1.copyWith(fontSize: 16),
               textAlign: TextAlign.center,
             ),
@@ -742,7 +746,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ],
                               ),
                             ),
-                            tooltip: 'Thay đổi khu vực',
                             onSelected: changeSelectedProvince,
                             itemBuilder: (BuildContext context) {
                               return data.item2.map((province) {

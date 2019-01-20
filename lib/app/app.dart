@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MyApp extends StatelessWidget {
@@ -23,25 +26,53 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Phòng trọ tốt',
-      theme: appTheme,
-      builder: (BuildContext context, Widget child) {
-        print('[DEBUG] App builder');
-        return Scaffold(
-          drawer: MyDrawer(
-            navigator: child.key as GlobalKey<NavigatorState>,
-          ),
-          body: BodyChild(child: child),
-        );
-      },
-      initialRoute: '/',
-      routes: <String, WidgetBuilder>{
-        '/': (context) => MyHomePage(),
-        '/saved': (context) => SavedPage(),
-        '/login': (context) => LoginPage(),
-      },
-    );
+    var localeBloc = BlocProvider.of<LocaleBloc>(context);
+
+    return StreamBuilder<Locale>(
+        stream: localeBloc.locale$,
+        initialData: localeBloc.locale$.value,
+        builder: (context, snapshot) {
+          print('[DEBUG] locale = ${snapshot.data}');
+
+          if (!snapshot.hasData) {
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+              width: double.infinity,
+              height: double.infinity,
+            );
+          }
+
+          return MaterialApp(
+            locale: snapshot.data,
+            supportedLocales: S.delegate.supportedLocales,
+            localizationsDelegates: [
+              S.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+            ],
+            localeResolutionCallback:
+                S.delegate.resolution(fallback: const Locale('en', '')),
+            onGenerateTitle: (context) => S.of(context).app_title,
+            theme: appTheme,
+            builder: (BuildContext context, Widget child) {
+              print('[DEBUG] App builder');
+              return Scaffold(
+                drawer: MyDrawer(
+                  navigator: child.key as GlobalKey<NavigatorState>,
+                ),
+                body: BodyChild(child: child),
+              );
+            },
+            initialRoute: '/',
+            routes: <String, WidgetBuilder>{
+              '/': (context) => MyHomePage(),
+              '/saved': (context) => SavedPage(),
+              '/login': (context) => LoginPage(),
+            },
+          );
+        });
   }
 }
 
@@ -63,7 +94,8 @@ class _BodyChildState extends State<BodyChild> {
 
     print('[DEBUG] _BodyChildState didChangeDependencies');
     _subscription?.cancel();
-    _subscription = BlocProvider.of<UserBloc>(context).signOutMessage$.listen((message) {
+    _subscription =
+        BlocProvider.of<UserBloc>(context).signOutMessage$.listen((message) {
       RootScaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -110,7 +142,7 @@ class MyDrawer extends StatelessWidget {
             drawerControllerState,
           ),
           ListTile(
-            title: Text('Trang chủ'),
+            title: Text(S.of(context).home_page_title),
             onTap: () {
               drawerControllerState.close();
               navigator.currentState.popUntil(ModalRoute.withName('/'));
@@ -150,7 +182,7 @@ class MyDrawer extends StatelessWidget {
 
         if (loginState is UserLogin) {
           return ListTile(
-            title: const Text('Đã lưu'),
+            title: Text(S.of(context).saved_rooms_title),
             onTap: () {
               drawerControllerState.close();
               navigator.currentState.pushNamedAndRemoveUntil(
@@ -196,7 +228,7 @@ class MyDrawer extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               child: const Icon(Icons.image),
             ),
-            accountEmail: const Text('Đăng nhập ngay'),
+            accountEmail: Text(S.of(context).login_now),
             accountName: Container(),
             onDetailsPressed: () {
               drawerControllerState.close();
@@ -225,7 +257,7 @@ class MyDrawer extends StatelessWidget {
 
         if (loginState is NotLogin) {
           return ListTile(
-            title: const Text('Đăng nhập'),
+            title: Text(S.of(context).login_title),
             onTap: () {
               drawerControllerState.close();
               navigator.currentState.pushNamedAndRemoveUntil(
@@ -239,7 +271,7 @@ class MyDrawer extends StatelessWidget {
 
         if (loginState is UserLogin) {
           return ListTile(
-            title: const Text('Đăng xuất'),
+            title: Text(S.of(context).logout),
             onTap: () async {
               drawerControllerState.close();
 
@@ -247,11 +279,11 @@ class MyDrawer extends StatelessWidget {
                 context: navigator.currentState.overlay.context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Đăng xuất'),
-                    content: const Text('Bạn chắc chắn muốn đăng xuất'),
+                    title: Text(S.of(context).logout),
+                    content: Text(S.of(context).sure_want_to_logout),
                     actions: <Widget>[
                       FlatButton(
-                        child: const Text('Hủy'),
+                        child: Text(S.of(context).cancel),
                         onPressed: () => navigator.currentState.pop(false),
                       ),
                       FlatButton(

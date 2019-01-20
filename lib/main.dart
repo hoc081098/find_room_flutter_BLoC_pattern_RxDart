@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/app/app.dart';
+import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';
@@ -20,21 +21,17 @@ Future<void> main() async {
   final googleSignIn = GoogleSignIn();
 
   ///
-  ///Setup
+  /// Setup firestore
   ///
   await firestore.settings(timestampsInSnapshotsEnabled: true);
-  Intl.defaultLocale = 'vi_VN';
 
   ///
-  /// Test login
+  /// Price formatter for Vietnam Dong(VND)
   ///
-  firebaseAuth.signInWithEmailAndPassword(
-    email: 'hoc081098@gmail.com',
-    password: '123456',
-  );
+  final priceFormat = NumberFormat.currency(locale: 'vi_VN');
 
-  final priceFormat = NumberFormat.currency();
-  final userRepository = FirebaseUserRepositoryImpl(firebaseAuth, firestore, googleSignIn);
+  final userRepository =
+      FirebaseUserRepositoryImpl(firebaseAuth, firestore, googleSignIn);
   final roomRepository = FirestoreRoomRepositoryImpl(firestore);
   final bannerRepository = FirestoreBannerRepositoryImpl(firestore);
   final provinceDistrictWardRepository =
@@ -54,11 +51,16 @@ Future<void> main() async {
   runApp(
     Injector(
       userRepository: userRepository,
+      roomRepository: roomRepository,
+      priceFormat: priceFormat,
       child: BlocProvider<UserBloc>(
         bloc: userBloc,
         child: BlocProvider<HomeBloc>(
           bloc: homeBloc,
-          child: MyApp(),
+          child: BlocProvider<LocaleBloc>(
+            bloc: LocaleBloc(sharedPrefUtil),
+            child: MyApp(),
+          ),
         ),
       ),
     ),

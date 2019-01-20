@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
+import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/email_login_bloc.dart';
 import 'package:find_room/pages/login_register/google_sign_in_bloc.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage>
     super.initState();
 
     _fadeAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+        AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     _fadeAnim =
         Tween<double>(begin: 0, end: 1).animate(_fadeAnimationController);
   }
@@ -61,11 +62,13 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    var s = S.of(context);
+
     return WillPopScope(
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
-          title: Text('Đăng nhập'),
+          title: Text(s.login_title),
           leading: IconButton(
             icon: Icon(Icons.menu),
             onPressed: () => RootScaffold.openDrawer(context),
@@ -89,7 +92,7 @@ class _LoginPageState extends State<LoginPage>
                         _buildLoginButton(context),
                         FlatButton(
                           child: Text(
-                            "Bạn quên mật khẩu?",
+                            s.forgot_password,
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {},
@@ -99,7 +102,7 @@ class _LoginPageState extends State<LoginPage>
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Divider(color: Theme.of(context).accentColor),
-                            Text("hoặc kết nối qua"),
+                            Text(s.or_connect_through),
                             Divider(color: Theme.of(context).accentColor),
                           ],
                         ),
@@ -163,9 +166,9 @@ class _LoginPageState extends State<LoginPage>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text("Chưa có tài khoản?"),
+        Text(S.of(context).no_account),
         FlatButton(
-          child: Text("Đăng kí ngay"),
+          child: Text(S.of(context).register_now),
           textColor: Colors.indigo,
           onPressed: () {},
         )
@@ -235,7 +238,7 @@ class _LoginPageState extends State<LoginPage>
           ),
         ),
         child: Text(
-          "Đăng nhập",
+          S.of(context).login_title,
           style: TextStyle(
             color: Colors.white,
           ),
@@ -264,7 +267,7 @@ class _LoginPageState extends State<LoginPage>
                   Icons.lock,
                   color: Colors.black26,
                 ),
-                hintText: "Mật khẩu",
+                hintText: S.of(context).password,
                 hintStyle: TextStyle(
                   color: Colors.black26,
                 ),

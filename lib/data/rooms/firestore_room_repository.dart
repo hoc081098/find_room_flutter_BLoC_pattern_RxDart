@@ -18,4 +18,6 @@ abstract class FirestoreRoomRepository {
     @required String userId,
     Duration timeout: const Duration(seconds: 10),
   });
+
+  Stream<List<RoomEntity>> savedList({@required String uid});
 }

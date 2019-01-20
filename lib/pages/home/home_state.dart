@@ -5,28 +5,6 @@ enum BookmarkIconState { hide, showSaved, showNotSaved }
 enum SeeAllQuery { newest, mostViewed }
 
 @immutable
-class HeaderItem {
-  final String title;
-  final SeeAllQuery seeAllQuery;
-
-  const HeaderItem({@required this.title, @required this.seeAllQuery});
-
-  @override
-  String toString() => 'HeaderItem{title: $title, seeAllQuery: $seeAllQuery}';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HeaderItem &&
-          runtimeType == other.runtimeType &&
-          title == other.title &&
-          seeAllQuery == other.seeAllQuery;
-
-  @override
-  int get hashCode => title.hashCode ^ seeAllQuery.hashCode;
-}
-
-@immutable
 class RoomItem {
   final String id;
   final String title;

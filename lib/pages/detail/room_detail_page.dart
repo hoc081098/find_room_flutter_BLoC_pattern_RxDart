@@ -1,3 +1,4 @@
+import 'package:find_room/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
 class RoomDetailPage extends StatefulWidget {
@@ -9,10 +10,10 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chi tiết'),
+        title: Text(S.of(context).detail_title),
       ),
       body: Center(
-        child: Text('Detail page...'),
+        child: Text(S.of(context).detail_title),
       ),
     );
   }

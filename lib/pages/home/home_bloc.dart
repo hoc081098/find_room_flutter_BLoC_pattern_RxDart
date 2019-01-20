@@ -19,31 +19,9 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 const _kLimitRoom = 20;
-
 const _kBannerSliderInitial = <BannerItem>[];
-
-const _kNewestRoomsInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.newest,
-    title: 'Mới nhất',
-  ),
-  <RoomItem>[],
-);
-
-const _kMostViewedRoomsInitial = Tuple2(
-  HeaderItem(
-    seeAllQuery: SeeAllQuery.mostViewed,
-    title: 'Xem nhiều',
-  ),
-  <RoomItem>[],
-);
-
-bool _tuple2Equals<T>(
-  Tuple2<dynamic, List<T>> previous,
-  Tuple2<dynamic, List<T>> next,
-) =>
-    previous.item1 == next.item1 &&
-    ListEquality<T>().equals(previous.item2, next.item2);
+const _kNewestRoomsInitial = <RoomItem>[];
+const _kMostViewedRoomsInitial = <RoomItem>[];
 
 class HomeBloc implements BaseBloc {
   ///
@@ -56,8 +34,8 @@ class HomeBloc implements BaseBloc {
   /// Streams
   ///
   final ValueObservable<List<BannerItem>> banner$;
-  final ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$;
-  final ValueObservable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$;
+  final ValueObservable<List<RoomItem>> newestRooms$;
+  final ValueObservable<List<RoomItem>> mostViewedRooms$;
   final ValueObservable<Tuple2<Province, List<Province>>>
       selectedProvinceAndAllProvinces$;
   final Stream<String> message$;
@@ -107,16 +85,14 @@ class HomeBloc implements BaseBloc {
     final ValueConnectableObservable<List<BannerItem>> banner$ =
         _getBanners(bannerRepository);
 
-    final Observable<Tuple2<HeaderItem, List<RoomItem>>> mostViewedRooms$ =
-        _getMostViewedRooms(
+    final Observable<List<RoomItem>> mostViewedRooms$ = _getMostViewedRooms(
       sharedPrefUtil,
       roomRepository,
       userBloc,
       priceFormat,
     );
 
-    final Observable<Tuple2<HeaderItem, List<RoomItem>>> newestRooms$ =
-        _getNewestRooms(
+    final Observable<List<RoomItem>> newestRooms$ = _getNewestRooms(
       sharedPrefUtil,
       roomRepository,
       userBloc,
@@ -216,7 +192,14 @@ class HomeBloc implements BaseBloc {
               .map((provinces) => Tuple2(province, provinces))
               .startWith(Tuple2(province, [province]));
         })
-        .distinct((prev, next) => _tuple2Equals<Province>(prev, next))
+        .distinct(
+          (previous, next) =>
+              previous.item1 == next.item1 &&
+              const ListEquality<Province>().equals(
+                previous.item2,
+                next.item2,
+              ),
+        )
         .publishValue(
           seedValue: Tuple2(
             seedValue,
@@ -246,7 +229,7 @@ class HomeBloc implements BaseBloc {
     PublishSubject<String> addOrRemoveSavedController,
     UserBloc userBloc,
     FirestoreRoomRepository roomRepository,
-    List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
+    List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     return addOrRemoveSavedController.stream
         .throttle(Duration(milliseconds: 500))
@@ -264,7 +247,7 @@ class HomeBloc implements BaseBloc {
         );
   }
 
-  static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getNewestRooms(
+  static Observable<List<RoomItem>> _getNewestRooms(
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
@@ -272,23 +255,22 @@ class HomeBloc implements BaseBloc {
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
-              roomRepository.newestRooms(
-                selectedProvince: province,
-                limit: _kLimitRoom,
-              ),
-              userBloc.userLoginState$,
-              (List<RoomEntity> entities, UserLoginState loginState) =>
-                  HomeBloc._toRoomItems(
-                    entities,
-                    loginState,
-                    priceFormat,
-                  ))
-          .map((rooms) => _kNewestRoomsInitial.withItem2(rooms))
-          .startWith(_kNewestRoomsInitial.withItem2([]));
-    }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
+          roomRepository.newestRooms(
+            selectedProvince: province,
+            limit: _kLimitRoom,
+          ),
+          userBloc.userLoginState$,
+          (List<RoomEntity> entities, UserLoginState loginState) =>
+              HomeBloc._toRoomItems(
+                entities,
+                loginState,
+                priceFormat,
+              )).startWith(_kNewestRoomsInitial);
+    }).distinct(
+        (prev, next) => const ListEquality<RoomItem>().equals(prev, next));
   }
 
-  static Observable<Tuple2<HeaderItem, List<RoomItem>>> _getMostViewedRooms(
+  static Observable<List<RoomItem>> _getMostViewedRooms(
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
     UserBloc userBloc,
@@ -296,26 +278,25 @@ class HomeBloc implements BaseBloc {
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
-              roomRepository.mostViewedRooms(
-                selectedProvince: province,
-                limit: _kLimitRoom,
-              ),
-              userBloc.userLoginState$,
-              (List<RoomEntity> entities, UserLoginState loginState) =>
-                  HomeBloc._toRoomItems(
-                    entities,
-                    loginState,
-                    priceFormat,
-                  ))
-          .map((rooms) => _kMostViewedRoomsInitial.withItem2(rooms))
-          .startWith(_kMostViewedRoomsInitial.withItem2([]));
-    }).distinct((prev, next) => _tuple2Equals<RoomItem>(prev, next));
+          roomRepository.mostViewedRooms(
+            selectedProvince: province,
+            limit: _kLimitRoom,
+          ),
+          userBloc.userLoginState$,
+          (List<RoomEntity> entities, UserLoginState loginState) =>
+              HomeBloc._toRoomItems(
+                entities,
+                loginState,
+                priceFormat,
+              )).startWith(_kMostViewedRoomsInitial);
+    }).distinct(
+        (prev, next) => const ListEquality<RoomItem>().equals(prev, next));
   }
 
   static Stream<String> _addOrRemoveSavedRoom(
     Tuple2<String, UserLoginState> tuple,
     FirestoreRoomRepository roomRepository,
-    List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
+    List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     final roomId = tuple.item1;
     final loginState = tuple.item2;
@@ -345,7 +326,7 @@ class HomeBloc implements BaseBloc {
 
   static void _updateListRoomsAfterAddedOrRemovedSavedRoom(
     Map<String, String> result,
-    List<BehaviorSubject<Tuple2<HeaderItem, List<RoomItem>>>> subjects,
+    List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     print(result);
     final String id = result['id'];
@@ -359,11 +340,9 @@ class HomeBloc implements BaseBloc {
 
     subjects.forEach((subject) {
       final value = subject.value;
-      final newValue = value.withItem2(
-        value.item2
-            .map((room) => room.id == id ? room.withIconState(iconState) : room)
-            .toList(),
-      );
+      final newValue = value
+          .map((room) => room.id == id ? room.withIconState(iconState) : room)
+          .toList();
       subject.add(newValue);
     });
   }
