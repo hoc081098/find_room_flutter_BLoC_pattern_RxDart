@@ -436,8 +436,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: CachedNetworkImage(
                           imageUrl: items[index].image,
                           fit: BoxFit.cover,
-                          placeholder: CircularProgressIndicator(
-                            strokeWidth: 3.0,
+                          placeholder: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: Center(
+                            child: new Icon(
+                              Icons.image,
+                            ),
                           ),
                         ),
                       ),
