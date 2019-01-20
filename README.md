@@ -1,9 +1,12 @@
 # find_room
 
+A starter kit for beginner learns with Bloc pattern, RxDart, Firebase to architect a flutter project
 A Flutter project for learning. In progress...
 
-Only language **Vietnamese**, but you can refer to **Rxdart** usage, **BLoC** pattern 😁
+Support languages **Vietnamese**, **English**, you can refer to **Rxdart** usage, **BLoC** pattern 😁
 Star, fork if it is helful, issues and pull requests are always welcome
+
+Only configured for Android, no Ios yet.
 
 ## Screenshot
 
@@ -42,6 +45,7 @@ samples, guidance on mobile development, and a full API reference.
 - Login with email, facebook, Google account
 - See saved room
 - Loading Network Image
+- Localization by using Flutter i18n plugin
 - Build pojo by using json_serializable
 - Hero animation
 - Show empty View when the list view is empty
@@ -58,12 +62,10 @@ Make sure finish [install Flutter](https://flutter.io/get-started/install/) succ
 2. Install all the packages by: `flutter packages get`
 3. Run app on your simulator or device by: `flutter run`
 
-  
 ## Useful Command
 Generate json serialize and deserialize functions
 
 > flutter packages pub run build_runner build --delete-conflicting-outputs
-
 
 ## Reference
 
@@ -90,4 +92,8 @@ My repositories about BLoC pattern
 
 #### Json Serialization
 - [JSON and serialization](https://flutter.io/docs/development/data-and-backend/json)
+
+#### Localization
+- [Flutter: internationalization tutorials: Part 3— Android Studio plugin](https://medium.com/@datvt9312/flutter-internationalization-tutorials-part-3-android-studio-plugin-8604e2dc90f0)
+- [讓 Flutter App 支援多國語系的開發流程](https://medium.com/@zonble/%E8%AE%93-flutter-app-%E6%94%AF%E6%8F%B4%E5%A4%9A%E5%9C%8B%E8%AA%9E%E7%B3%BB%E7%9A%84%E9%96%8B%E7%99%BC%E6%B5%81%E7%A8%8B-ceb31532e2e1)
 
