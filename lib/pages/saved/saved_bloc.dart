@@ -7,7 +7,6 @@ import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:tuple/tuple.dart';
 
 class SavedBloc implements BaseBloc {
   ///
@@ -15,7 +14,7 @@ class SavedBloc implements BaseBloc {
   ///
   final Sink<String> removeFromSaved;
 
-  ///saved
+  ///
   /// Streams
   ///
   final ValueObservable<SavedListState> savedListState$;
@@ -38,7 +37,7 @@ class SavedBloc implements BaseBloc {
 
     final removeFromSaved = PublishSubject<String>(sync: true);
     final savedListStateController =
-        BehaviorSubject<SavedListState>(seedValue: Loading(), sync: true);
+        BehaviorSubject<SavedListState>(seedValue: Loading());
 
     final subscriptions = [
       userBloc.userLoginState$.switchMap((loginState) {
@@ -52,30 +51,15 @@ class SavedBloc implements BaseBloc {
           savedListStateController.add(state);
         }
       }),
-    ];
-
-    removeFromSaved
-        .withLatestFrom(userBloc.userLoginState$.ofType(TypeToken<UserLogin>()),
-            (roomId, UserLogin user) => Tuple2(roomId, user.uid))
-        .listen((tuple) {
-      var state = savedListStateController.value;
-
-      if (state is SavedList) {
-        savedListStateController.add(
-          SavedList(
-            state.roomItems.where(
-              (item) => item.id != tuple.item1,
-            ),
-          ),
+      removeFromSaved.listen((roomId) {
+        _handleRemoveFromSaved(
+          roomId,
+          roomRepository,
+          savedListStateController,
+          userBloc.userLoginState$.value,
         );
-        roomRepository
-            .addOrRemoveSavedRoom(
-              roomId: tuple.item1,
-              userId: tuple.item2,
-            )
-            .catchError((e) => savedListStateController.add(state));
-      }
-    });
+      }),
+    ];
 
     return SavedBloc._(
       removeFromSaved,
@@ -101,7 +85,13 @@ class SavedBloc implements BaseBloc {
     }
     if (loginState is UserLogin) {
       return Observable(roomRepository.savedList(uid: loginState.uid))
-          .map((entities) => _entitiesToRoomItems(entities, priceFormat))
+          .map((entities) {
+            return _entitiesToRoomItems(
+              entities,
+              priceFormat,
+              loginState.uid,
+            );
+          })
           .map<SavedListState>((roomItems) => SavedList(roomItems))
           .startWith(Loading());
     }
@@ -111,6 +101,7 @@ class SavedBloc implements BaseBloc {
   static List<RoomItem> _entitiesToRoomItems(
     List<RoomEntity> entities,
     NumberFormat priceFormat,
+    String uid,
   ) {
     return entities.map((entity) {
       return RoomItem(
@@ -120,7 +111,40 @@ class SavedBloc implements BaseBloc {
         address: entity.address,
         districtName: entity.districtName,
         image: entity.images.isNotEmpty ? entity.images.first : null,
+        savedTime: entity.userIdsSaved[uid].toDate(),
       );
     }).toList();
+  }
+
+  static _handleRemoveFromSaved(
+    String roomId,
+    FirestoreRoomRepository roomRepository,
+    BehaviorSubject<SavedListState> savedListStateController,
+    UserLoginState loginState,
+  ) async {
+    print('roomId=$roomId');
+    final state = savedListStateController.value;
+
+    if (state is SavedList) {
+      final removedState =
+          SavedList(state.roomItems.where((item) => item.id != roomId));
+      savedListStateController.add(removedState);
+
+      if (loginState is UserLogin) {
+        try {
+          final result = await roomRepository.addOrRemoveSavedRoom(
+            roomId: roomId,
+            userId: loginState.uid,
+          );
+          if (result['status'] != 'removed') {
+            savedListStateController.add(state);
+          }
+          print('result=$result, uid=${loginState.uid}');
+        } catch (e) {
+          savedListStateController.add(state);
+          print('e=$e');
+        }
+      }
+    }
   }
 }

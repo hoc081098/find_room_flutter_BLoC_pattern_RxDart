@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
+import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
@@ -68,7 +70,16 @@ class MyApp extends StatelessWidget {
             initialRoute: '/',
             routes: <String, WidgetBuilder>{
               '/': (context) => MyHomePage(),
-              '/saved': (context) => SavedPage(),
+              '/saved': (context) => SavedPage(
+                    initSavedBloc: () {
+                      return SavedBloc(
+                        userBloc: BlocProvider.of<UserBloc>(context),
+                        roomRepository: Injector.of(context).roomRepository,
+                        priceFormat: Injector.of(context).priceFormat,
+                      );
+                    },
+                    userBloc: BlocProvider.of<UserBloc>(context),
+                  ),
               '/login': (context) => LoginPage(),
             },
           );

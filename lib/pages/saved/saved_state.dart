@@ -33,6 +33,7 @@ class RoomItem {
   final String address;
   final String districtName;
   final String image;
+  final DateTime savedTime;
 
   const RoomItem({
     @required this.id,
@@ -41,11 +42,13 @@ class RoomItem {
     @required this.address,
     @required this.districtName,
     @required this.image,
+    @required this.savedTime,
   });
 
   @override
-  String toString() => 'RoomItem{id: $id, title: $title, price: $price, '
-      'address: $address, districtName: $districtName, image: $image}';
+  String toString() =>
+      'RoomItem{id: $id, title: $title, price: $price, address: $address,'
+      ' districtName: $districtName, image: $image, savedTime: $savedTime}';
 
   @override
   bool operator ==(Object other) =>
@@ -57,7 +60,8 @@ class RoomItem {
           price == other.price &&
           address == other.address &&
           districtName == other.districtName &&
-          image == other.image;
+          image == other.image &&
+          savedTime == other.savedTime;
 
   @override
   int get hashCode =>
@@ -66,5 +70,6 @@ class RoomItem {
       price.hashCode ^
       address.hashCode ^
       districtName.hashCode ^
-      image.hashCode;
+      image.hashCode ^
+      savedTime.hashCode;
 }

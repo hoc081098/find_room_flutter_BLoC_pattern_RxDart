@@ -1,16 +1,25 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
-import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SavedPage extends StatefulWidget {
+  final UserBloc userBloc;
+  final SavedBloc Function() initSavedBloc;
+
+  const SavedPage({
+    Key key,
+    @required this.userBloc,
+    @required this.initSavedBloc,
+  }) : super(key: key);
+
   _SavedPageState createState() => _SavedPageState();
 }
 
@@ -19,24 +28,13 @@ class _SavedPageState extends State<SavedPage> {
   StreamSubscription<dynamic> _subscription;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('_SavedPageState#didChangeDependencies');
+  void initState() {
+    super.initState();
 
-    var userBloc = BlocProvider.of<UserBloc>(context);
-    var roomRepository = Injector.of(context).roomRepository;
-    var priceFormat = Injector.of(context).priceFormat;
-
-    _subscription?.cancel();
-    _subscription = userBloc.userLoginState$
+    _savedBloc = widget.initSavedBloc();
+    _subscription = widget.userBloc.userLoginState$
         .where((state) => state is NotLogin)
         .listen((_) => Navigator.popUntil(context, ModalRoute.withName('/')));
-
-    _savedBloc = SavedBloc(
-      userBloc: userBloc,
-      roomRepository: roomRepository,
-      priceFormat: priceFormat,
-    );
   }
 
   @override
@@ -44,6 +42,7 @@ class _SavedPageState extends State<SavedPage> {
     _subscription.cancel();
     _savedBloc.dispose();
     print('_SavedPageState#dispose');
+
     super.dispose();
   }
 
@@ -95,6 +94,7 @@ class _SavedPageState extends State<SavedPage> {
                   );
                 }
 
+                final themeData = Theme.of(context);
                 return ListView.builder(
                   itemCount: data.roomItems.length,
                   physics: BouncingScrollPhysics(),
@@ -108,8 +108,83 @@ class _SavedPageState extends State<SavedPage> {
                         }
                       },
                       child: ListTile(
-                        title: Text(item.title),
-                        subtitle: Text(item.price),
+                        title: Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: themeData.textTheme.subtitle.copyWith(
+                            fontSize: 14,
+                            fontFamily: 'SF-Pro-Text',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Text(
+                              item.price,
+                              textAlign: TextAlign.left,
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                color: themeData.accentColor,
+                                fontSize: 12.0,
+                                fontFamily: 'SF-Pro-Text',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              item.address,
+                              textAlign: TextAlign.left,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontFamily: 'SF-Pro-Text',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              item.districtName,
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontFamily: 'SF-Pro-Text',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              DateFormat.yMMMMd().format(item.savedTime),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontFamily: 'SF-Pro-Text',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                        isThreeLine: true,
+                        leading: CachedNetworkImage(
+                          width: 128,
+                          height: 128,
+                          imageUrl: item.image,
+                          placeholder: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          errorWidget: Center(
+                            child: Icon(Icons.image),
+                          ),
+                        ),
                         trailing: Icon(
                           Icons.bookmark,
                           color: Theme.of(context).accentColor,
