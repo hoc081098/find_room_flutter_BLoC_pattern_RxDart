@@ -36,8 +36,9 @@ class SavedBloc implements BaseBloc {
     assert(priceFormat != null, 'priceFormat cannot be null');
 
     final removeFromSaved = PublishSubject<String>(sync: true);
-    final savedListStateController =
-        BehaviorSubject<SavedListState>(seedValue: Loading());
+    final savedListStateController = BehaviorSubject<SavedListState>(
+      seedValue: const SavedListState([], true),
+    );
 
     final subscriptions = [
       userBloc.userLoginState$.switchMap((loginState) {
@@ -81,7 +82,7 @@ class SavedBloc implements BaseBloc {
     NumberFormat priceFormat,
   ) {
     if (loginState is NotLogin) {
-      return Observable.just(Loading());
+      return Observable.just(const SavedListState([], true));
     }
     if (loginState is UserLogin) {
       return Observable(roomRepository.savedList(uid: loginState.uid))
@@ -92,8 +93,8 @@ class SavedBloc implements BaseBloc {
               loginState.uid,
             );
           })
-          .map<SavedListState>((roomItems) => SavedList(roomItems))
-          .startWith(Loading());
+          .map<SavedListState>((roomItems) => SavedListState(roomItems, false))
+          .startWith(const SavedListState([], true));
     }
     return Observable.error("Don't know loginState=$loginState");
   }
@@ -124,26 +125,27 @@ class SavedBloc implements BaseBloc {
   ) async {
     print('roomId=$roomId');
     final state = savedListStateController.value;
+    if (state.isLoading) {
+      return;
+    }
 
-    if (state is SavedList) {
-      final removedState =
-          SavedList(state.roomItems.where((item) => item.id != roomId));
-      savedListStateController.add(removedState);
+    final removedList =
+        state.roomItems.where((item) => item.id != roomId).toList();
+    savedListStateController.add(SavedListState(removedList, false));
 
-      if (loginState is UserLogin) {
-        try {
-          final result = await roomRepository.addOrRemoveSavedRoom(
-            roomId: roomId,
-            userId: loginState.uid,
-          );
-          if (result['status'] != 'removed') {
-            savedListStateController.add(state);
-          }
-          print('result=$result, uid=${loginState.uid}');
-        } catch (e) {
+    if (loginState is UserLogin) {
+      try {
+        final result = await roomRepository.addOrRemoveSavedRoom(
+          roomId: roomId,
+          userId: loginState.uid,
+        );
+        if (result['status'] != 'removed') {
           savedListStateController.add(state);
-          print('e=$e');
         }
+        print('result=$result, uid=${loginState.uid}');
+      } catch (e) {
+        savedListStateController.add(state);
+        print('e=$e');
       }
     }
   }

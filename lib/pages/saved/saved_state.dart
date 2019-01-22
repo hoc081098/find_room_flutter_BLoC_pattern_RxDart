@@ -2,19 +2,16 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class SavedListState {}
-
-class Loading implements SavedListState {}
-
-class SavedList implements SavedListState {
+class SavedListState {
   final List<RoomItem> roomItems;
+  final bool isLoading;
 
-  const SavedList(this.roomItems);
+  const SavedListState(this.roomItems, this.isLoading);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SavedList &&
+      other is SavedListState &&
           runtimeType == other.runtimeType &&
           const ListEquality<RoomItem>().equals(roomItems, other.roomItems);
 
@@ -22,7 +19,7 @@ class SavedList implements SavedListState {
   int get hashCode => const ListEquality<RoomItem>().hash(roomItems);
 
   @override
-  String toString() => 'SavedList{roomItems: $roomItems}';
+  String toString() => 'SavedListState{roomItems: $roomItems, isLoading: $isLoading}';
 }
 
 @immutable
