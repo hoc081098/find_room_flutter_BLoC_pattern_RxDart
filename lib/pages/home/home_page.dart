@@ -1,6 +1,7 @@
 ﻿import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/models/province.dart';
@@ -11,33 +12,40 @@ import 'package:find_room/pages/home/see_all_page.dart';
 import 'package:find_room/pages/setting/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key}) : super(key: key);
+  final HomeBloc homeBloc;
+
+  const MyHomePage({
+    Key key,
+    @required this.homeBloc,
+  }) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  StreamSubscription<String> _streamSubscription;
+  StreamSubscription _subscription;
+  HomeBloc homeBloc;
 
   Future<bool> _onWillPop() async {
     return await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
+        final s = S.of(context);
+
         return AlertDialog(
-          title: Text(S.of(context).exit_app),
-          content: Text(S.of(context).sure_want_to_exit_app),
+          title: Text(s.exit_app),
+          content: Text(s.sure_want_to_exit_app),
           actions: <Widget>[
             FlatButton(
-              child: Text(S.of(context).no),
+              child: Text(s.no),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             FlatButton(
-              child: Text(S.of(context).exit),
+              child: Text(s.exit),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -46,60 +54,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildNewestRoomsList(
-    ValueObservable<List<RoomItem>> rooms$,
-    void Function(String) addOrRemoveSaved,
-  ) {
-    return StreamBuilder<List<RoomItem>>(
-      stream: rooms$,
-      initialData: rooms$.value,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<List<RoomItem>> snapshot,
-      ) {
-        final list = snapshot.data;
-
-        final Widget sliver = list.isEmpty
-            ? _buildEmptyListSliver(context)
-            : SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                  childAspectRatio: 1 / 1.618,
-                  crossAxisCount: 2,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return _buildNewestRoomItem(
-                      list[index],
-                      context,
-                      addOrRemoveSaved,
-                    );
-                  },
-                  childCount: list.length,
-                ),
-              );
-
-        return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
-          sliver: sliver,
-        );
-      },
-    );
-  }
-
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    _streamSubscription?.cancel();
-    _streamSubscription =
-        BlocProvider.of<HomeBloc>(context).message$.listen(_showMessage);
+  void initState() {
+    super.initState();
+    homeBloc = widget.homeBloc;
+    _subscription = homeBloc.message$.listen(_showMessage);
   }
 
   @override
   Widget build(BuildContext context) {
-    final homeBloc = BlocProvider.of<HomeBloc>(context);
+    final s = S.of(context);
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -111,12 +75,16 @@ class _MyHomePageState extends State<MyHomePage> {
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.settings),
-                tooltip: S.of(context).settings,
+                tooltip: s.settings,
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SettingPage(),
+                      builder: (context) {
+                        return SettingPage(
+                          localeBloc: BlocProvider.of<LocaleBloc>(context),
+                        );
+                      },
                     ),
                   );
                 },
@@ -125,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
             expandedHeight: 200,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                S.of(context).app_title,
+                s.app_title,
                 style: const TextStyle(
                   color: Colors.white,
                   letterSpacing: 0.41,
@@ -160,30 +128,209 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          _buildSelectedProvince(homeBloc.selectedProvinceAndAllProvinces$,
-              homeBloc.changeProvince.add),
-          _buildHeaderItem(SeeAllQuery.newest, context),
-          _buildNewestRoomsList(
-            homeBloc.newestRooms$,
-            homeBloc.addOrRemoveSaved.add,
-          ),
-          _buildBannersSlider(homeBloc.banner$),
-          _buildHeaderItem(SeeAllQuery.mostViewed, context),
-          _buildMostViewedRoomsList(
-            homeBloc.mostViewedRooms$,
-            homeBloc.addOrRemoveSaved.add,
-          ),
+          const HomeSelectedProvince(),
+          const HomeHeaderItem(seeAllQuery: SeeAllQuery.newest),
+          const HomeNewestRoomsList(),
+          const HomeBannerSlider(),
+          const HomeHeaderItem(seeAllQuery: SeeAllQuery.mostViewed),
+          const HomeMostViewedRoomsList(),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderItem(SeeAllQuery seeAllQuery, BuildContext context) {
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _showMessage(HomeMessage message) {
+    print('[DEBUG] home_message=$message');
+    var s = S.of(context);
+
+    if (message is ChangeSelectedProvinceMessage) {
+      if (message is ChangeSelectedProvinceMessageSuccess) {
+        _showSnackBar(s.change_province_success(message.provinceName));
+      }
+      if (message is ChangeSelectedProvinceMessageError) {
+        _showSnackBar(s.change_province_error(message.provinceName));
+      }
+    }
+    if (message is AddOrRemovedSavedMessage) {
+      if (message is AddSavedMessageSuccess) {
+        _showSnackBar(s.add_saved_room_success);
+      }
+      if (message is RemoveSavedMessageSuccess) {
+        _showSnackBar(s.remove_saved_room_success);
+      }
+      if (message is AddOrRemovedSavedMessageError) {
+        if (message.error is NotLoginError) {
+          _showSnackBar(s.require_login);
+        } else {
+          _showSnackBar(s.add_or_remove_saved_room_error);
+        }
+      }
+    }
+  }
+
+  _showSnackBar(String message) {
+    Scaffold.of(context, nullOk: true)?.showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 2),
+        content: Text(message),
+      ),
+    );
+  }
+}
+
+class HomeSelectedProvince extends StatelessWidget {
+  const HomeSelectedProvince({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final homeBloc = BlocProvider.of<HomeBloc>(context);
+    final selectedProvinceAndAllProvinces$ =
+        homeBloc.selectedProvinceAndAllProvinces$;
+
+    return StreamBuilder<Tuple2<Province, List<Province>>>(
+      initialData: selectedProvinceAndAllProvinces$.value,
+      stream: selectedProvinceAndAllProvinces$,
+      builder: (context, snapshot) {
+        print('[DEBUG] province $snapshot');
+
+        final Tuple2<Province, List<Province>> data = snapshot.data;
+        final themeData = Theme.of(context);
+        final subtitle = themeData.textTheme.subtitle.copyWith(fontSize: 16);
+
+        return SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            child: Material(
+              type: MaterialType.card,
+              elevation: 3.0,
+              borderRadius: BorderRadius.circular(24),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.location_on,
+                              size: 30,
+                              color: themeData.primaryColor,
+                            ),
+                          ),
+                          PopupMenuButton<Province>(
+                            initialValue: data.item1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text(
+                                    data.item1?.name ?? '',
+                                    style: subtitle,
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: themeData.accentColor,
+                                    size: 28,
+                                  )
+                                ],
+                              ),
+                            ),
+                            onSelected: homeBloc.changeProvince.add,
+                            itemBuilder: (BuildContext context) {
+                              return data.item2.map((province) {
+                                return PopupMenuItem<Province>(
+                                  child: Text(
+                                    province.name,
+                                    style: subtitle,
+                                  ),
+                                  value: province,
+                                );
+                              }).toList();
+                            },
+                          ),
+                        ],
+                      ),
+                      TextField(
+                        onChanged: (value) {
+                          //TODO: search text changed
+                        },
+                        style: subtitle,
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 14,
+                            ),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                end: 4,
+                                top: 4,
+                                bottom: 4,
+                              ),
+                              child: Material(
+                                elevation: 2,
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                child: InkWell(
+                                  onTap: () {
+                                    //TODO: navigate to search
+                                  },
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: themeData.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                            )),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class HomeHeaderItem extends StatelessWidget {
+  final SeeAllQuery seeAllQuery;
+
+  const HomeHeaderItem({
+    Key key,
+    @required this.seeAllQuery,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+
     String headerItemTitle;
     if (seeAllQuery == SeeAllQuery.mostViewed) {
-      headerItemTitle = S.of(context).mostViewed;
+      headerItemTitle = s.mostViewed;
     } else if (seeAllQuery == SeeAllQuery.newest) {
-      headerItemTitle = S.of(context).newest;
+      headerItemTitle = s.newest;
     }
 
     return SliverToBoxAdapter(
@@ -211,7 +358,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                S.of(context).see_all,
+                s.see_all,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w400,
@@ -223,13 +370,59 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
 
-  Widget _buildNewestRoomItem(
-    RoomItem item,
-    BuildContext context,
-    void Function(String roomId) addOrRemoveSaved,
-  ) {
+///
+/// Newest
+///
+
+class HomeNewestRoomsList extends StatelessWidget {
+  const HomeNewestRoomsList({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final rooms$ = BlocProvider.of<HomeBloc>(context).newestRooms$;
+
+    return StreamBuilder<List<RoomItem>>(
+      stream: rooms$,
+      initialData: rooms$.value,
+      builder: (context, snapshot) {
+        final list = snapshot.data;
+
+        final Widget sliver = list.isEmpty
+            ? const HomeEmptyRoomList()
+            : SliverGrid(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  mainAxisSpacing: 0,
+                  crossAxisSpacing: 0,
+                  childAspectRatio: 1 / 1.618,
+                  crossAxisCount: 2,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) =>
+                      HomeNewestRoomsListItem(item: list[index]),
+                  childCount: list.length,
+                ),
+              );
+
+        return SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          sliver: sliver,
+        );
+      },
+    );
+  }
+}
+
+class HomeNewestRoomsListItem extends StatelessWidget {
+  final RoomItem item;
+
+  const HomeNewestRoomsListItem({Key key, this.item}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final themeData = Theme.of(context);
+
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
@@ -351,28 +544,66 @@ class _MyHomePageState extends State<MyHomePage> {
           Positioned(
             right: 4.0,
             top: 4.0,
-            child: _buildBookmarkIcon(
-              item,
-              addOrRemoveSaved,
-              context,
-            ),
+            child: HomeBookmarkIcon(roomItem: item),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildBookmarkIcon(
-    RoomItem item,
-    void addOrRemoveSaved(String roomId),
-    BuildContext context,
-  ) {
-    if (item.iconState == BookmarkIconState.hide) {
+///
+///
+///
+
+class HomeEmptyRoomList extends StatelessWidget {
+  const HomeEmptyRoomList({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.home,
+              size: 48,
+              color: Theme.of(context).accentColor,
+            ),
+            Text(
+              S.of(context).empty_rooms,
+              style: Theme.of(context).textTheme.body1.copyWith(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HomeBookmarkIcon extends StatelessWidget {
+  final RoomItem roomItem;
+
+  const HomeBookmarkIcon({
+    Key key,
+    @required this.roomItem,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (roomItem.iconState == BookmarkIconState.hide) {
       return SizedBox(width: 0, height: 0);
     }
     final accentColor = Theme.of(context).accentColor;
+    final s = S.of(context);
+
     final Widget iconButton = IconButton(
-      icon: item.iconState == BookmarkIconState.showNotSaved
+      icon: roomItem.iconState == BookmarkIconState.showNotSaved
           ? Icon(
               Icons.bookmark_border,
               color: accentColor,
@@ -381,18 +612,30 @@ class _MyHomePageState extends State<MyHomePage> {
               Icons.bookmark,
               color: accentColor,
             ),
-      onPressed: () => addOrRemoveSaved(item.id),
-      tooltip: item.iconState == BookmarkIconState.showNotSaved
-          ? S.of(context).add_to_saved
-          : S.of(context).remove_from_saved,
+      onPressed: () =>
+          BlocProvider.of<HomeBloc>(context).addOrRemoveSaved.add(roomItem.id),
+      tooltip: roomItem.iconState == BookmarkIconState.showNotSaved
+          ? s.add_to_saved
+          : s.remove_from_saved,
     );
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: iconButton,
     );
   }
+}
 
-  Widget _buildBannersSlider(ValueObservable<List<BannerItem>> banners$) {
+///
+/// Slide
+///
+
+class HomeBannerSlider extends StatelessWidget {
+  const HomeBannerSlider({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final banners$ = BlocProvider.of<HomeBloc>(context).banner$;
+
     return StreamBuilder<List<BannerItem>>(
       stream: banners$,
       initialData: banners$.value,
@@ -508,90 +751,22 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
+}
+
+///
+/// Most viewed
+///
+
+class HomeMostViewedRoomListItem extends StatelessWidget {
+  final RoomItem item;
+
+  const HomeMostViewedRoomListItem({
+    Key key,
+    @required this.item,
+  }) : super(key: key);
 
   @override
-  void dispose() {
-    _streamSubscription?.cancel();
-    super.dispose();
-  }
-
-  void _showMessage(String message) {
-    if (message != null) {
-      Scaffold.of(context, nullOk: true)?.showSnackBar(
-        SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text(message),
-        ),
-      );
-    }
-  }
-
-  Widget _buildMostViewedRoomsList(
-    ValueObservable<List<RoomItem>> rooms$,
-    void Function(String) addOrRemoveSaved,
-  ) {
-    return StreamBuilder<List<RoomItem>>(
-      stream: rooms$,
-      initialData: rooms$.value,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<List<RoomItem>> snapshot,
-      ) {
-        final list = snapshot.data;
-
-        final Widget silver = list.isEmpty
-            ? _buildEmptyListSliver(context)
-            : SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return _buildMostViewedRoomItem(
-                      list[index],
-                      context,
-                      addOrRemoveSaved,
-                    );
-                  },
-                  childCount: list.length,
-                ),
-              );
-
-        return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
-          sliver: silver,
-        );
-      },
-    );
-  }
-
-  SliverToBoxAdapter _buildEmptyListSliver(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.home,
-              size: 48,
-              color: Theme.of(context).accentColor,
-            ),
-            Text(
-              S.of(context).empty_rooms,
-              style: Theme.of(context).textTheme.body1.copyWith(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMostViewedRoomItem(
-    RoomItem item,
-    BuildContext context,
-    void Function(String) addOrRemoveSaved,
-  ) {
+  Widget build(BuildContext context) {
     final themeData = Theme.of(context);
 
     return Card(
@@ -672,139 +847,40 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             isThreeLine: true,
-            trailing: _buildBookmarkIcon(
-              item,
-              addOrRemoveSaved,
-              context,
-            ),
+            trailing: HomeBookmarkIcon(roomItem: item),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildSelectedProvince(
-    ValueObservable<Tuple2<Province, List<Province>>>
-        selectedProvinceAndAllProvinces$,
-    void Function(Province) changeSelectedProvince,
-  ) {
-    return StreamBuilder<Tuple2<Province, List<Province>>>(
-      initialData: selectedProvinceAndAllProvinces$.value,
-      stream: selectedProvinceAndAllProvinces$,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<Tuple2<Province, List<Province>>> snapshot,
-      ) {
-        print(snapshot);
-        final Tuple2<Province, List<Province>> data = snapshot.data;
-        var themeData = Theme.of(context);
-        final subtitle = themeData.textTheme.subtitle.copyWith(fontSize: 16);
+class HomeMostViewedRoomsList extends StatelessWidget {
+  const HomeMostViewedRoomsList({Key key}) : super(key: key);
 
-        return SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            width: double.infinity,
-            child: Material(
-              type: MaterialType.card,
-              elevation: 3.0,
-              borderRadius: BorderRadius.circular(24),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.location_on,
-                              size: 30,
-                              color: themeData.primaryColor,
-                            ),
-                          ),
-                          PopupMenuButton<Province>(
-                            initialValue: data.item1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    data.item1?.name ?? '',
-                                    style: subtitle,
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: themeData.accentColor,
-                                    size: 28,
-                                  )
-                                ],
-                              ),
-                            ),
-                            onSelected: changeSelectedProvince,
-                            itemBuilder: (BuildContext context) {
-                              return data.item2.map((province) {
-                                return PopupMenuItem<Province>(
-                                  child: Text(
-                                    province.name,
-                                    style: subtitle,
-                                  ),
-                                  value: province,
-                                );
-                              }).toList();
-                            },
-                          ),
-                        ],
-                      ),
-                      TextField(
-                        onChanged: (value) {
-                          //TODO: search text changed
-                        },
-                        style: subtitle,
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 14,
-                            ),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                end: 4,
-                                top: 4,
-                                bottom: 4,
-                              ),
-                              child: Material(
-                                elevation: 2,
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                child: InkWell(
-                                  onTap: () {
-                                    //TODO: navigate to search
-                                  },
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: themeData.primaryColor,
-                              ),
-                              borderRadius: BorderRadius.circular(30),
-                            )),
-                      )
-                    ],
-                  ),
+  @override
+  Widget build(BuildContext context) {
+    final rooms$ = BlocProvider.of<HomeBloc>(context).mostViewedRooms$;
+
+    return StreamBuilder<List<RoomItem>>(
+      stream: rooms$,
+      initialData: rooms$.value,
+      builder: (context, snapshot) {
+        final list = snapshot.data;
+
+        final Widget silver = list.isEmpty
+            ? const HomeEmptyRoomList()
+            : SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) =>
+                      HomeMostViewedRoomListItem(item: list[index]),
+                  childCount: list.length,
                 ),
-              ),
-            ),
-          ),
+              );
+
+        return SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          sliver: silver,
         );
       },
     );

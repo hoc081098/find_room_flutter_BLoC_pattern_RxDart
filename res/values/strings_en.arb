@@ -29,5 +29,15 @@
   "saved_list_empty": "Saved list is empty",
   "change_language_success": "Change language successfully",
   "change_language_error": "Error when chane language: $error",
-  "change_language_failure": "Error when chane language"
+  "change_language_failure": "Error when chane language",
+  "remove_saved_room_success_with_title": "Remove room '$title' from saved list successfully",
+  "remove_saved_room_error": "Error when remove room from saved list",
+  "removed": "Removed",
+  "error_occurred": "An error occurred",
+  "require_login": "You must be signed in",
+  "change_province_success":  "Change to '$province_name' successfully",
+  "change_province_error":  "Error when change to '$province_name'",
+  "add_saved_room_success" : "Added to saved list successfully",
+  "remove_saved_room_success" : "Remove from saved list successfully",
+  "add_or_remove_saved_room_error": "An error occurred. Try again later"
 }

@@ -6,43 +6,43 @@ import 'package:find_room/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {
+  final LocaleBloc localeBloc;
+
+  const SettingPage({Key key, @required this.localeBloc}) : super(key: key);
+
   @override
   _SettingPageState createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<SettingPage> {
-  LocaleBloc _localeBloc;
-  S _s;
   StreamSubscription _subscription;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
 
-    _localeBloc = BlocProvider.of<LocaleBloc>(context);
-    _s = S.of(context);
-
-    _subscription?.cancel();
-    _subscription = _localeBloc.changeLocaleResult$.listen(_showMessage);
+    _subscription = widget.localeBloc.changeLocaleResult$.listen(_showMessage);
   }
 
   void _showMessage(result) {
+    final s = S.of(context);
+
     if (result.item1) {
       Scaffold.of(context).showSnackBar(
         SnackBar(
-          content: Text(_s.change_language_success),
+          content: Text(s.change_language_success),
         ),
       );
     } else if (result.item2 != null) {
       Scaffold.of(context).showSnackBar(
         SnackBar(
-          content: Text(_s.change_language_error(result.item2)),
+          content: Text(s.change_language_error(result.item2)),
         ),
       );
     } else {
       Scaffold.of(context).showSnackBar(
         SnackBar(
-          content: Text(_s.change_language_failure),
+          content: Text(s.change_language_failure),
         ),
       );
     }
@@ -58,21 +58,27 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_s.settings_title),
+        title: Text(S.of(context).settings_title),
       ),
       body: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildChangeLanguage(_localeBloc, _s),
-          ],
+          children: <Widget>[const SettingChangeLanguage()],
         ),
       ),
     );
   }
+}
 
-  StreamBuilder<Locale> _buildChangeLanguage(LocaleBloc localeBloc, S s) {
+class SettingChangeLanguage extends StatelessWidget {
+  const SettingChangeLanguage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final localeBloc = BlocProvider.of<LocaleBloc>(context);
+    final s = S.of(context);
+
     return StreamBuilder<Locale>(
         stream: localeBloc.locale$,
         initialData: localeBloc.locale$.value,
@@ -95,11 +101,16 @@ class _SettingPageState extends State<SettingPage> {
                     }).toList();
 
                     return AlertDialog(
-                      title: Text(_s.change_language),
-                      content: ListView(children: children),
+                      title: Text(s.change_language),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          children: children,
+                          mainAxisSize: MainAxisSize.min,
+                        ),
+                      ),
                       actions: <Widget>[
                         FlatButton(
-                          child: Text(_s.cancel),
+                          child: Text(s.cancel),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ],

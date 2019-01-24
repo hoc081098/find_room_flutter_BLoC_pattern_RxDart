@@ -75,6 +75,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
       final roomRef = _firestore.document('motelrooms/$roomId');
       final documentSnapshot = await transaction.get(roomRef);
       final userIdsSaved = documentSnapshot['user_ids_saved'] as Map;
+      final title = documentSnapshot['title'] as String;
 
       if (userIdsSaved.containsKey(userId)) {
         await transaction.update(
@@ -86,6 +87,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
         return <String, String>{
           'id': documentSnapshot.documentID,
+          'title': title,
           'status': 'removed',
         };
       } else {
@@ -98,14 +100,16 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
         return <String, String>{
           'id': documentSnapshot.documentID,
+          'title': title,
           'status': 'added',
         };
       }
     };
 
-    return _firestore
-        .runTransaction(transactionHandler, timeout: timeout)
-        .then((result) => result.cast<String, String>());
+    return _firestore.runTransaction(transactionHandler, timeout: timeout).then(
+        (result) => result is Map<String, String>
+            ? result
+            : result.cast<String, String>());
   }
 
   @override

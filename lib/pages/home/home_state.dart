@@ -4,6 +4,10 @@ enum BookmarkIconState { hide, showSaved, showNotSaved }
 
 enum SeeAllQuery { newest, mostViewed }
 
+class NotLoginError {
+  const NotLoginError();
+}
+
 @immutable
 class RoomItem {
   final String id;
@@ -87,4 +91,44 @@ class BannerItem {
 
   @override
   String toString() => 'BannerItem{image: $image, description: $description}';
+}
+
+@immutable
+abstract class HomeMessage {
+  const HomeMessage();
+}
+
+abstract class ChangeSelectedProvinceMessage implements HomeMessage {
+  final String provinceName;
+
+  const ChangeSelectedProvinceMessage(this.provinceName);
+}
+
+abstract class AddOrRemovedSavedMessage implements HomeMessage {
+  const AddOrRemovedSavedMessage();
+}
+
+class ChangeSelectedProvinceMessageSuccess
+    extends ChangeSelectedProvinceMessage {
+  const ChangeSelectedProvinceMessageSuccess(String provinceName)
+      : super(provinceName);
+}
+
+class ChangeSelectedProvinceMessageError extends ChangeSelectedProvinceMessage {
+  const ChangeSelectedProvinceMessageError(String provinceName)
+      : super(provinceName);
+}
+
+class AddSavedMessageSuccess implements AddOrRemovedSavedMessage {
+  const AddSavedMessageSuccess();
+}
+
+class RemoveSavedMessageSuccess implements AddOrRemovedSavedMessage {
+  const RemoveSavedMessageSuccess();
+}
+
+class AddOrRemovedSavedMessageError implements AddOrRemovedSavedMessage {
+  final Object error;
+
+  const AddOrRemovedSavedMessageError(this.error);
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/room_entity.dart';
@@ -7,6 +9,12 @@ import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
+
+const _kInitialSavedListState = SavedListState(
+  error: null,
+  isLoading: true,
+  roomItems: <RoomItem>[],
+);
 
 class SavedBloc implements BaseBloc {
   ///
@@ -18,13 +26,19 @@ class SavedBloc implements BaseBloc {
   /// Streams
   ///
   final ValueObservable<SavedListState> savedListState$;
+  final Stream<SavedMessage> removeMessage$;
 
   ///
   /// Clean up
   ///
   final void Function() _dispose;
 
-  SavedBloc._(this.removeFromSaved, this.savedListState$, this._dispose);
+  SavedBloc._(
+    this.removeFromSaved,
+    this.savedListState$,
+    this._dispose,
+    this.removeMessage$,
+  );
 
   factory SavedBloc({
     @required UserBloc userBloc,
@@ -36,40 +50,31 @@ class SavedBloc implements BaseBloc {
     assert(priceFormat != null, 'priceFormat cannot be null');
 
     final removeFromSaved = PublishSubject<String>(sync: true);
-    final savedListStateController = BehaviorSubject<SavedListState>(
-      seedValue: const SavedListState([], true),
+
+    final savedListState$ = _getSavedList(
+      userBloc,
+      roomRepository,
+      priceFormat,
+    );
+    final removeMessage$ = _getRemovedMessage(
+      removeFromSaved,
+      userBloc,
+      roomRepository,
     );
 
-    final subscriptions = [
-      userBloc.userLoginState$.switchMap((loginState) {
-        return _toState(
-          loginState,
-          roomRepository,
-          priceFormat,
-        );
-      }).listen((state) {
-        if (savedListStateController.value != state) {
-          savedListStateController.add(state);
-        }
-      }),
-      removeFromSaved.listen((roomId) {
-        _handleRemoveFromSaved(
-          roomId,
-          roomRepository,
-          savedListStateController,
-          userBloc.userLoginState$.value,
-        );
-      }),
+    final subscriptions = <StreamSubscription>[
+      savedListState$.connect(),
+      removeMessage$.connect(),
     ];
 
     return SavedBloc._(
       removeFromSaved,
-      savedListStateController.stream,
+      savedListState$,
       () {
-        savedListStateController.close();
         removeFromSaved.close();
         subscriptions.forEach((s) => s.cancel());
       },
+      removeMessage$,
     );
   }
 
@@ -82,7 +87,12 @@ class SavedBloc implements BaseBloc {
     NumberFormat priceFormat,
   ) {
     if (loginState is NotLogin) {
-      return Observable.just(const SavedListState([], true));
+      return Observable.just(
+        _kInitialSavedListState.copyWith(
+          error: NotLoginError(),
+          isLoading: false,
+        ),
+      );
     }
     if (loginState is UserLogin) {
       return Observable(roomRepository.savedList(uid: loginState.uid))
@@ -93,10 +103,26 @@ class SavedBloc implements BaseBloc {
               loginState.uid,
             );
           })
-          .map<SavedListState>((roomItems) => SavedListState(roomItems, false))
-          .startWith(const SavedListState([], true));
+          .map((roomItems) {
+            return _kInitialSavedListState.copyWith(
+              roomItems: roomItems,
+              isLoading: false,
+            );
+          })
+          .startWith(_kInitialSavedListState)
+          .onErrorReturnWith((e) {
+            return _kInitialSavedListState.copyWith(
+              error: e,
+              isLoading: false,
+            );
+          });
     }
-    return Observable.error("Don't know loginState=$loginState");
+    return Observable.just(
+      _kInitialSavedListState.copyWith(
+        error: "Don't know loginState=$loginState",
+        isLoading: false,
+      ),
+    );
   }
 
   static List<RoomItem> _entitiesToRoomItems(
@@ -117,36 +143,41 @@ class SavedBloc implements BaseBloc {
     }).toList();
   }
 
-  static _handleRemoveFromSaved(
-    String roomId,
+  static ValueConnectableObservable<SavedListState> _getSavedList(
+    UserBloc userBloc,
     FirestoreRoomRepository roomRepository,
-    BehaviorSubject<SavedListState> savedListStateController,
-    UserLoginState loginState,
-  ) async {
-    print('roomId=$roomId');
-    final state = savedListStateController.value;
-    if (state.isLoading) {
-      return;
-    }
+    NumberFormat priceFormat,
+  ) {
+    return userBloc.userLoginState$
+        .switchMap((loginState) {
+          return _toState(
+            loginState,
+            roomRepository,
+            priceFormat,
+          );
+        })
+        .distinct()
+        .publishValue(seedValue: _kInitialSavedListState);
+  }
 
-    final removedList =
-        state.roomItems.where((item) => item.id != roomId).toList();
-    savedListStateController.add(SavedListState(removedList, false));
-
-    if (loginState is UserLogin) {
-      try {
-        final result = await roomRepository.addOrRemoveSavedRoom(
-          roomId: roomId,
-          userId: loginState.uid,
-        );
-        if (result['status'] != 'removed') {
-          savedListStateController.add(state);
-        }
-        print('result=$result, uid=${loginState.uid}');
-      } catch (e) {
-        savedListStateController.add(state);
-        print('e=$e');
+  static ConnectableObservable<RemovedSaveRoomMessage> _getRemovedMessage(
+    Observable<String> removeFromSaved,
+    UserBloc userBloc,
+    FirestoreRoomRepository roomRepository,
+  ) {
+    return removeFromSaved.flatMap((roomId) {
+      var loginState = userBloc.userLoginState$.value;
+      if (loginState is NotLogin) {
+        return Observable.just(RemovedSaveRoomMessageError(NotLoginError()));
       }
-    }
+
+      if (loginState is UserLogin) {
+        return Observable.fromFuture(roomRepository.addOrRemoveSavedRoom(
+                roomId: roomId, userId: loginState.uid))
+            .map((result) => RemovedSaveRoomMessageSuccess(result['title']))
+            .cast<RemovedSaveRoomMessage>()
+            .onErrorReturnWith((e) => RemovedSaveRoomMessageError(e));
+      }
+    }).publish();
   }
 }

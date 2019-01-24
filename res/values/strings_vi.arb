@@ -29,5 +29,15 @@
   "saved_list_empty": "Bạn chưa lưu nhà trọ nào",
   "change_language_success": "Thay đổi ngôn ngữ thành công",
   "change_language_error": "Lỗi khi thay đổi ngôn ngữ: $error",
-  "change_language_failure": "Lỗi khi thay đổi ngôn ngữ"
+  "change_language_failure": "Lỗi khi thay đổi ngôn ngữ",
+  "remove_saved_room_success_with_title": "Xóa '$title' khỏi danh sách đã lưu thành công",
+  "remove_saved_room_error": "Lỗi khi xóa khỏi danh sách đã lưu",
+  "removed": "Xóa",
+  "error_occurred": "Có lỗi xảy ra",
+  "require_login": "Bạn cần phải đăng nhập",
+  "change_province_success":  "Chuyển sang '$province_name' thành công",
+  "change_province_error":  "Lỗi xảy ra khi chuyển sang '$province_name'",
+  "add_saved_room_success" : "Thêm vào danh sách đã lưu thành công",
+  "remove_saved_room_success": "Xóa khỏi danh sách đã lưu thành công",
+  "add_or_remove_saved_room_error": "Đã có lỗi xảy ra. Hãy thử lại"
 }

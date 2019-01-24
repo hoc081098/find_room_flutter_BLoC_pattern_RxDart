@@ -19,6 +19,8 @@ class S implements WidgetsLocalizations {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
+  String get add_or_remove_saved_room_error => "An error occurred. Try again later";
+  String get add_saved_room_success => "Added to saved list successfully";
   String get add_to_saved => "Add to saved";
   String get app_title => "Find room";
   String get cancel => "Cancel";
@@ -27,6 +29,7 @@ class S implements WidgetsLocalizations {
   String get change_language_success => "Change language successfully";
   String get detail_title => "Detail";
   String get empty_rooms => "Empty rooms...";
+  String get error_occurred => "An error occurred";
   String get exit => "Exit";
   String get exit_app => "Exit app";
   String get forgot_password => "Forgot password?";
@@ -42,6 +45,10 @@ class S implements WidgetsLocalizations {
   String get password => "Password";
   String get register_now => "Register now";
   String get remove_from_saved => "Remove from saved";
+  String get remove_saved_room_error => "Error when remove room from saved list";
+  String get remove_saved_room_success => "Remove from saved list successfully";
+  String get removed => "Removed";
+  String get require_login => "You must be signed in";
   String get saved_list_empty => "Saved list is empty";
   String get saved_rooms_title => "Saved rooms";
   String get see_all => "See all";
@@ -50,6 +57,9 @@ class S implements WidgetsLocalizations {
   String get sure_want_to_exit_app => "Are you sure you want to exit the application?";
   String get sure_want_to_logout => "Are you sure you want to logout?";
   String change_language_error(String error) => "Error when chane language: $error";
+  String change_province_error(String province_name) => "Error when change to '$province_name'";
+  String change_province_success(String province_name) => "Change to '$province_name' successfully";
+  String remove_saved_room_success_with_title(String title) => "Remove room '$title' from saved list successfully";
 }
 
 class $vi extends S {
@@ -65,7 +75,11 @@ class $vi extends S {
   @override
   String get no => "Không";
   @override
+  String get add_or_remove_saved_room_error => "Đã có lỗi xảy ra. Hãy thử lại";
+  @override
   String get mostViewed => "Xem nhiều";
+  @override
+  String get error_occurred => "Có lỗi xảy ra";
   @override
   String get login_now => "Đăng nhập ngay";
   @override
@@ -99,6 +113,10 @@ class $vi extends S {
   @override
   String get remove_from_saved => "Xóa khỏi đã lưu";
   @override
+  String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
+  @override
+  String get require_login => "Bạn cần phải đăng nhập";
+  @override
   String get exit => "Thoát";
   @override
   String get saved_rooms_title => "Đã lưu";
@@ -109,9 +127,15 @@ class $vi extends S {
   @override
   String get home_page_title => "Trang chủ";
   @override
+  String get removed => "Xóa";
+  @override
   String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
   @override
   String get see_all => "Xem tất cả";
+  @override
+  String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
+  @override
+  String get remove_saved_room_error => "Lỗi khi xóa khỏi danh sách đã lưu";
   @override
   String get exit_app => "Thoát khỏi ứng dụng";
   @override
@@ -120,6 +144,12 @@ class $vi extends S {
   String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
   @override
   String change_language_error(String error) => "Lỗi khi thay đổi ngôn ngữ: $error";
+  @override
+  String change_province_success(String province_name) => "Chuyển sang '$province_name' thành công";
+  @override
+  String remove_saved_room_success_with_title(String title) => "Xóa '$title' khỏi danh sách đã lưu thành công";
+  @override
+  String change_province_error(String province_name) => "Lỗi xảy ra khi chuyển sang '$province_name'";
 }
 
 class $en extends S {

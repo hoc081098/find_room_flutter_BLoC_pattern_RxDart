@@ -38,7 +38,7 @@ class HomeBloc implements BaseBloc {
   final ValueObservable<List<RoomItem>> mostViewedRooms$;
   final ValueObservable<Tuple2<Province, List<Province>>>
       selectedProvinceAndAllProvinces$;
-  final Stream<String> message$;
+  final Stream<HomeMessage> message$;
 
   ///
   /// Clean up
@@ -105,15 +105,16 @@ class HomeBloc implements BaseBloc {
       provinceDistrictWardRepository,
     );
 
-    final ConnectableObservable<String> message$ = Observable.merge(
-      <Stream<String>>[
+    final ConnectableObservable<HomeMessage> message$ = Observable.merge(
+      <Stream<HomeMessage>>[
         _getMessageAddOrRemoveSavedRoom(
           addOrRemoveSavedController,
           userBloc,
           roomRepository,
           [newestRoomsController, mostViewedRoomsController],
         ),
-        _getMessageChangeProvince(changeProvinceController, sharedPrefUtil),
+        _getMessageChangeProvince(
+            changeProvinceController.stream, sharedPrefUtil),
       ],
     ).publish();
 
@@ -148,23 +149,18 @@ class HomeBloc implements BaseBloc {
     );
   }
 
-  static Observable<String> _getMessageChangeProvince(
-    PublishSubject<Province> changeProvinceController,
+  static Observable<ChangeSelectedProvinceMessage> _getMessageChangeProvince(
+    Observable<Province> changeProvince$,
     SharedPrefUtil sharedPrefUtil,
   ) {
-    return changeProvinceController.stream.distinct().switchMap(
-      (province) {
-        return Observable.fromFuture(
-                sharedPrefUtil.saveSelectedProvince(province))
-            .map((result) => Tuple2(result, province));
-      },
-    ).map((tuple) {
-      final result = tuple.item1;
-      final province = tuple.item2;
-      if (result) {
-        return 'Chuyển sang ${province.name} thành công';
-      }
-      return 'Lỗi xảy ra khi chuyển sang ${province.name}!!';
+    return changeProvince$.distinct().switchMap((province) {
+      return Observable.fromFuture(
+              sharedPrefUtil.saveSelectedProvince(province))
+          .map((result) => result
+              ? ChangeSelectedProvinceMessageSuccess(province.name)
+              : ChangeSelectedProvinceMessageError(province.name))
+          .onErrorReturnWith(
+              (e) => ChangeSelectedProvinceMessageError(province.name));
     });
   }
 
@@ -225,13 +221,13 @@ class HomeBloc implements BaseBloc {
         .publishValue(seedValue: _kBannerSliderInitial);
   }
 
-  static Observable<String> _getMessageAddOrRemoveSavedRoom(
-    PublishSubject<String> addOrRemoveSavedController,
+  static Observable<AddOrRemovedSavedMessage> _getMessageAddOrRemoveSavedRoom(
+    Observable<String> addOrRemoveSaved$,
     UserBloc userBloc,
     FirestoreRoomRepository roomRepository,
     List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
-    return addOrRemoveSavedController.stream
+    return addOrRemoveSaved$
         .throttle(Duration(milliseconds: 500))
         .withLatestFrom(
           userBloc.userLoginState$,
@@ -293,7 +289,7 @@ class HomeBloc implements BaseBloc {
         (prev, next) => const ListEquality<RoomItem>().equals(prev, next));
   }
 
-  static Stream<String> _addOrRemoveSavedRoom(
+  static Stream<AddOrRemovedSavedMessage> _addOrRemoveSavedRoom(
     Tuple2<String, UserLoginState> tuple,
     FirestoreRoomRepository roomRepository,
     List<BehaviorSubject<List<RoomItem>>> subjects,
@@ -304,16 +300,15 @@ class HomeBloc implements BaseBloc {
     final userId = loginState is UserLogin ? loginState.uid : null;
     if (userId == null) {
       return Observable.just(
-        'Bạn phải đăng nhập mới thực hiện được chức năng này',
-      );
+          const AddOrRemovedSavedMessageError(NotLoginError()));
     }
 
     final getMessageFromResult = (Map<String, String> result) {
       if (result['status'] == 'added') {
-        return 'Thêm vào danh sách đã lưu thành công';
+        return const AddSavedMessageSuccess();
       }
       if (result['status'] == 'removed') {
-        return 'Xóa khỏi danh sách đã lưu thành công';
+        return const RemoveSavedMessageSuccess();
       }
     };
     return Observable.fromFuture(
@@ -321,7 +316,7 @@ class HomeBloc implements BaseBloc {
         .doOnData((result) =>
             _updateListRoomsAfterAddedOrRemovedSavedRoom(result, subjects))
         .map(getMessageFromResult)
-        .onErrorReturnWith((e) => 'Đã có lỗi xảy ra. Hãy thử lại');
+        .onErrorReturnWith((e) => AddOrRemovedSavedMessageError(e));
   }
 
   static void _updateListRoomsAfterAddedOrRemovedSavedRoom(

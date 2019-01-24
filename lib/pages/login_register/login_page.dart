@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:find_room/app/app.dart';
-import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/dependency_injection.dart';
+import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/email_login_bloc.dart';
 import 'package:find_room/pages/login_register/google_sign_in_bloc.dart';
@@ -15,6 +14,16 @@ import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class LoginPage extends StatefulWidget {
+  final FirebaseUserRepository userRepository;
+
+  final UserBloc userBloc;
+
+  const LoginPage({
+    Key key,
+    @required this.userRepository,
+    @required this.userBloc,
+  }) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -37,22 +46,12 @@ class _LoginPageState extends State<LoginPage>
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     _fadeAnim =
         Tween<double>(begin: 0, end: 1).animate(_fadeAnimationController);
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('_LoginPageState#didChangeDependencies');
+    _emailLoginBloc = EmailLoginBloc(widget.userRepository);
+    _googleSignInBloc = GoogleSignInBloc(widget.userRepository);
 
-    final userRepository = Injector.of(context).userRepository;
-    final userBloc = BlocProvider.of<UserBloc>(context);
-
-    _emailLoginBloc = EmailLoginBloc(userRepository);
-    _googleSignInBloc = GoogleSignInBloc(userRepository);
-
-    _subscription?.cancel();
     _subscription = Observable.merge([
-      userBloc.userLoginState$
+      widget.userBloc.userLoginState$
           .where((state) => state is UserLogin)
           .map((_) => Tuple2(null, true)),
       _emailLoginBloc.messageAndLoginResult$,
