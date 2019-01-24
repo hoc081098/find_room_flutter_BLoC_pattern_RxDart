@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
-import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
@@ -144,6 +143,7 @@ class _SavedPageState extends State<SavedPage> {
                   return SavedRoomListItem(
                     roomItem: data.roomItems[index],
                     padding: padding,
+                    removeFromSaved: _savedBloc.removeFromSaved.add,
                   );
                 },
               );
@@ -175,11 +175,13 @@ class _SavedPageState extends State<SavedPage> {
 class SavedRoomListItem extends StatefulWidget {
   final RoomItem roomItem;
   final EdgeInsetsGeometry padding;
+  final void Function(String) removeFromSaved;
 
   const SavedRoomListItem({
     Key key,
     @required this.roomItem,
     @required this.padding,
+    @required this.removeFromSaved,
   }) : super(key: key);
 
   @override
@@ -201,9 +203,14 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final savedBloc = BlocProvider.of<SavedBloc>(context);
     final s = S.of(context);
     final item = widget.roomItem;
 
@@ -253,7 +260,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
           direction: DismissDirection.horizontal,
           onDismissed: (direction) {
             print('onDismissed direction=$direction');
-            savedBloc.removeFromSaved.add(item.id);
+            widget.removeFromSaved(item.id);
           },
           child: Container(
             decoration: BoxDecoration(
@@ -261,7 +268,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.shade200,
+                  color: Colors.grey.shade300,
                   blurRadius: 10,
                   spreadRadius: 2,
                 )
@@ -289,6 +296,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
                     ),
                   ),
                 ),
+                SizedBox(width: 4),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -340,17 +348,26 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      Text(
-                        DateFormat.yMMMMd().add_Hms().format(item.savedTime),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          color: Colors.black87,
-                          fontSize: 12,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w400,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              DateFormat.yMMMMd().add_Hms().format(item.savedTime),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                color: Colors.black54,
+                                fontSize: 12,
+                                fontFamily: 'SF-Pro-Text',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.bookmark),
+                        ],
                       ),
                     ],
                   ),

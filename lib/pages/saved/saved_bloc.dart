@@ -173,7 +173,9 @@ class SavedBloc implements BaseBloc {
 
       if (loginState is UserLogin) {
         return Observable.fromFuture(roomRepository.addOrRemoveSavedRoom(
-                roomId: roomId, userId: loginState.uid))
+                roomId: roomId,
+                userId: loginState.uid,
+                timeout: Duration(seconds: 5)))
             .map((result) => RemovedSaveRoomMessageSuccess(result['title']))
             .cast<RemovedSaveRoomMessage>()
             .onErrorReturnWith((e) => RemovedSaveRoomMessageError(e));
