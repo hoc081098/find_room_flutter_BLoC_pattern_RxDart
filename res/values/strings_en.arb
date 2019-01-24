@@ -39,5 +39,7 @@
   "change_province_error":  "Error when change to '$province_name'",
   "add_saved_room_success" : "Added to saved list successfully",
   "remove_saved_room_success" : "Remove from saved list successfully",
-  "add_or_remove_saved_room_error": "An error occurred. Try again later"
+  "add_or_remove_saved_room_error": "An error occurred. Try again later",
+  "logout_error": "An error occurred when logout",
+  "logout_success": "Logout successfully"
 }

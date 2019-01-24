@@ -51,16 +51,26 @@ class SavedBloc implements BaseBloc {
 
     final removeFromSaved = PublishSubject<String>(sync: true);
 
-    final savedListState$ = _getSavedList(
-      userBloc,
-      roomRepository,
-      priceFormat,
-    );
     final removeMessage$ = _getRemovedMessage(
       removeFromSaved,
       userBloc,
       roomRepository,
     );
+    final savedListState$ = Observable.combineLatest2<SavedListState,
+        RemovedSaveRoomMessage, SavedListState>(
+      _getSavedList(
+        userBloc,
+        roomRepository,
+        priceFormat,
+      ),
+      removeMessage$
+          .where((message) => message is RemovedSaveRoomMessageError)
+          .startWith(null),
+      (list, error) {
+        print('[DEBUG] emit latest state when error occurred $error list.length=${list.roomItems.length}');
+        return list;
+      },
+    ).publishValue(seedValue: _kInitialSavedListState);
 
     final subscriptions = <StreamSubscription>[
       savedListState$.connect(),
@@ -71,8 +81,8 @@ class SavedBloc implements BaseBloc {
       removeFromSaved,
       savedListState$,
       () {
-        removeFromSaved.close();
         subscriptions.forEach((s) => s.cancel());
+        removeFromSaved.close();
       },
       removeMessage$,
     );
@@ -143,21 +153,18 @@ class SavedBloc implements BaseBloc {
     }).toList();
   }
 
-  static ValueConnectableObservable<SavedListState> _getSavedList(
+  static Observable<SavedListState> _getSavedList(
     UserBloc userBloc,
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
   ) {
-    return userBloc.userLoginState$
-        .switchMap((loginState) {
-          return _toState(
-            loginState,
-            roomRepository,
-            priceFormat,
-          );
-        })
-        .distinct()
-        .publishValue(seedValue: _kInitialSavedListState);
+    return userBloc.userLoginState$.switchMap((loginState) {
+      return _toState(
+        loginState,
+        roomRepository,
+        priceFormat,
+      );
+    });
   }
 
   static ConnectableObservable<RemovedSaveRoomMessage> _getRemovedMessage(

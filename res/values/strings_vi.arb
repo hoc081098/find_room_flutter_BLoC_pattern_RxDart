@@ -39,5 +39,7 @@
   "change_province_error":  "Lỗi xảy ra khi chuyển sang '$province_name'",
   "add_saved_room_success" : "Thêm vào danh sách đã lưu thành công",
   "remove_saved_room_success": "Xóa khỏi danh sách đã lưu thành công",
-  "add_or_remove_saved_room_error": "Đã có lỗi xảy ra. Hãy thử lại"
+  "add_or_remove_saved_room_error": "Đã có lỗi xảy ra. Hãy thử lại",
+  "logout_error": "Lỗi xảy ra khi đăng xuất",
+  "logout_success": "Đăng xuất thành công"
 }

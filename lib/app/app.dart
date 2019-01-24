@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    var localeBloc = BlocProvider.of<LocaleBloc>(context);
+    final localeBloc = BlocProvider.of<LocaleBloc>(context);
 
     return StreamBuilder<Locale>(
         stream: localeBloc.locale$,
@@ -39,9 +39,6 @@ class MyApp extends StatelessWidget {
 
           if (!snapshot.hasData) {
             return Container(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
               width: double.infinity,
               height: double.infinity,
             );
@@ -65,7 +62,10 @@ class MyApp extends StatelessWidget {
                 drawer: MyDrawer(
                   navigator: child.key as GlobalKey<NavigatorState>,
                 ),
-                body: BodyChild(child: child),
+                body: BodyChild(
+                  child: child,
+                  userBloc: BlocProvider.of<UserBloc>(context),
+                ),
               );
             },
             initialRoute: '/',
@@ -101,8 +101,13 @@ class MyApp extends StatelessWidget {
 
 class BodyChild extends StatefulWidget {
   final Widget child;
+  final UserBloc userBloc;
 
-  const BodyChild({@required this.child, Key key}) : super(key: key);
+  const BodyChild({
+    @required this.child,
+    @required this.userBloc,
+    Key key,
+  }) : super(key: key);
 
   @override
   _BodyChildState createState() => _BodyChildState();
@@ -112,18 +117,21 @@ class _BodyChildState extends State<BodyChild> {
   StreamSubscription _subscription;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    print('[DEBUG] _BodyChildState initState');
 
-    print('[DEBUG] _BodyChildState didChangeDependencies');
-    _subscription?.cancel();
-    _subscription =
-        BlocProvider.of<UserBloc>(context).signOutMessage$.listen((message) {
-      RootScaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+    _subscription = widget.userBloc.message$.listen((message) {
+      var s = S.of(context);
+      if (message is UserLogoutMessage) {
+        if (message is UserLogoutMessageSuccess) {
+          _showSnackBar(s.logout_success);
+        }
+        if (message is UserLogoutMessageError) {
+          print('[DEBUG] logout error=${message.error}');
+          _showSnackBar(s.logout_error);
+        }
+      }
     });
   }
 
@@ -140,6 +148,15 @@ class _BodyChildState extends State<BodyChild> {
     print('[DEBUG] _BodyChildState build');
     return widget.child;
   }
+
+  void _showSnackBar(String message) {
+    Scaffold.of(context, nullOk: true)?.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 }
 
 class MyDrawer extends StatelessWidget {
@@ -151,84 +168,40 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     print('[DEBUG] MyDrawer build');
 
-    final userBloc = BlocProvider.of<UserBloc>(context);
-
-    final DrawerControllerState drawerControllerState =
-        context.rootAncestorStateOfType(TypeMatcher<DrawerControllerState>());
-
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          _buildUserAccountsDrawerHeader(
-            userBloc.userLoginState$,
-            drawerControllerState,
-          ),
+          DrawerUserHeader(navigator),
           ListTile(
             title: Text(S.of(context).home_page_title),
             onTap: () {
-              drawerControllerState.close();
+              RootDrawer.of(context).close();
               navigator.currentState.popUntil(ModalRoute.withName('/'));
             },
             leading: Icon(Icons.home),
           ),
-          _buildSavedListTile(
-            userBloc.userLoginState$,
-            drawerControllerState,
-          ),
+          DrawerSavedListTile(navigator),
           Divider(),
-          _buildLoginLogoutButton(
-            userBloc,
-            drawerControllerState,
-          ),
+          DrawerLoginLogoutTile(navigator),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSavedListTile(
-    ValueObservable<UserLoginState> loginState$,
-    DrawerControllerState drawerControllerState,
-  ) {
-    return StreamBuilder<UserLoginState>(
-      stream: loginState$,
-      initialData: loginState$.value,
-      builder: (context, snapshot) {
-        final loginState = snapshot.data;
+class DrawerUserHeader extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
 
-        if (loginState is NotLogin) {
-          return Container(
-            width: 0,
-            height: 0,
-          );
-        }
+  const DrawerUserHeader(this.navigator, {Key key}) : super(key: key);
 
-        if (loginState is UserLogin) {
-          return ListTile(
-            title: Text(S.of(context).saved_rooms_title),
-            onTap: () {
-              drawerControllerState.close();
-              navigator.currentState.pushNamedAndRemoveUntil(
-                '/saved',
-                ModalRoute.withName('/'),
-              );
-            },
-            leading: const Icon(Icons.bookmark),
-          );
-        }
+  @override
+  Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final ValueObservable<UserLoginState> loginState$ =
+        userBloc.userLoginState$;
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
-        return Container(
-          width: 0,
-          height: 0,
-        );
-      },
-    );
-  }
-
-  Widget _buildUserAccountsDrawerHeader(
-    ValueObservable<UserLoginState> loginState$,
-    DrawerControllerState drawerControllerState,
-  ) {
     return StreamBuilder<UserLoginState>(
       stream: loginState$,
       initialData: loginState$.value,
@@ -267,11 +240,68 @@ class MyDrawer extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildLoginLogoutButton(
-    UserBloc userBloc,
-    DrawerControllerState drawerControllerState,
-  ) {
+class DrawerSavedListTile extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
+
+  const DrawerSavedListTile(this.navigator, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final ValueObservable<UserLoginState> loginState$ =
+        userBloc.userLoginState$;
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
+
+    return StreamBuilder<UserLoginState>(
+      stream: loginState$,
+      initialData: loginState$.value,
+      builder: (context, snapshot) {
+        final loginState = snapshot.data;
+
+        if (loginState is NotLogin) {
+          return Container(
+            width: 0,
+            height: 0,
+          );
+        }
+
+        if (loginState is UserLogin) {
+          return ListTile(
+            title: Text(S.of(context).saved_rooms_title),
+            onTap: () {
+              drawerControllerState.close();
+              navigator.currentState.pushNamedAndRemoveUntil(
+                '/saved',
+                ModalRoute.withName('/'),
+              );
+            },
+            leading: const Icon(Icons.bookmark),
+          );
+        }
+
+        return Container(
+          width: 0,
+          height: 0,
+        );
+      },
+    );
+  }
+}
+
+class DrawerLoginLogoutTile extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
+
+  const DrawerLoginLogoutTile(this.navigator, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final ValueObservable<UserLoginState> loginState$ =
+        userBloc.userLoginState$;
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
+
     return StreamBuilder<UserLoginState>(
       stream: userBloc.userLoginState$,
       initialData: userBloc.userLoginState$.value,
@@ -348,5 +378,14 @@ class RootScaffold {
     final ScaffoldState scaffoldState =
         context.rootAncestorStateOfType(TypeMatcher<ScaffoldState>());
     return scaffoldState;
+  }
+}
+
+class RootDrawer {
+  RootDrawer._();
+
+  static DrawerControllerState of(BuildContext context) {
+    return context.rootAncestorStateOfType(TypeMatcher<DrawerControllerState>())
+        as DrawerControllerState;
   }
 }

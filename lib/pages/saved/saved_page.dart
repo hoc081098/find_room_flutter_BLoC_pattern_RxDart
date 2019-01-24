@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
@@ -142,7 +143,7 @@ class _SavedPageState extends State<SavedPage> {
                   var padding = _getItemPadding(data.roomItems.length, index);
                   return SavedRoomListItem(
                     roomItem: data.roomItems[index],
-                    padding: padding,
+                    margin: padding,
                     removeFromSaved: _savedBloc.removeFromSaved.add,
                   );
                 },
@@ -174,13 +175,13 @@ class _SavedPageState extends State<SavedPage> {
 
 class SavedRoomListItem extends StatefulWidget {
   final RoomItem roomItem;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
   final void Function(String) removeFromSaved;
 
   const SavedRoomListItem({
     Key key,
     @required this.roomItem,
-    @required this.padding,
+    @required this.margin,
     @required this.removeFromSaved,
   }) : super(key: key);
 
@@ -191,13 +192,23 @@ class SavedRoomListItem extends StatefulWidget {
 class _SavedRoomListItemState extends State<SavedRoomListItem>
     with SingleTickerProviderStateMixin<SavedRoomListItem> {
   AnimationController _animationController;
+  Animation<Offset> _animation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 600),
+      duration: Duration(milliseconds: 1000),
+    );
+    _animation = Tween(
+      begin: Offset(200, 0),
+      end: Offset(0, 0),
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
     );
     _animationController.forward();
   }
@@ -214,169 +225,162 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
     final s = S.of(context);
     final item = widget.roomItem;
 
-    return SlideTransition(
-      position: Tween(
-        begin: Offset(200, 0),
-        end: Offset(0, 0),
-      ).animate(
-        CurvedAnimation(
-          parent: _animationController,
-          curve: Curves.fastOutSlowIn,
+    var background = Container(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            SizedBox(width: 16.0),
+            Icon(
+              Icons.delete,
+              size: 28.0,
+            ),
+            Text(
+              s.removed,
+              style: themeData.textTheme.subhead,
+            ),
+            Spacer(),
+            Text(
+              s.removed,
+              style: themeData.textTheme.subhead,
+            ),
+            SizedBox(width: 16.0),
+            Icon(
+              Icons.delete,
+              size: 28.0,
+            ),
+          ],
         ),
       ),
-      child: Container(
+    );
+
+    var content = Container(
+      margin: widget.margin,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
         color: Colors.white,
-        padding: widget.padding,
-        child: Dismissible(
-          background: Container(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  SizedBox(width: 16.0),
-                  Icon(
-                    Icons.delete,
-                    size: 28.0,
-                  ),
-                  Text(
-                    s.removed,
-                    style: themeData.textTheme.subhead,
-                  ),
-                  Spacer(),
-                  Text(
-                    s.removed,
-                    style: themeData.textTheme.subhead,
-                  ),
-                  SizedBox(width: 16.0),
-                  Icon(
-                    Icons.delete,
-                    size: 28.0,
-                  ),
-                ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 10,
+            spreadRadius: 2,
+          )
+        ],
+      ),
+      child: Row(
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(4),
+              bottomLeft: Radius.circular(4),
+            ),
+            child: CachedNetworkImage(
+              width: 128,
+              height: 128,
+              fit: BoxFit.cover,
+              imageUrl: item.image,
+              placeholder: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              ),
+              errorWidget: Center(
+                child: Icon(Icons.image),
               ),
             ),
           ),
-          direction: DismissDirection.horizontal,
-          onDismissed: (direction) {
-            print('onDismissed direction=$direction');
-            widget.removeFromSaved(item.id);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
-              ],
-            ),
-            child: Row(
+          SizedBox(width: 4),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    bottomLeft: Radius.circular(4),
-                  ),
-                  child: CachedNetworkImage(
-                    width: 128,
-                    height: 128,
-                    fit: BoxFit.cover,
-                    imageUrl: item.image,
-                    placeholder: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    ),
-                    errorWidget: Center(
-                      child: Icon(Icons.image),
-                    ),
+                Text(
+                  item.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    fontSize: 14,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(width: 4),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        item.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          fontSize: 14,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        item.price,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          color: themeData.accentColor,
-                          fontSize: 12.0,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        item.address,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          color: Colors.black87,
-                          fontSize: 12,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        item.districtName,
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          color: Colors.black87,
-                          fontSize: 12,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              DateFormat.yMMMMd().add_Hms().format(item.savedTime),
-                              maxLines: 1,
-                              textAlign: TextAlign.left,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.subtitle.copyWith(
-                                color: Colors.black54,
-                                fontSize: 12,
-                                fontFamily: 'SF-Pro-Text',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Icon(Icons.bookmark),
-                        ],
-                      ),
-                    ],
+                Text(
+                  item.price,
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: themeData.accentColor,
+                    fontSize: 12.0,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
                   ),
+                ),
+                Text(
+                  item.address,
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: Colors.black87,
+                    fontSize: 12,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  item.districtName,
+                  maxLines: 1,
+                  textAlign: TextAlign.left,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.subtitle.copyWith(
+                    color: Colors.black87,
+                    fontSize: 12,
+                    fontFamily: 'SF-Pro-Text',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        DateFormat.yMMMMd().add_Hms().format(item.savedTime),
+                        maxLines: 1,
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.ellipsis,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          color: Colors.black54,
+                          fontSize: 12,
+                          fontFamily: 'SF-Pro-Text',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.bookmark),
+                  ],
                 ),
               ],
             ),
           ),
-          key: Key(item.id),
-        ),
+        ],
+      ),
+    );
+
+    return SlideTransition(
+      position: _animation,
+      child: Dismissible(
+        background: background,
+        direction: DismissDirection.horizontal,
+        onDismissed: (direction) {
+          print('onDismissed direction=$direction');
+          widget.removeFromSaved(item.id);
+        },
+        child: content,
+        key: Key("${item.id}${Random().nextInt(1 << 32)}"),
       ),
     );
   }

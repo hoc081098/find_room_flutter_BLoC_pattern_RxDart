@@ -16,7 +16,7 @@ class UserBloc implements BaseBloc {
   /// Streams
   ///
   final ValueObservable<UserLoginState> userLoginState$;
-  final Stream<String> signOutMessage$;
+  final Stream<UserMessage> message$;
 
   ///Cleanup
   final void Function() _dispose;
@@ -32,8 +32,8 @@ class UserBloc implements BaseBloc {
     final signOutMessage$ = signOutController.exhaustMap((_) {
       return Observable.fromFuture(userRepository.signOut())
           .doOnError((e) => print('[DEBUG] logout error=$e'))
-          .onErrorReturn('Lỗi xảy ra khi đăng xuất')
-          .map((_) => 'Đăng xuất thành công');
+          .onErrorReturnWith((e) => UserLogoutMessageError(e))
+          .map((_) => const UserLogoutMessageSuccess());
     }).publish();
 
     final subscriptions = <StreamSubscription<dynamic>>[
@@ -56,7 +56,7 @@ class UserBloc implements BaseBloc {
     this._dispose,
     this.userLoginState$,
     this.signOut,
-    this.signOutMessage$,
+    this.message$,
   );
 
   @override

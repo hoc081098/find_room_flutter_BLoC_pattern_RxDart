@@ -21,12 +21,12 @@ class UserLogin implements UserLoginState {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is UserLogin &&
-              runtimeType == other.runtimeType &&
-              uid == other.uid &&
-              email == other.email &&
-              fullName == other.fullName &&
-              avatar == other.avatar;
+      other is UserLogin &&
+          runtimeType == other.runtimeType &&
+          uid == other.uid &&
+          email == other.email &&
+          fullName == other.fullName &&
+          avatar == other.avatar;
 
   @override
   int get hashCode =>
@@ -39,4 +39,22 @@ class UserLogin implements UserLoginState {
 
 class NotLogin implements UserLoginState {
   const NotLogin();
+}
+
+///
+///  Message expose from UserBloc
+///
+@immutable
+abstract class UserMessage {}
+
+class UserLogoutMessage implements UserMessage {}
+
+class UserLogoutMessageSuccess implements UserLogoutMessage {
+  const UserLogoutMessageSuccess();
+}
+
+class UserLogoutMessageError implements UserLogoutMessage {
+  final Object error;
+
+  const UserLogoutMessageError(this.error);
 }

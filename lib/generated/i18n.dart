@@ -37,6 +37,8 @@ class S implements WidgetsLocalizations {
   String get login_now => "Login now";
   String get login_title => "Login";
   String get logout => "Logout";
+  String get logout_error => "An error occurred when logout";
+  String get logout_success => "Logout successfully";
   String get mostViewed => "Most viewed";
   String get newest => "Newest";
   String get no => "No";
@@ -95,6 +97,8 @@ class $vi extends S {
   @override
   String get change_language_failure => "Lỗi khi thay đổi ngôn ngữ";
   @override
+  String get logout_success => "Đăng xuất thành công";
+  @override
   String get login_title => "Đăng nhập";
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
@@ -102,6 +106,8 @@ class $vi extends S {
   String get newest => "Mới nhất";
   @override
   String get settings => "Cài đặt";
+  @override
+  String get logout_error => "Lỗi xảy ra khi đăng xuất";
   @override
   String get change_language => "Thay đổi ngôn ngữ";
   @override
