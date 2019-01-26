@@ -28,23 +28,29 @@ class S implements WidgetsLocalizations {
   String get change_language_failure => "Error when chane language";
   String get change_language_success => "Change language successfully";
   String get detail_title => "Detail";
+  String get email_already_in_user_error => "The email address is already in use by another account";
   String get empty_rooms => "Empty rooms...";
   String get error_occurred => "An error occurred";
   String get exit => "Exit";
   String get exit_app => "Exit app";
   String get forgot_password => "Forgot password?";
   String get home_page_title => "Home page";
+  String get invalid_email_address => "Invalid email address";
+  String get invalid_email_error => "The email address is badly formatted";
   String get login_now => "Login now";
+  String get login_success => "Login successfully";
   String get login_title => "Login";
   String get logout => "Logout";
   String get logout_error => "An error occurred when logout";
   String get logout_success => "Logout successfully";
   String get mostViewed => "Most viewed";
+  String get network_error => "A network error (such as timeout, interrupted connection or unreachable host) has occurred";
   String get newest => "Newest";
   String get no => "No";
   String get no_account => "No account?";
   String get or_connect_through => "Or connect through";
-  String get password => "Password";
+  String get password => "Password *";
+  String get password_at_least_6_characters => "Password at least 6 characters";
   String get register_now => "Register now";
   String get remove_from_saved => "Remove from saved";
   String get remove_saved_room_error => "Error when remove room from saved list";
@@ -58,6 +64,11 @@ class S implements WidgetsLocalizations {
   String get settings_title => "Settings";
   String get sure_want_to_exit_app => "Are you sure you want to exit the application?";
   String get sure_want_to_logout => "Are you sure you want to logout?";
+  String get too_many_requests_error => "Too many requests";
+  String get user_disabled_error => "The user account has been disabled by an administrator";
+  String get user_not_found_error => "There is no user record corresponding to this identifier. The user may have been deleted";
+  String get weak_password_error => "The given password is invalid";
+  String get wrong_password_error => "The password is invalid or the user does not have a password";
   String change_language_error(String error) => "Error when chane language: $error";
   String change_province_error(String province_name) => "Error when change to '$province_name'";
   String change_province_success(String province_name) => "Change to '$province_name' successfully";
@@ -75,31 +86,23 @@ class $vi extends S {
   @override
   String get cancel => "Hủy";
   @override
-  String get no => "Không";
+  String get network_error => "Lỗi kết nối mạng";
   @override
   String get add_or_remove_saved_room_error => "Đã có lỗi xảy ra. Hãy thử lại";
-  @override
-  String get mostViewed => "Xem nhiều";
   @override
   String get error_occurred => "Có lỗi xảy ra";
   @override
   String get login_now => "Đăng nhập ngay";
   @override
-  String get change_language_success => "Thay đổi ngôn ngữ thành công";
-  @override
   String get settings_title => "Cài đặt";
   @override
-  String get password => "Mật khẩu";
+  String get password => "Mật khẩu *";
   @override
   String get logout => "Đăng xuất";
   @override
   String get add_to_saved => "Thêm vào đã lưu";
   @override
-  String get change_language_failure => "Lỗi khi thay đổi ngôn ngữ";
-  @override
   String get logout_success => "Đăng xuất thành công";
-  @override
-  String get login_title => "Đăng nhập";
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
   @override
@@ -107,21 +110,15 @@ class $vi extends S {
   @override
   String get settings => "Cài đặt";
   @override
-  String get logout_error => "Lỗi xảy ra khi đăng xuất";
-  @override
   String get change_language => "Thay đổi ngôn ngữ";
   @override
-  String get app_title => "Phòng trọ tốt";
+  String get wrong_password_error => "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu";
   @override
-  String get empty_rooms => "Chưa có nhà trọ nào...";
+  String get weak_password_error => "Mật khẩu đã cho không hợp lệ";
   @override
-  String get detail_title => "Chi tiết";
+  String get login_success => "Đăng nhập thành công";
   @override
-  String get remove_from_saved => "Xóa khỏi đã lưu";
-  @override
-  String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
-  @override
-  String get require_login => "Bạn cần phải đăng nhập";
+  String get invalid_email_address => "Sai định dạng email";
   @override
   String get exit => "Thoát";
   @override
@@ -133,29 +130,65 @@ class $vi extends S {
   @override
   String get home_page_title => "Trang chủ";
   @override
-  String get removed => "Xóa";
-  @override
-  String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
+  String get too_many_requests_error => "Quá nhiều request";
   @override
   String get see_all => "Xem tất cả";
   @override
   String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
   @override
+  String get user_disabled_error => "Tài khoản người dùng đã bị quản trị viên vô hiệu hóa";
+  @override
   String get remove_saved_room_error => "Lỗi khi xóa khỏi danh sách đã lưu";
+  @override
+  String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
+  @override
+  String get no => "Không";
+  @override
+  String get mostViewed => "Xem nhiều";
+  @override
+  String get user_not_found_error => "Không có người dùng nào tương ứng với số nhận dạng này. Người dùng có thể đã bị xóa";
+  @override
+  String get change_language_success => "Thay đổi ngôn ngữ thành công";
+  @override
+  String get invalid_email_error => "Địa chỉ email bị định dạng sai";
+  @override
+  String get change_language_failure => "Lỗi khi thay đổi ngôn ngữ";
+  @override
+  String get login_title => "Đăng nhập";
+  @override
+  String get logout_error => "Lỗi xảy ra khi đăng xuất";
+  @override
+  String get app_title => "Phòng trọ tốt";
+  @override
+  String get empty_rooms => "Chưa có nhà trọ nào...";
+  @override
+  String get email_already_in_user_error => "Địa chỉ email đã được một tài khoản khác sử dụng";
+  @override
+  String get detail_title => "Chi tiết";
+  @override
+  String get remove_from_saved => "Xóa khỏi đã lưu";
+  @override
+  String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
+  @override
+  String get require_login => "Bạn cần phải đăng nhập";
+  @override
+  String get removed => "Xóa";
+  @override
+  String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
+  @override
+  String get password_at_least_6_characters => "Mật khẩu ít nhất 6 kí tự";
   @override
   String get exit_app => "Thoát khỏi ứng dụng";
   @override
   String get forgot_password => "Bạn quên mật khẩu?";
   @override
-  String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
-  @override
   String change_language_error(String error) => "Lỗi khi thay đổi ngôn ngữ: $error";
   @override
   String change_province_success(String province_name) => "Chuyển sang '$province_name' thành công";
   @override
-  String remove_saved_room_success_with_title(String title) => "Xóa '$title' khỏi danh sách đã lưu thành công";
-  @override
   String change_province_error(String province_name) => "Lỗi xảy ra khi chuyển sang '$province_name'";
+  @override
+  String remove_saved_room_success_with_title(String title) => "Xóa '$title' khỏi danh sách đã lưu thành công";
 }
 
 class $en extends S {

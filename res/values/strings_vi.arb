@@ -9,7 +9,7 @@
   "or_connect_through": "hoặc kết nối qua",
   "no_account": "Chưa có tài khoản?",
   "register_now": "Đăng kí ngay",
-  "password": "Mật khẩu",
+  "password": "Mật khẩu *",
   "exit_app": "Thoát khỏi ứng dụng",
   "sure_want_to_exit_app": "Bạn chắc chắn muốn thoát khỏi ứng dụng?",
   "no": "Không",
@@ -41,5 +41,16 @@
   "remove_saved_room_success": "Xóa khỏi danh sách đã lưu thành công",
   "add_or_remove_saved_room_error": "Đã có lỗi xảy ra. Hãy thử lại",
   "logout_error": "Lỗi xảy ra khi đăng xuất",
-  "logout_success": "Đăng xuất thành công"
+  "logout_success": "Đăng xuất thành công",
+  "login_success": "Đăng nhập thành công",
+  "password_at_least_6_characters": "Mật khẩu ít nhất 6 kí tự",
+  "invalid_email_address": "Sai định dạng email",
+  "network_error": "Lỗi kết nối mạng",
+  "too_many_requests_error": "Quá nhiều request",
+  "user_not_found_error": "Không có người dùng nào tương ứng với số nhận dạng này. Người dùng có thể đã bị xóa",
+  "wrong_password_error": "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu",
+  "invalid_email_error": "Địa chỉ email bị định dạng sai",
+  "email_already_in_user_error": "Địa chỉ email đã được một tài khoản khác sử dụng",
+  "weak_password_error": "Mật khẩu đã cho không hợp lệ",
+  "user_disabled_error": "Tài khoản người dùng đã bị quản trị viên vô hiệu hóa"
 }

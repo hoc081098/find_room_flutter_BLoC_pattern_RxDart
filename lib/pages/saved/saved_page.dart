@@ -192,24 +192,47 @@ class SavedRoomListItem extends StatefulWidget {
 class _SavedRoomListItemState extends State<SavedRoomListItem>
     with SingleTickerProviderStateMixin<SavedRoomListItem> {
   AnimationController _animationController;
-  Animation<Offset> _animation;
+  Animation<Offset> _animationPosition;
+  Animation<double> _animationScale;
+  Animation<double> _animationOpacity;
 
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 600),
     );
-    _animation = Tween(
-      begin: Offset(200, 0),
+
+    _animationPosition = Tween(
+      begin: Offset(2.0, 0),
       end: Offset(0, 0),
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+    _animationScale = Tween(
+      begin: 0.0,
+      end: 1.0,
     ).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.fastOutSlowIn,
       ),
     );
+    _animationOpacity = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+
     _animationController.forward();
   }
 
@@ -370,17 +393,23 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
       ),
     );
 
-    return SlideTransition(
-      position: _animation,
-      child: Dismissible(
-        background: background,
-        direction: DismissDirection.horizontal,
-        onDismissed: (direction) {
-          print('onDismissed direction=$direction');
-          widget.removeFromSaved(item.id);
-        },
-        child: content,
-        key: Key("${item.id}${Random().nextInt(1 << 32)}"),
+    return FadeTransition(
+      opacity: _animationOpacity,
+      child: ScaleTransition(
+        scale: _animationScale,
+        child: SlideTransition(
+          position: _animationPosition,
+          child: Dismissible(
+            background: background,
+            direction: DismissDirection.horizontal,
+            onDismissed: (direction) {
+              print('onDismissed direction=$direction');
+              widget.removeFromSaved(item.id);
+            },
+            child: content,
+            key: Key("${item.id}${Random().nextInt(1 << 32)}"),
+          ),
+        ),
       ),
     );
   }

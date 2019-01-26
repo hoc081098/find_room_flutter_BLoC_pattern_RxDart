@@ -6,7 +6,7 @@ import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
-import 'package:find_room/pages/login_register/login_page.dart';
+import 'package:find_room/pages/login/login_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     primaryColorDark: const Color(0xff512DA8),
     primaryColorLight: const Color(0xffD1C4E9),
     primaryColor: const Color(0xff673AB7),
-    accentColor: const Color(0xff00BCD4),
+    accentColor: Colors.cyanAccent,
     dividerColor: const Color(0xffBDBDBD),
   );
 
@@ -298,8 +298,6 @@ class DrawerLoginLogoutTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<UserLoginState> loginState$ =
-        userBloc.userLoginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<UserLoginState>(
