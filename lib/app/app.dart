@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     primaryColorDark: const Color(0xff512DA8),
     primaryColorLight: const Color(0xffD1C4E9),
     primaryColor: const Color(0xff673AB7),
-    accentColor: Colors.cyanAccent,
+    accentColor: const Color(0xffffc107),
     dividerColor: const Color(0xffBDBDBD),
   );
 

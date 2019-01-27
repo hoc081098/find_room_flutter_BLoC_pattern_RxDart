@@ -205,105 +205,111 @@ class HomeSelectedProvince extends StatelessWidget {
 
         return SliverToBoxAdapter(
           child: Container(
-            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
             width: double.infinity,
-            child: Material(
-              type: MaterialType.card,
-              elevation: 3.0,
-              borderRadius: BorderRadius.circular(24),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 30,
+                            color: themeData.primaryColor,
+                          ),
+                        ),
+                        PopupMenuButton<Province>(
+                          initialValue: data.item1,
+                          child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.location_on,
-                              size: 30,
-                              color: themeData.primaryColor,
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  data.item1?.name ?? '',
+                                  style: subtitle,
+                                ),
+                                Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: themeData.primaryColor,
+                                  size: 28,
+                                )
+                              ],
                             ),
                           ),
-                          PopupMenuButton<Province>(
-                            initialValue: data.item1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    data.item1?.name ?? '',
-                                    style: subtitle,
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: themeData.accentColor,
-                                    size: 28,
-                                  )
-                                ],
-                              ),
-                            ),
-                            onSelected: homeBloc.changeProvince.add,
-                            itemBuilder: (BuildContext context) {
-                              return data.item2.map((province) {
-                                return PopupMenuItem<Province>(
-                                  child: Text(
-                                    province.name,
-                                    style: subtitle,
-                                  ),
-                                  value: province,
-                                );
-                              }).toList();
-                            },
+                          onSelected: homeBloc.changeProvince.add,
+                          itemBuilder: (BuildContext context) {
+                            return data.item2.map((province) {
+                              return PopupMenuItem<Province>(
+                                child: Text(
+                                  province.name,
+                                  style: subtitle,
+                                ),
+                                value: province,
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ],
+                    ),
+                    TextField(
+                      onChanged: (value) {
+                        //TODO: search text changed
+                      },
+                      style: subtitle,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 14,
                           ),
-                        ],
-                      ),
-                      TextField(
-                        onChanged: (value) {
-                          //TODO: search text changed
-                        },
-                        style: subtitle,
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 14,
+                          suffixIcon: Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              end: 4,
+                              top: 4,
+                              bottom: 4,
                             ),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                end: 4,
-                                top: 4,
-                                bottom: 4,
-                              ),
-                              child: Material(
-                                elevation: 2,
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                child: InkWell(
-                                  onTap: () {
-                                    //TODO: navigate to search
-                                  },
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.black87,
-                                  ),
+                            child: Material(
+                              elevation: 2,
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              child: InkWell(
+                                onTap: () {
+                                  //TODO: navigate to search
+                                },
+                                child: Icon(
+                                  Icons.search,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: themeData.primaryColor,
-                              ),
-                              borderRadius: BorderRadius.circular(30),
-                            )),
-                      )
-                    ],
-                  ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: themeData.primaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                          )),
+                    )
+                  ],
                 ),
               ),
             ),
@@ -336,7 +342,7 @@ class HomeHeaderItem extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Container(
         padding: const EdgeInsets.all(8.0),
-        color: Theme.of(context).accentColor,
+        color: Theme.of(context).primaryColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[

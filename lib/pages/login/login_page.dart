@@ -7,7 +7,9 @@ import 'package:find_room/pages/login/email_login_bloc.dart';
 import 'package:find_room/pages/login/google_sign_in_bloc.dart';
 import 'package:find_room/pages/login/login_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
+import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -42,7 +44,12 @@ class _LoginPageState extends State<LoginPage> {
     _googleSignInBloc = GoogleSignInBloc(widget.userRepository);
 
     _subscriptions = [
-      _emailLoginBloc.message$.listen(_showLoginMessage),
+      Observable.merge([
+        _emailLoginBloc.message$,
+        widget.userBloc.userLoginState$
+            .where((state) => state is UserLogin)
+            .map((_) => const LoginMessageSuccess())
+      ]).listen(_showLoginMessage),
     ];
   }
 
@@ -72,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        SizedBox(height: 24.0),
+                        SizedBox(height: 96.0),
                         EmailTextField(
                           emailFocusNode: _emailFocusNode,
                           emailLoginBloc: _emailLoginBloc,
@@ -105,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                         ),
-                        SizedBox(height: 64.0),
+                        SizedBox(height: 72.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
@@ -466,21 +473,23 @@ class _LoadingIndicatorState extends State<LoadingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(
-        left: 30,
-        right: 30,
-        top: 30,
-      ),
-      child: SizeTransition(
-        axis: Axis.vertical,
-        sizeFactor: _sizeFactorAnimation,
-        child: FadeTransition(
-          child: CircularProgressIndicator(
-            valueColor: const AlwaysStoppedAnimation(Colors.cyanAccent),
-            strokeWidth: 3,
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.only(
+          left: 30,
+          right: 30,
+          top: 30,
+        ),
+        child: SizeTransition(
+          axis: Axis.vertical,
+          sizeFactor: _sizeFactorAnimation,
+          child: FadeTransition(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation(Theme.of(context).accentColor),
+              strokeWidth: 3,
+            ),
+            opacity: _fadeAnimation,
           ),
-          opacity: _fadeAnimation,
         ),
       ),
     );

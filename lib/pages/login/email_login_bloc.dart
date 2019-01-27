@@ -84,17 +84,16 @@ class EmailLoginBloc implements BaseBloc {
             emailError == null && passwordError == null && !isLoading);
 
     final emailAndPassword$ = Observable.combineLatest2(
-      emailController.stream,
-      passwordController.stream,
-      (String email, String password) => Tuple2(email, password),
-    );
+        emailController.stream,
+        passwordController.stream,
+        (String email, String password) => Tuple2(email, password));
 
     final message$ = submitLoginController.stream
         .withLatestFrom(isValid$, (_, bool isValid) => isValid)
         .where((isValid) => isValid)
         .withLatestFrom(emailAndPassword$,
             (_, Tuple2<String, String> emailAndPassword) => emailAndPassword)
-        .flatMap((emailAndPassword) => performLogin(
+        .switchMap((emailAndPassword) => performLogin(
               emailAndPassword.item1,
               emailAndPassword.item2,
               userRepository,
@@ -154,11 +153,19 @@ class EmailLoginBloc implements BaseBloc {
     FirebaseUserRepository userRepository,
     Sink<bool> isLoadingController,
   ) {
-    return Observable.fromFuture(userRepository.signInWithEmailAndPassword(
-            email: email, password: password))
-        .doOnListen(() => isLoadingController.add(true))
-        .doOnData((_) => isLoadingController.add(false))
-        .doOnError((_) => isLoadingController.add(false))
+    Stream<void> login() async* {
+      try {
+        isLoadingController.add(true);
+        await userRepository.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } finally {
+        isLoadingController.add(false);
+      }
+    }
+
+    return Observable(login())
         .map<LoginMessage>((_) => const LoginMessageSuccess())
         .onErrorReturnWith(_getLoginError);
   }
@@ -168,26 +175,28 @@ class EmailLoginBloc implements BaseBloc {
       if (Platform.isAndroid) {
         switch (error.code) {
           case 'ERROR_INVALID_EMAIL':
-            return LoginMessageError(const InvalidEmailError());
+            return const LoginMessageError(InvalidEmailError());
           case 'ERROR_WRONG_PASSWORD':
-            return LoginMessageError(const WrongPasswordError());
+            return const LoginMessageError(WrongPasswordError());
           case 'ERROR_EMAIL_ALREADY_IN_USE':
-            return LoginMessageError(const EmailAlreadyInUseError());
+            return const LoginMessageError(EmailAlreadyInUseError());
           case 'ERROR_USER_DISABLED':
-            return LoginMessageError(const UserDisabledError());
+            return const LoginMessageError(UserDisabledError());
           case 'ERROR_USER_NOT_FOUND':
-            return LoginMessageError(const UserNotFoundError());
+            return const LoginMessageError(UserNotFoundError());
           case 'ERROR_WEAK_PASSWORD':
-            return LoginMessageError(const WeakPasswordError());
+            return const LoginMessageError(WeakPasswordError());
           case 'ERROR_NETWORK_REQUEST_FAILED':
-            return LoginMessageError(const NetworkError());
+            return const LoginMessageError(NetworkError());
           case 'ERROR_TOO_MANY_REQUESTS':
-            return LoginMessageError(const TooManyRequestsError());
+            return const LoginMessageError(TooManyRequestsError());
           default:
             return LoginMessageError(UnknownError(error));
         }
       } else if (Platform.isIOS) {
         //TODO: error code -> LoginError
+        return LoginMessageError(UnknownError(error));
+      } else {
         return LoginMessageError(UnknownError(error));
       }
     }
