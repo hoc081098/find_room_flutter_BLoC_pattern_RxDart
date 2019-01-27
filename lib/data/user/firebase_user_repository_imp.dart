@@ -49,7 +49,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   Future<void> googleSignIn() async {
     final GoogleSignInAccount googleAccount = await _googleSignIn.signIn();
     if (googleAccount == null) {
-      throw "Đã hủy đăng nhập bằng google";
+      throw GoogleSignIn.kSignInCanceledError;
     }
     final GoogleSignInAuthentication googleAuth =
         await googleAccount.authentication;

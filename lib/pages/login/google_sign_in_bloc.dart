@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
+import 'package:find_room/pages/login/login_state.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:tuple/tuple.dart';
 
 ///
 /// BLoC handling google sign in
@@ -18,7 +22,7 @@ class GoogleSignInBloc implements BaseBloc {
   /// Streams
   ///
   final ValueObservable<bool> isLoading$;
-  final Stream<Tuple2<String, bool>> messageAndLoginResult$;
+  final Stream<LoginMessage> message$;
 
   ///
   /// Clean up
@@ -27,7 +31,7 @@ class GoogleSignInBloc implements BaseBloc {
 
   GoogleSignInBloc._({
     @required this.isLoading$,
-    @required this.messageAndLoginResult$,
+    @required this.message$,
     @required this.submitLogin,
     @required void Function() dispose,
   }) : this._dispose = dispose;
@@ -41,56 +45,72 @@ class GoogleSignInBloc implements BaseBloc {
     ///
     /// Controllers
     ///
-    final submitLoginController = PublishSubject<void>(sync: true);
-    final isLoadingController =
-        BehaviorSubject<bool>(sync: true, seedValue: false);
+    final submitLoginController = PublishSubject<void>();
+    final isLoadingController = BehaviorSubject<bool>(seedValue: false);
 
     ///
     /// Streams
     ///
-    final messageAndLoginResult$ = submitLoginController.stream
+    final message$ = submitLoginController.stream
         .exhaustMap((_) => performLogin(userRepository, isLoadingController))
-        .map(_getLoginMessageAndResult)
         .publish();
 
-    final subscriptions = [messageAndLoginResult$.connect()];
+    ///
+    /// Subscriptions and controllers
+    ///
+    final subscriptions = <StreamSubscription>[
+      message$.connect(),
+    ];
+    final controllers = <StreamController>[
+      submitLoginController,
+      isLoadingController,
+    ];
 
     return GoogleSignInBloc._(
       isLoading$: isLoadingController.stream,
-      messageAndLoginResult$: messageAndLoginResult$,
+      message$: message$,
       submitLogin: submitLoginController.sink,
-      dispose: () {
-        isLoadingController.close();
-        submitLoginController.close();
-        subscriptions.forEach((s) => s.cancel());
+      dispose: () async {
+        await Future.wait(subscriptions.map((s) => s.cancel()));
+        await Future.wait(controllers.map((c) => c.close()));
       },
     );
   }
 
-  static Stream<Object> performLogin(
+  static Stream<LoginMessage> performLogin(
     FirebaseUserRepository userRepository,
     Sink<bool> isLoadingController,
   ) async* {
     isLoadingController.add(true);
     try {
       await userRepository.googleSignIn();
-      yield null;
+      yield const LoginMessageSuccess();
     } catch (e) {
-      yield e;
+      yield _getLoginError(e);
     }
     isLoadingController.add(false);
   }
 
-  static Tuple2<String, bool> _getLoginMessageAndResult(Object e) {
-    if (e == null) {
-      return Tuple2("Đăng nhập thành công", true);
-    }
-    return Tuple2(
-      "Lỗi xảy ra khi đăng nhập ${e is PlatformException ? e.message : e}",
-      false,
-    );
-  }
-
   @override
   void dispose() => _dispose();
+
+  static LoginMessageError _getLoginError(error) {
+    if (error is PlatformException) {
+      if (Platform.isAndroid) {
+      } else if (Platform.isIOS) {
+        //TODO: error code -> LoginError
+        return LoginMessageError(UnknownError(error));
+      } else {
+        return LoginMessageError(UnknownError(error));
+      }
+    }
+    if (error is String) {
+      if (error == GoogleSignIn.kSignInCanceledError) {
+
+      } else {
+        
+      }
+    }
+    return LoginMessageError(UnknownError(error));
+  }
 }

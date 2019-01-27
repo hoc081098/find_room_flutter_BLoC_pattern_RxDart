@@ -46,9 +46,10 @@ class _LoginPageState extends State<LoginPage> {
     _subscriptions = [
       Observable.merge([
         _emailLoginBloc.message$,
+        _googleSignInBloc.message$,
         widget.userBloc.userLoginState$
             .where((state) => state is UserLogin)
-            .map((_) => const LoginMessageSuccess())
+            .map((_) => const LoginMessageSuccess()),
       ]).listen(_showLoginMessage),
     ];
   }
