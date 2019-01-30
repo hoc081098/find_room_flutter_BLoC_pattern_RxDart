@@ -33,6 +33,7 @@ dependencies:
   cached_network_image: ^0.5.1
   wave: ^0.0.8
   google_sign_in: ^3.2.4
+  flutter_facebook_login: ^1.2.0
 
 dev_dependencies:
   flutter_test:

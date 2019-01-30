@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Facebook -->
+    <string name="facebook_app_id" translatable="false">498821270638471</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb498821270638471</string>
+
+    <!--Mapbox access token-->
+    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoicGV0cnVzdGhhaWhvYyIsImEiOiJjampycW1uY2s4bTRnM3BwMXo0M2Q3OTduIn0.dRqQsp8tc1SictvFyOP7tQ</string>
+
+</resources>
