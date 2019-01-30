@@ -172,32 +172,25 @@ class EmailLoginBloc implements BaseBloc {
 
   static LoginMessageError _getLoginError(error) {
     if (error is PlatformException) {
-      if (Platform.isAndroid) {
-        switch (error.code) {
-          case 'ERROR_INVALID_EMAIL':
-            return const LoginMessageError(InvalidEmailError());
-          case 'ERROR_WRONG_PASSWORD':
-            return const LoginMessageError(WrongPasswordError());
-          case 'ERROR_EMAIL_ALREADY_IN_USE':
-            return const LoginMessageError(EmailAlreadyInUseError());
-          case 'ERROR_USER_DISABLED':
-            return const LoginMessageError(UserDisabledError());
-          case 'ERROR_USER_NOT_FOUND':
-            return const LoginMessageError(UserNotFoundError());
-          case 'ERROR_WEAK_PASSWORD':
-            return const LoginMessageError(WeakPasswordError());
-          case 'ERROR_NETWORK_REQUEST_FAILED':
-            return const LoginMessageError(NetworkError());
-          case 'ERROR_TOO_MANY_REQUESTS':
-            return const LoginMessageError(TooManyRequestsError());
-          default:
-            return LoginMessageError(UnknownError(error));
-        }
-      } else if (Platform.isIOS) {
-        //TODO: error code -> LoginError
-        return LoginMessageError(UnknownError(error));
-      } else {
-        return LoginMessageError(UnknownError(error));
+      switch (error.code) {
+        case 'ERROR_INVALID_EMAIL':
+          return const LoginMessageError(InvalidEmailError());
+        case 'ERROR_WRONG_PASSWORD':
+          return const LoginMessageError(WrongPasswordError());
+        case 'ERROR_EMAIL_ALREADY_IN_USE':
+          return const LoginMessageError(EmailAlreadyInUseError());
+        case 'ERROR_USER_DISABLED':
+          return const LoginMessageError(UserDisabledError());
+        case 'ERROR_USER_NOT_FOUND':
+          return const LoginMessageError(UserNotFoundError());
+        case 'ERROR_WEAK_PASSWORD':
+          return const LoginMessageError(WeakPasswordError());
+        case 'ERROR_NETWORK_REQUEST_FAILED':
+          return const LoginMessageError(NetworkError());
+        case 'ERROR_TOO_MANY_REQUESTS':
+          return const LoginMessageError(TooManyRequestsError());
+        case 'ERROR_OPERATION_NOT_ALLOWED':
+          return const LoginMessageError(OperationNotAllowedError());
       }
     }
     return LoginMessageError(UnknownError(error));

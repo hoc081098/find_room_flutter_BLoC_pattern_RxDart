@@ -56,6 +56,22 @@ class UserDisabledError implements LoginError {
   const UserDisabledError();
 }
 
+class InvalidCredentialError implements LoginError {
+  const InvalidCredentialError();
+}
+
+class AccountExistsWithDifferenceCredentialError implements LoginError {
+  const AccountExistsWithDifferenceCredentialError();
+}
+
+class OperationNotAllowedError implements LoginError {
+  const OperationNotAllowedError();
+}
+
+class GoogleSignInCanceledError implements LoginError {
+  const GoogleSignInCanceledError();
+}
+
 class UnknownError implements LoginError {
   final Object error;
 

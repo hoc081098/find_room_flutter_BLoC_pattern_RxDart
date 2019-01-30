@@ -4,6 +4,7 @@ import 'package:find_room/models/user_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter/services.dart';
 
 class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   final FirebaseAuth _firebaseAuth;
@@ -49,14 +50,18 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   Future<void> googleSignIn() async {
     final GoogleSignInAccount googleAccount = await _googleSignIn.signIn();
     if (googleAccount == null) {
-      throw GoogleSignIn.kSignInCanceledError;
+      throw PlatformException(code: GoogleSignIn.kSignInCanceledError);
     }
+
     final GoogleSignInAuthentication googleAuth =
         await googleAccount.authentication;
-    final FirebaseUser firebaseUser = await _firebaseAuth.signInWithGoogle(
-      idToken: googleAuth.idToken,
-      accessToken: googleAuth.accessToken,
+    final FirebaseUser firebaseUser = await _firebaseAuth.signInWithCredential(
+      GoogleAuthProvider.getCredential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      ),
     );
+    
     await _updateUserData(firebaseUser);
   }
 

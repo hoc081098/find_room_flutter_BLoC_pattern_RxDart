@@ -45,6 +45,7 @@ class GoogleSignInBloc implements BaseBloc {
     ///
     /// Controllers
     ///
+    //ignore: close_sinks
     final submitLoginController = PublishSubject<void>();
     final isLoadingController = BehaviorSubject<bool>(seedValue: false);
 
@@ -96,19 +97,18 @@ class GoogleSignInBloc implements BaseBloc {
 
   static LoginMessageError _getLoginError(error) {
     if (error is PlatformException) {
-      if (Platform.isAndroid) {
-      } else if (Platform.isIOS) {
-        //TODO: error code -> LoginError
-        return LoginMessageError(UnknownError(error));
-      } else {
-        return LoginMessageError(UnknownError(error));
-      }
-    }
-    if (error is String) {
-      if (error == GoogleSignIn.kSignInCanceledError) {
-
-      } else {
-        
+      switch (error.code) {
+        case GoogleSignIn.kSignInCanceledError:
+          return const LoginMessageError(GoogleSignInCanceledError());
+        case 'ERROR_INVALID_CREDENTIAL':
+          return const LoginMessageError(InvalidCredentialError());
+        case 'ERROR_USER_DISABLED':
+          return const LoginMessageError(UserDisabledError());
+        case 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL':
+          return const LoginMessageError(
+              AccountExistsWithDifferenceCredentialError());
+        case 'ERROR_OPERATION_NOT_ALLOWED':
+          return const LoginMessageError(OperationNotAllowedError());
       }
     }
     return LoginMessageError(UnknownError(error));
