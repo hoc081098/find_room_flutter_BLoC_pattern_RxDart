@@ -5,16 +5,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   final FirebaseAuth _firebaseAuth;
   final Firestore _firestore;
   final GoogleSignIn _googleSignIn;
+  final FacebookLogin _facebookSignIn;
 
   const FirebaseUserRepositoryImpl(
     this._firebaseAuth,
     this._firestore,
     this._googleSignIn,
+    this._facebookSignIn,
   );
 
   @override
@@ -34,6 +37,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
   @override
   Future<void> signOut() async {
+    await _facebookSignIn.logOut();
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }
@@ -61,7 +65,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
         idToken: googleAuth.idToken,
       ),
     );
-    
+
     await _updateUserData(firebaseUser);
   }
 
@@ -75,5 +79,18 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
       },
       merge: true,
     );
+  }
+
+  @override
+  Future<void> facebookSignIn() async {
+    final FacebookLoginResult result =
+        await _facebookSignIn.logInWithReadPermissions(['email']);
+    final FirebaseUser firebaseUser = await _firebaseAuth.signInWithCredential(
+      FacebookAuthProvider.getCredential(
+        accessToken: result.accessToken.token,
+      ),
+    );
+    _updateUserData(firebaseUser);
+    return null;
   }
 }

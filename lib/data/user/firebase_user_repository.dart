@@ -14,4 +14,6 @@ abstract class FirebaseUserRepository {
   });
 
   Future<void> googleSignIn();
+
+  Future<void> facebookSignIn();
 }
