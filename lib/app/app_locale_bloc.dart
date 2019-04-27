@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/shared_pref_util.dart';
 import 'package:rxdart/rxdart.dart';
@@ -45,41 +46,35 @@ class LocaleBloc implements BaseBloc {
 
   factory LocaleBloc(SharedPrefUtil sharePrefUtil) {
     assert(sharePrefUtil != null, 'sharePrefUtil cannot be null');
-
     final changeLocaleController = PublishSubject<Locale>(sync: true);
-    final localeController = BehaviorSubject<Locale>(sync: true);
 
     final changeLocaleResult$ =
         changeLocaleController.distinct().switchMap((locale) {
-      return Observable.fromFuture(
-              sharePrefUtil.saveSelectedLanguageCode(locale.languageCode))
+      return Observable.defer(() => Stream.fromFuture(
+                sharePrefUtil.saveSelectedLanguageCode(locale.languageCode),
+              ))
           .map((result) => Tuple2(result, null))
           .onErrorReturnWith((e) => Tuple2(false, e));
     }).publish();
 
-    final listen = (Locale locale) {
-      ///
-      /// listen, if not equal, then add to controller
-      ///
-      if (locale != localeController.value) {
-        print('[DEBUG] Real change locale $locale :v');
-        localeController.add(locale);
-      }
-    };
+    final selectedLanguageCode$ = sharePrefUtil.selectedLanguageCode$;
+    toLocale(String code) => Locale(code, '');
+
+    final locale$ = publishValueSeededDistinct(
+      selectedLanguageCode$.map(toLocale),
+      seedValue: toLocale(selectedLanguageCode$.value),
+    );
 
     final subscriptions = [
-      sharePrefUtil.selectedLanguageCode$
-          .map((code) => Locale(code, ''))
-          .listen(listen),
+      locale$.connect(),
       changeLocaleResult$.connect(),
     ];
 
     return LocaleBloc._(
       changeLocaleController.sink,
-      localeController.stream,
+      locale$,
       () {
         changeLocaleController.close();
-        localeController.close();
         subscriptions.forEach((s) => s.cancel());
       },
       changeLocaleResult$,

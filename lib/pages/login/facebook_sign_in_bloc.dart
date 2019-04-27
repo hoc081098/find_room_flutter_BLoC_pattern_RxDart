@@ -45,7 +45,7 @@ class FacebookLoginBloc implements BaseBloc {
     ///
     //ignore: close_sinks
     final submitLoginController = PublishSubject<void>();
-    final isLoadingController = BehaviorSubject<bool>(seedValue: false);
+    final isLoadingController = BehaviorSubject<bool>.seeded(false);
 
     ///
     /// Streams

@@ -27,7 +27,7 @@ class UserBloc implements BaseBloc {
     final user$ = Observable(userRepository.user())
         .map(_toLoginState)
         .distinct()
-        .publishValue(seedValue: const NotLogin());
+        .publishValueSeeded(const NotLogin());
 
     final signOutMessage$ = signOutController.exhaustMap((_) {
       return Observable.fromFuture(userRepository.signOut())

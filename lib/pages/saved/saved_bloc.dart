@@ -67,10 +67,11 @@ class SavedBloc implements BaseBloc {
           .where((message) => message is RemovedSaveRoomMessageError)
           .startWith(null),
       (list, error) {
-        print('[DEBUG] emit latest state when error occurred $error list.length=${list.roomItems.length}');
+        print(
+            '[DEBUG] emit latest state when error occurred $error list.length=${list.roomItems.length}');
         return list;
       },
-    ).publishValue(seedValue: _kInitialSavedListState);
+    ).publishValueSeeded(_kInitialSavedListState);
 
     final subscriptions = <StreamSubscription>[
       savedListState$.connect(),

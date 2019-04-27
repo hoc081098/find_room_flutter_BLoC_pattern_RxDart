@@ -24,7 +24,7 @@ dependencies:
   cloud_firestore: ^0.8.2+3
   firebase_auth: ^0.7.0
   json_serializable: ^2.0.1 #flutter packages pub run build_runner build
-  rxdart: ^0.20.0
+  distinct_value_connectable_observable: ^2.0.0+2
   shared_preferences: ^0.4.3
   flutter_swiper: ^1.1.4
   intl: ^0.15.7

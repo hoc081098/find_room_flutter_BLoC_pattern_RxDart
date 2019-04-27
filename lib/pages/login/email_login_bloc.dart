@@ -54,12 +54,12 @@ class EmailLoginBloc implements BaseBloc {
     ///
 
     // ignore: close_sinks
-    final emailController = BehaviorSubject<String>(seedValue: '');
+    final emailController = BehaviorSubject<String>.seeded('');
     // ignore: close_sinks
-    final passwordController = BehaviorSubject<String>(seedValue: '');
+    final passwordController = BehaviorSubject<String>.seeded('');
     // ignore: close_sinks
     final submitLoginController = PublishSubject<void>();
-    final isLoadingController = BehaviorSubject<bool>(seedValue: false);
+    final isLoadingController = BehaviorSubject<bool>.seeded(false);
 
     ///
     /// Streams

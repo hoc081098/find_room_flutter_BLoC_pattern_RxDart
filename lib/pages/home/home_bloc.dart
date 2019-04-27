@@ -76,10 +76,9 @@ class HomeBloc implements BaseBloc {
     ///Controller
     final addOrRemoveSavedController = PublishSubject<String>(sync: true);
     final changeProvinceController = PublishSubject<Province>(sync: true);
-    final newestRoomsController =
-        BehaviorSubject(seedValue: _kNewestRoomsInitial);
+    final newestRoomsController = BehaviorSubject.seeded(_kNewestRoomsInitial);
     final mostViewedRoomsController =
-        BehaviorSubject(seedValue: _kMostViewedRoomsInitial);
+        BehaviorSubject.seeded(_kMostViewedRoomsInitial);
 
     ///Streams
     final ValueConnectableObservable<List<BannerItem>> banner$ =
@@ -196,8 +195,8 @@ class HomeBloc implements BaseBloc {
                 next.item2,
               ),
         )
-        .publishValue(
-          seedValue: Tuple2(
+        .publishValueSeeded(
+           Tuple2(
             seedValue,
             [seedValue],
           ),
@@ -218,7 +217,7 @@ class HomeBloc implements BaseBloc {
     };
     return Observable.fromFuture(bannerRepository.banners())
         .map(convert)
-        .publishValue(seedValue: _kBannerSliderInitial);
+        .publishValueSeeded(_kBannerSliderInitial);
   }
 
   static Observable<AddOrRemovedSavedMessage> _getMessageAddOrRemoveSavedRoom(
