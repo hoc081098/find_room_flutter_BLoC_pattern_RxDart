@@ -58,11 +58,12 @@ class LocaleBloc implements BaseBloc {
     }).publish();
 
     final selectedLanguageCode$ = sharePrefUtil.selectedLanguageCode$;
+    final selectedLanguageCode = selectedLanguageCode$.value;
     toLocale(String code) => Locale(code, '');
 
     final locale$ = publishValueSeededDistinct(
       selectedLanguageCode$.map(toLocale),
-      seedValue: toLocale(selectedLanguageCode$.value),
+      seedValue: selectedLanguageCode == null ? null : toLocale(selectedLanguageCode),
     );
 
     final subscriptions = [
