@@ -52,6 +52,10 @@ class WeakPasswordError implements LoginError {
   const WeakPasswordError();
 }
 
+///
+/// Google sign in error
+///
+
 class UserDisabledError implements LoginError {
   const UserDisabledError();
 }
@@ -71,6 +75,16 @@ class OperationNotAllowedError implements LoginError {
 class GoogleSignInCanceledError implements LoginError {
   const GoogleSignInCanceledError();
 }
+
+///
+/// Facebook sign in error
+///
+
+class FacebookLoginCancelledByUser implements LoginError {
+  const FacebookLoginCancelledByUser();
+}
+
+///
 
 class UnknownError implements LoginError {
   final Object error;

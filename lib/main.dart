@@ -14,6 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 Future<void> main() async {
   final firestore = Firestore.instance;
@@ -30,8 +31,12 @@ Future<void> main() async {
   ///
   final priceFormat = NumberFormat.currency(locale: 'vi_VN');
 
-  final userRepository =
-      FirebaseUserRepositoryImpl(firebaseAuth, firestore, googleSignIn);
+  final userRepository = FirebaseUserRepositoryImpl(
+    firebaseAuth,
+    firestore,
+    googleSignIn,
+    FacebookLogin(),
+  );
   final roomRepository = FirestoreRoomRepositoryImpl(firestore);
   final bannerRepository = FirestoreBannerRepositoryImpl(firestore);
   final provinceDistrictWardRepository =

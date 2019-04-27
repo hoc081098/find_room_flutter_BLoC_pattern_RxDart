@@ -52,5 +52,10 @@
   "invalid_email_error": "The email address is badly formatted",
   "email_already_in_user_error": "The email address is already in use by another account",
   "weak_password_error": "The given password is invalid",
-  "user_disabled_error": "The user account has been disabled by an administrator"
+  "user_disabled_error": "The user account has been disabled by an administrator",
+  "invalid_credential_error": "Invalid credential",
+  "account_exists_with_difference_credential_error": "Account exists with difference credential error",
+  "operation_not_allowed_error": "Operation not allowed",
+  "google_sign_in_canceled_error": "Google sign in canceled",
+  "facebook_login_cancelled_by_user": "Facebook sign in canceled by user"
 }

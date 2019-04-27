@@ -52,5 +52,10 @@
   "invalid_email_error": "Địa chỉ email bị định dạng sai",
   "email_already_in_user_error": "Địa chỉ email đã được một tài khoản khác sử dụng",
   "weak_password_error": "Mật khẩu đã cho không hợp lệ",
-  "user_disabled_error": "Tài khoản người dùng đã bị quản trị viên vô hiệu hóa"
+  "user_disabled_error": "Tài khoản người dùng đã bị quản trị viên vô hiệu hóa",
+  "invalid_credential_error": "Thông tin đăng nhập không hợp lệ",
+  "account_exists_with_difference_credential_error": "Tài khoản tồn tại với khác nhau",
+  "operation_not_allowed_error": "Hoạt động không được cho phép",
+  "google_sign_in_canceled_error": "Đăng nhập bằng google bị hủy",
+  "facebook_login_cancelled_by_user": "Đăng nhập bằng facebook bị hủy bởi người dùng"
 }

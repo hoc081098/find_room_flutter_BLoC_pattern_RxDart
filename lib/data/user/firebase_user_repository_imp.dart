@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/models/user_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   final FirebaseAuth _firebaseAuth;
@@ -82,15 +82,17 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   }
 
   @override
-  Future<void> facebookSignIn() async {
+  Future<FacebookLoginResult> facebookSignIn() async {
     final FacebookLoginResult result =
         await _facebookSignIn.logInWithReadPermissions(['email']);
-    final FirebaseUser firebaseUser = await _firebaseAuth.signInWithCredential(
-      FacebookAuthProvider.getCredential(
-        accessToken: result.accessToken.token,
-      ),
-    );
-    _updateUserData(firebaseUser);
-    return null;
+    final token = result?.accessToken?.token;
+    if (token != null) {
+      final FirebaseUser firebaseUser =
+          await _firebaseAuth.signInWithCredential(
+        FacebookAuthProvider.getCredential(accessToken: token),
+      );
+      _updateUserData(firebaseUser);
+    }
+    return result;
   }
 }

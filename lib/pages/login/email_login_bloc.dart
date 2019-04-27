@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
@@ -55,9 +54,9 @@ class EmailLoginBloc implements BaseBloc {
     ///
 
     // ignore: close_sinks
-    final emailController = PublishSubject<String>();
+    final emailController = BehaviorSubject<String>(seedValue: '');
     // ignore: close_sinks
-    final passwordController = PublishSubject<String>();
+    final passwordController = BehaviorSubject<String>(seedValue: '');
     // ignore: close_sinks
     final submitLoginController = PublishSubject<void>();
     final isLoadingController = BehaviorSubject<bool>(seedValue: false);

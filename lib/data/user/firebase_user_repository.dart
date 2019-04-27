@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:find_room/models/user_entity.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:meta/meta.dart';
 
 abstract class FirebaseUserRepository {
@@ -8,12 +9,12 @@ abstract class FirebaseUserRepository {
 
   Future<void> signOut();
 
-  Future<void>  signInWithEmailAndPassword({
+  Future<void> signInWithEmailAndPassword({
     @required String email,
     @required String password,
   });
 
   Future<void> googleSignIn();
 
-  Future<void> facebookSignIn();
+  Future<FacebookLoginResult> facebookSignIn();
 }

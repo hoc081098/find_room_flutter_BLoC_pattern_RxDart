@@ -19,6 +19,7 @@ class S implements WidgetsLocalizations {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
+  String get account_exists_with_difference_credential_error => "Account exists with difference credential error";
   String get add_or_remove_saved_room_error => "An error occurred. Try again later";
   String get add_saved_room_success => "Added to saved list successfully";
   String get add_to_saved => "Add to saved";
@@ -33,8 +34,11 @@ class S implements WidgetsLocalizations {
   String get error_occurred => "An error occurred";
   String get exit => "Exit";
   String get exit_app => "Exit app";
+  String get facebook_login_cancelled_by_user => "Facebook sign in canceled by user";
   String get forgot_password => "Forgot password?";
+  String get google_sign_in_canceled_error => "Google sign in canceled";
   String get home_page_title => "Home page";
+  String get invalid_credential_error => "Invalid credential";
   String get invalid_email_address => "Invalid email address";
   String get invalid_email_error => "The email address is badly formatted";
   String get login_now => "Login now";
@@ -48,6 +52,7 @@ class S implements WidgetsLocalizations {
   String get newest => "Newest";
   String get no => "No";
   String get no_account => "No account?";
+  String get operation_not_allowed_error => "Operation not allowed";
   String get or_connect_through => "Or connect through";
   String get password => "Password *";
   String get password_at_least_6_characters => "Password at least 6 characters";
@@ -94,6 +99,8 @@ class $vi extends S {
   @override
   String get login_now => "Đăng nhập ngay";
   @override
+  String get account_exists_with_difference_credential_error => "Tài khoản tồn tại với khác nhau";
+  @override
   String get settings_title => "Cài đặt";
   @override
   String get password => "Mật khẩu *";
@@ -103,6 +110,8 @@ class $vi extends S {
   String get add_to_saved => "Thêm vào đã lưu";
   @override
   String get logout_success => "Đăng xuất thành công";
+  @override
+  String get operation_not_allowed_error => "Hoạt động không được cho phép";
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
   @override
@@ -164,6 +173,8 @@ class $vi extends S {
   @override
   String get email_already_in_user_error => "Địa chỉ email đã được một tài khoản khác sử dụng";
   @override
+  String get invalid_credential_error => "Thông tin đăng nhập không hợp lệ";
+  @override
   String get detail_title => "Chi tiết";
   @override
   String get remove_from_saved => "Xóa khỏi đã lưu";
@@ -171,6 +182,8 @@ class $vi extends S {
   String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
   @override
   String get require_login => "Bạn cần phải đăng nhập";
+  @override
+  String get facebook_login_cancelled_by_user => "Đăng nhập bằng facebook bị hủy bởi người dùng";
   @override
   String get removed => "Xóa";
   @override
@@ -181,6 +194,8 @@ class $vi extends S {
   String get exit_app => "Thoát khỏi ứng dụng";
   @override
   String get forgot_password => "Bạn quên mật khẩu?";
+  @override
+  String get google_sign_in_canceled_error => "Đăng nhập bằng google bị hủy";
   @override
   String change_language_error(String error) => "Lỗi khi thay đổi ngôn ngữ: $error";
   @override
