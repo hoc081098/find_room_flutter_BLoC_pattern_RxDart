@@ -6,7 +6,7 @@ import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
-import 'package:find_room/pages/login/login_page.dart';
+import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';

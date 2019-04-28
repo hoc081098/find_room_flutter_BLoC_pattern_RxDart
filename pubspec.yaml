@@ -10,7 +10,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -23,6 +23,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   cloud_firestore: ^0.8.2+3
   firebase_auth: ^0.7.0
+  firebase_storage: ^1.0.4
+  image_picker: ^0.4.12+1
   json_serializable: ^2.0.1 #flutter packages pub run build_runner build
   distinct_value_connectable_observable: ^2.0.0+2
   shared_preferences: ^0.4.3

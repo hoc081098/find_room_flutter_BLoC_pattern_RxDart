@@ -10,20 +10,28 @@ part 'user_entity.g.dart';
 @JsonSerializable()
 class UserEntity implements FirebaseModel {
   final String documentID;
+
   final String email;
+
   final String phone;
+
   @JsonKey(name: 'full_name')
   final String fullName;
+
   final String address;
+
   final String avatar;
+
   @JsonKey(name: 'is_active')
   final bool isActive;
+
   @JsonKey(
     name: 'created_at',
     fromJson: timestampFromJson,
     toJson: timestampToJson,
   )
   final Timestamp createdAt;
+
   @JsonKey(
     name: 'updated_at',
     fromJson: timestampFromJson,

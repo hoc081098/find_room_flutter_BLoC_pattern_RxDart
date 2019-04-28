@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
-import 'package:find_room/pages/login/email_login_bloc.dart';
-import 'package:find_room/pages/login/facebook_sign_in_bloc.dart';
-import 'package:find_room/pages/login/google_sign_in_bloc.dart';
-import 'package:find_room/pages/login/login_state.dart';
+import 'package:find_room/pages/login_register/email_login_bloc.dart';
+import 'package:find_room/pages/login_register/facebook_sign_in_bloc.dart';
+import 'package:find_room/pages/login_register/google_sign_in_bloc.dart';
+import 'package:find_room/pages/login_register/login_state.dart';
+import 'package:find_room/pages/login_register/register_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
@@ -171,7 +172,14 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text(S.of(context).register_now),
                                 textColor: Colors.indigo,
                                 onPressed: () {
-                                  //TODO: navigate to register page
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return RegisterPage();
+                                      },
+                                    ),
+                                  );
                                 },
                               )
                             ],
@@ -340,7 +348,6 @@ class PasswordTextField extends StatelessWidget {
   const PasswordTextField({Key key, this.focusNode, this.emailLoginBloc})
       : super(key: key);
 
-//8h30 ngay mai
   @override
   Widget build(BuildContext context) {
     return Card(

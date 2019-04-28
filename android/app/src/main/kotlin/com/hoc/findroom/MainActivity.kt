@@ -14,7 +14,7 @@ class MainActivity : FlutterActivity() {
     GeneratedPluginRegistrant.registerWith(this)
 
     try {
-      val info = packageManager.getPackageInfo("com.you.name", PackageManager.GET_SIGNATURES)
+      val info = packageManager.getPackageInfo("com.hoc.findroom", PackageManager.GET_SIGNATURES)
       info.signatures.forEach { signature ->
         val md: MessageDigest =
           MessageDigest.getInstance("SHA").apply { update(signature.toByteArray()) }

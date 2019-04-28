@@ -11,15 +11,18 @@ import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/shared_pref_util.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 Future<void> main() async {
   final firestore = Firestore.instance;
   final firebaseAuth = FirebaseAuth.instance;
+  final firebaseStorage = FirebaseStorage.instance;
   final googleSignIn = GoogleSignIn();
+  final facebookLogin = FacebookLogin();
 
   ///
   /// Setup firestore
@@ -35,12 +38,14 @@ Future<void> main() async {
     firebaseAuth,
     firestore,
     googleSignIn,
-    FacebookLogin(),
+    facebookLogin,
+    firebaseStorage,
   );
   final roomRepository = FirestoreRoomRepositoryImpl(firestore);
   final bannerRepository = FirestoreBannerRepositoryImpl(firestore);
-  final provinceDistrictWardRepository =
-      ProvinceDistrictWardRepositoryImpl(firestore);
+  final provinceDistrictWardRepository = ProvinceDistrictWardRepositoryImpl(
+    firestore,
+  );
   final sharedPrefUtil = SharedPrefUtil.instance;
 
   final userBloc = UserBloc(userRepository);
