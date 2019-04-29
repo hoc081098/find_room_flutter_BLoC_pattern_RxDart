@@ -224,5 +224,8 @@ class RegisterBloc implements BaseBloc {
     }
   }
 
-  static RegisterMessageError _getRegisterError(error) {}
+  static RegisterMessageError _getRegisterError(error) {
+    //TODO: _getRegisterError
+    return null;
+  }
 }

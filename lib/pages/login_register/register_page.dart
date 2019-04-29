@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:find_room/app/app.dart';
+import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/register_bloc.dart';
 import 'package:find_room/pages/login_register/register_state.dart';
@@ -9,6 +10,11 @@ import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class RegisterPage extends StatefulWidget {
+  final FirebaseUserRepository userRepository;
+
+  const RegisterPage({Key key, @required this.userRepository})
+      : super(key: key);
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -24,7 +30,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
 
-    _bloc = null; //TODO
+    _bloc = RegisterBloc(widget.userRepository); //TODO
 
     _subscriptions = [
       _bloc.message$.listen(_showRegisterMessage),
@@ -39,11 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
-          title: Text(s.login_title),
-          leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () => RootScaffold.openDrawer(context),
-          ),
+          title: Text('Register'),
         ),
         body: SafeArea(
           child: Container(
@@ -137,8 +139,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<bool> _onWillPop() async {
-    final isLoading = true; //TODO
-    if (isLoading) {
+    if (_bloc.isLoading$.value) {
       final exitRegister = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
@@ -437,7 +438,7 @@ class RegisterButton extends StatelessWidget {
           ),
         ),
         child: Text(
-          S.of(context).login_title,
+          'Register',
           style: Theme.of(context).textTheme.button.copyWith(
                 color: Colors.black87,
                 fontSize: 16,

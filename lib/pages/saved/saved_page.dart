@@ -303,14 +303,18 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
               height: 128,
               fit: BoxFit.cover,
               imageUrl: item.image,
-              placeholder: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              ),
-              errorWidget: Center(
-                child: Icon(Icons.image),
-              ),
+              placeholder: (context, url) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                );
+              },
+              errorWidget: (context, url, error) {
+                return Center(
+                  child: Icon(Icons.image),
+                );
+              },
             ),
           ),
           SizedBox(width: 4),

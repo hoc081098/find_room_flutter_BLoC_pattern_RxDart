@@ -399,8 +399,8 @@ class HomeNewestRoomsList extends StatelessWidget {
             ? const HomeEmptyRoomList()
             : SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 2,
                   childAspectRatio: 1 / 1.618,
                   crossAxisCount: 2,
                 ),
@@ -412,7 +412,7 @@ class HomeNewestRoomsList extends StatelessWidget {
               );
 
         return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 6),
           sliver: sliver,
         );
       },
@@ -443,16 +443,20 @@ class HomeNewestRoomsListItem extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: item.image,
               fit: BoxFit.cover,
-              placeholder: Center(
-                child: new CircularProgressIndicator(
-                  strokeWidth: 2.0,
-                ),
-              ),
-              errorWidget: Center(
-                child: new Icon(
-                  Icons.image,
-                ),
-              ),
+              placeholder: (context, url) {
+                return Center(
+                  child: new CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                  ),
+                );
+              },
+              errorWidget: (context, url, error) {
+                return Center(
+                  child: new Icon(
+                    Icons.image,
+                  ),
+                );
+              },
             ),
           ),
           Positioned(
@@ -625,7 +629,7 @@ class HomeBookmarkIcon extends StatelessWidget {
           : s.remove_from_saved,
     );
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(12),
       child: iconButton,
     );
   }
@@ -688,14 +692,18 @@ class HomeBannerSlider extends StatelessWidget {
                         child: CachedNetworkImage(
                           imageUrl: items[index].image,
                           fit: BoxFit.cover,
-                          placeholder: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          errorWidget: Center(
-                            child: new Icon(
-                              Icons.image,
-                            ),
-                          ),
+                          placeholder: (context, url) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            return Center(
+                              child: new Icon(
+                                Icons.image,
+                              ),
+                            );
+                          },
                         ),
                       ),
                       Positioned(
@@ -778,9 +786,7 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
-          Radius.circular(
-            2.0,
-          ),
+          Radius.circular(2.0),
         ),
       ),
       elevation: 2.0,
@@ -793,67 +799,74 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
             ),
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: ListTile(
-            leading: CircleAvatar(
-              radius: 40,
-              backgroundImage: CachedNetworkImageProvider(item.image),
-              backgroundColor: Colors.transparent,
-            ),
-            title: Text(
-              item.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: themeData.textTheme.subtitle.copyWith(
-                fontSize: 14,
-                fontFamily: 'SF-Pro-Text',
-                fontWeight: FontWeight.w600,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: CachedNetworkImageProvider(item.image),
+                backgroundColor: Colors.transparent,
               ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text(
-                  item.price,
-                  textAlign: TextAlign.left,
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: themeData.accentColor,
-                    fontSize: 12.0,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        item.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          fontSize: 14,
+                          fontFamily: 'SF-Pro-Text',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        item.price,
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        textAlign: TextAlign.center,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          color: themeData.accentColor,
+                          fontSize: 12.0,
+                          fontFamily: 'SF-Pro-Text',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        item.address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          color: Colors.black87,
+                          fontSize: 12,
+                          fontFamily: 'SF-Pro-Text',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        item.districtName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          color: Colors.black87,
+                          fontSize: 12,
+                          fontFamily: 'SF-Pro-Text',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  item.address,
-                  textAlign: TextAlign.left,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: Colors.black87,
-                    fontSize: 12,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Text(
-                  item.districtName,
-                  maxLines: 1,
-                  textAlign: TextAlign.left,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: Colors.black87,
-                    fontSize: 12,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-            isThreeLine: true,
-            trailing: HomeBookmarkIcon(roomItem: item),
+              ),
+              HomeBookmarkIcon(roomItem: item),
+            ],
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:find_room/app/app.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
+import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/email_login_bloc.dart';
 import 'package:find_room/pages/login_register/facebook_sign_in_bloc.dart';
@@ -176,7 +177,10 @@ class _LoginPageState extends State<LoginPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) {
-                                        return RegisterPage();
+                                        return RegisterPage(
+                                          userRepository: Injector.of(context)
+                                              .userRepository,
+                                        );
                                       },
                                     ),
                                   );
