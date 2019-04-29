@@ -221,16 +221,16 @@ class _LoginPageState extends State<LoginPage> {
           config: CustomConfig(
             gradients: [
               [
-                Theme.of(context).primaryColorDark,
-                Theme.of(context).primaryColor,
+                Colors.deepPurple,
+                Colors.deepPurple.shade200,
               ],
               [
-                Colors.white,
-                Colors.indigo.shade300,
+                Colors.indigo.shade200,
+                Colors.purple.shade200,
               ],
             ],
             durations: [19440, 10800],
-            heightPercentages: [0.15, 0.2],
+            heightPercentages: [0.2, 0.25],
             blur: MaskFilter.blur(BlurStyle.solid, 10),
             gradientBegin: Alignment.bottomLeft,
             gradientEnd: Alignment.topRight,

@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     primaryColorDark: const Color(0xff512DA8),
     primaryColorLight: const Color(0xffD1C4E9),
     primaryColor: const Color(0xff673AB7),
-    accentColor: const Color(0xffffc107),
+    accentColor: const Color(0xffFF5722),
     dividerColor: const Color(0xffBDBDBD),
   );
 
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         stream: localeBloc.locale$,
         initialData: localeBloc.locale$.value,
         builder: (context, snapshot) {
-          print('[DEBUG] locale = ${snapshot.data}');
+          print('[LOCALE] locale = ${snapshot.data}');
 
           if (!snapshot.hasData) {
             return Container(
@@ -43,6 +43,8 @@ class MyApp extends StatelessWidget {
               height: double.infinity,
             );
           }
+
+          print('[APP_LOCALE] locale = ${snapshot.data}');
 
           return MaterialApp(
             locale: snapshot.data,
