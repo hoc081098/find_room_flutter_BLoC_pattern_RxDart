@@ -23,6 +23,7 @@ class S implements WidgetsLocalizations {
   String get add_or_remove_saved_room_error => "An error occurred. Try again later";
   String get add_saved_room_success => "Added to saved list successfully";
   String get add_to_saved => "Add to saved";
+  String get address => "Địa chỉ";
   String get app_title => "Find room";
   String get cancel => "Cancel";
   String get change_language => "Change language";
@@ -30,17 +31,21 @@ class S implements WidgetsLocalizations {
   String get change_language_success => "Change language successfully";
   String get detail_title => "Detail";
   String get email_already_in_user_error => "The email address is already in use by another account";
+  String get empty_address => "Address must be not empty";
   String get empty_rooms => "Empty rooms...";
   String get error_occurred => "An error occurred";
   String get exit => "Exit";
   String get exit_app => "Exit app";
   String get facebook_login_cancelled_by_user => "Facebook sign in canceled by user";
   String get forgot_password => "Forgot password?";
+  String get full_name => "Full name";
+  String get full_name_at_least_6_characters => "Full name at least 6 characters";
   String get google_sign_in_canceled_error => "Google sign in canceled";
   String get home_page_title => "Home page";
   String get invalid_credential_error => "Invalid credential";
   String get invalid_email_address => "Invalid email address";
   String get invalid_email_error => "The email address is badly formatted";
+  String get invalid_phone_number => "Invalid phone number";
   String get login_now => "Login now";
   String get login_success => "Login successfully";
   String get login_title => "Login";
@@ -56,6 +61,7 @@ class S implements WidgetsLocalizations {
   String get or_connect_through => "Or connect through";
   String get password => "Password *";
   String get password_at_least_6_characters => "Password at least 6 characters";
+  String get phone_number => "SĐT";
   String get register_now => "Register now";
   String get remove_from_saved => "Remove from saved";
   String get remove_saved_room_error => "Error when remove room from saved list";
@@ -123,6 +129,8 @@ class $vi extends S {
   @override
   String get wrong_password_error => "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu";
   @override
+  String get empty_address => "Địa chỉ trống";
+  @override
   String get weak_password_error => "Mật khẩu đã cho không hợp lệ";
   @override
   String get login_success => "Đăng nhập thành công";
@@ -139,9 +147,13 @@ class $vi extends S {
   @override
   String get home_page_title => "Trang chủ";
   @override
+  String get full_name => "Họ tên";
+  @override
   String get too_many_requests_error => "Quá nhiều request";
   @override
   String get see_all => "Xem tất cả";
+  @override
+  String get phone_number => "Phone number";
   @override
   String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
   @override
@@ -167,6 +179,8 @@ class $vi extends S {
   @override
   String get logout_error => "Lỗi xảy ra khi đăng xuất";
   @override
+  String get address => "Address";
+  @override
   String get app_title => "Phòng trọ tốt";
   @override
   String get empty_rooms => "Chưa có nhà trọ nào...";
@@ -191,7 +205,11 @@ class $vi extends S {
   @override
   String get password_at_least_6_characters => "Mật khẩu ít nhất 6 kí tự";
   @override
+  String get full_name_at_least_6_characters => "Tên ít nhất 6 kí tự";
+  @override
   String get exit_app => "Thoát khỏi ứng dụng";
+  @override
+  String get invalid_phone_number => "Sai định dạng SĐT";
   @override
   String get forgot_password => "Bạn quên mật khẩu?";
   @override

@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:find_room/app/app.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/register_bloc.dart';
 import 'package:find_room/pages/login_register/register_state.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -25,6 +26,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+  final _fullNameFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _addressFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -35,6 +39,15 @@ class _RegisterPageState extends State<RegisterPage> {
     _subscriptions = [
       _bloc.message$.listen(_showRegisterMessage),
     ];
+  }
+
+  _pickImage() async {
+    final file = await ImagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 256,
+      maxHeight: 256,
+    );
+    _bloc.avatarChanged(file);
   }
 
   @override
@@ -62,14 +75,56 @@ class _RegisterPageState extends State<RegisterPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           SizedBox(height: 12),
+                          InkWell(
+                            child: StreamBuilder<File>(
+                                initialData: _bloc.avatar$.value,
+                                stream: _bloc.avatar$,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Image.file(
+                                      snapshot.data,
+                                      width: 48,
+                                      height: 48,
+                                    );
+                                  } else {
+                                    return Container(
+                                      width: 48,
+                                      height: 48,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Theme.of(context).accentColor,
+                                          size: 48,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }),
+                            onTap: _pickImage,
+                          ),
                           EmailTextField(
-                            emailFocusNode: _emailFocusNode,
                             bloc: _bloc,
+                            focusNode: _emailFocusNode,
                             passwordFocusNode: _passwordFocusNode,
                           ),
                           PasswordTextField(
                             bloc: _bloc,
                             focusNode: _passwordFocusNode,
+                            fullNameFocusNode: _fullNameFocusNode,
+                          ),
+                          FullNameTextField(
+                            bloc: _bloc,
+                            focusNode: _fullNameFocusNode,
+                            phoneFocusNode: _phoneFocusNode,
+                          ),
+                          PhoneTextField(
+                            bloc: _bloc,
+                            focusNode: _phoneFocusNode,
+                            addressFocusNode: _addressFocusNode,
+                          ),
+                          AddressTextField(
+                            bloc: _bloc,
+                            focusNode: _addressFocusNode,
                           ),
                           SizedBox(height: 12.0),
                           StreamBuilder<bool>(
@@ -182,9 +237,14 @@ class _RegisterPageState extends State<RegisterPage> {
 class PasswordTextField extends StatelessWidget {
   final FocusNode focusNode;
   final RegisterBloc bloc;
+  final FocusNode fullNameFocusNode;
 
-  const PasswordTextField({Key key, this.focusNode, this.bloc})
-      : super(key: key);
+  const PasswordTextField({
+    Key key,
+    @required this.focusNode,
+    @required this.bloc,
+    @required this.fullNameFocusNode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -210,12 +270,13 @@ class PasswordTextField extends StatelessWidget {
             return TextField(
               maxLines: 1,
               keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.done,
+              textInputAction: TextInputAction.next,
               onChanged: bloc.passwordChanged,
               obscureText: true,
               focusNode: focusNode,
               onSubmitted: (_) {
                 focusNode.unfocus();
+                FocusScope.of(context).requestFocus(fullNameFocusNode);
               },
               decoration: InputDecoration(
                 errorText: errorText == null ? null : '${' ' * 6}$errorText',
@@ -257,11 +318,14 @@ class PasswordTextField extends StatelessWidget {
 
 class EmailTextField extends StatelessWidget {
   final RegisterBloc bloc;
-  final FocusNode emailFocusNode;
+  final FocusNode focusNode;
   final FocusNode passwordFocusNode;
 
   const EmailTextField(
-      {Key key, this.bloc, this.emailFocusNode, this.passwordFocusNode})
+      {Key key,
+      this.bloc,
+      @required this.focusNode,
+      @required this.passwordFocusNode})
       : super(key: key);
 
   @override
@@ -290,10 +354,10 @@ class EmailTextField extends StatelessWidget {
             return TextField(
               keyboardType: TextInputType.emailAddress,
               onSubmitted: (_) {
-                emailFocusNode.unfocus();
+                focusNode.unfocus();
                 FocusScope.of(context).requestFocus(passwordFocusNode);
               },
-              focusNode: emailFocusNode,
+              focusNode: focusNode,
               textInputAction: TextInputAction.next,
               maxLines: 1,
               onChanged: bloc.emailChanged,
@@ -445,6 +509,246 @@ class RegisterButton extends StatelessWidget {
               ),
         ),
       ),
+    );
+  }
+}
+
+class FullNameTextField extends StatelessWidget {
+  final FocusNode focusNode;
+  final RegisterBloc bloc;
+  final FocusNode phoneFocusNode;
+
+  const FullNameTextField({
+    Key key,
+    @required this.focusNode,
+    @required this.bloc,
+    @required this.phoneFocusNode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(
+        left: 30,
+        right: 30,
+        top: 20,
+      ),
+      elevation: 11,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(40)),
+      ),
+      child: StreamBuilder<FullNameError>(
+          stream: bloc.fullNameError$,
+          builder: (context, snapshot) {
+            String errorText;
+            if (snapshot.data is FullNameMustBeAtLeast3Characters) {
+              errorText = S.of(context).full_name_at_least_6_characters;
+            }
+
+            return TextField(
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+              onChanged: bloc.fullNameChanged,
+              focusNode: focusNode,
+              onSubmitted: (_) {
+                focusNode.unfocus();
+                FocusScope.of(context).requestFocus(phoneFocusNode);
+              },
+              decoration: InputDecoration(
+                errorText: errorText == null ? null : '${' ' * 6}$errorText',
+                prefixIcon: Icon(
+                  Icons.person,
+                  color: Colors.black54,
+                ),
+                hintText: S.of(context).full_name,
+                hintStyle: TextStyle(
+                  color: Colors.black54,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(40),
+                  ),
+                ),
+                suffixIcon: errorText == null
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Colors.greenAccent,
+                      )
+                    : Icon(
+                        Icons.check_circle,
+                        color: Colors.redAccent,
+                      ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                  vertical: 8.0,
+                ),
+              ),
+            );
+          }),
+    );
+  }
+}
+
+class PhoneTextField extends StatelessWidget {
+  final FocusNode focusNode;
+  final RegisterBloc bloc;
+  final FocusNode addressFocusNode;
+
+  const PhoneTextField({
+    Key key,
+    @required this.focusNode,
+    @required this.bloc,
+    @required this.addressFocusNode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(
+        left: 30,
+        right: 30,
+        top: 20,
+      ),
+      elevation: 11,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(40)),
+      ),
+      child: StreamBuilder<PhoneError>(
+          stream: bloc.phoneError$,
+          builder: (context, snapshot) {
+            String errorText;
+            if (snapshot.data is InvalidPhone) {
+              errorText = S.of(context).invalid_phone_number;
+            }
+
+            return TextField(
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+              onChanged: bloc.phoneChanged,
+              focusNode: focusNode,
+              onSubmitted: (_) {
+                focusNode.unfocus();
+                FocusScope.of(context).requestFocus(addressFocusNode);
+              },
+              decoration: InputDecoration(
+                errorText: errorText == null ? null : '${' ' * 6}$errorText',
+                prefixIcon: Icon(
+                  Icons.phone,
+                  color: Colors.black54,
+                ),
+                hintText: S.of(context).phone_number,
+                hintStyle: TextStyle(
+                  color: Colors.black54,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(40),
+                  ),
+                ),
+                suffixIcon: errorText == null
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Colors.greenAccent,
+                      )
+                    : Icon(
+                        Icons.check_circle,
+                        color: Colors.redAccent,
+                      ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                  vertical: 8.0,
+                ),
+              ),
+            );
+          }),
+    );
+  }
+}
+
+class AddressTextField extends StatelessWidget {
+  final FocusNode focusNode;
+  final RegisterBloc bloc;
+
+  const AddressTextField({
+    Key key,
+    @required this.focusNode,
+    @required this.bloc,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(
+        left: 30,
+        right: 30,
+        top: 20,
+      ),
+      elevation: 11,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(40)),
+      ),
+      child: StreamBuilder<AddressError>(
+          stream: bloc.addressError$,
+          builder: (context, snapshot) {
+            String errorText;
+            if (snapshot.data is AddressMustBeNotEmpty) {
+              errorText = S.of(context).empty_address;
+            }
+
+            return TextField(
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.done,
+              onChanged: bloc.addressChanged,
+              focusNode: focusNode,
+              onSubmitted: (_) {
+                focusNode.unfocus();
+              },
+              decoration: InputDecoration(
+                errorText: errorText == null ? null : '${' ' * 6}$errorText',
+                prefixIcon: Icon(
+                  Icons.label,
+                  color: Colors.black54,
+                ),
+                hintText: S.of(context).address,
+                hintStyle: TextStyle(
+                  color: Colors.black54,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(40),
+                  ),
+                ),
+                suffixIcon: errorText == null
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Colors.greenAccent,
+                      )
+                    : Icon(
+                        Icons.check_circle,
+                        color: Colors.redAccent,
+                      ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                  vertical: 8.0,
+                ),
+              ),
+            );
+          }),
     );
   }
 }

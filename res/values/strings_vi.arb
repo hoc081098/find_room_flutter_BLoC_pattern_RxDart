@@ -57,5 +57,11 @@
   "account_exists_with_difference_credential_error": "Tài khoản tồn tại với khác nhau",
   "operation_not_allowed_error": "Hoạt động không được cho phép",
   "google_sign_in_canceled_error": "Đăng nhập bằng google bị hủy",
-  "facebook_login_cancelled_by_user": "Đăng nhập bằng facebook bị hủy bởi người dùng"
+  "facebook_login_cancelled_by_user": "Đăng nhập bằng facebook bị hủy bởi người dùng",
+  "full_name_at_least_6_characters": "Tên ít nhất 6 kí tự",
+  "full_name": "Họ tên",
+  "invalid_phone_number": "Sai định dạng SĐT",
+  "empty_address": "Địa chỉ trống",
+  "address": "Address",
+  "phone_number": "Phone number"
 }

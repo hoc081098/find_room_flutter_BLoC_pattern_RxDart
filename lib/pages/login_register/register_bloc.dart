@@ -51,6 +51,7 @@ class RegisterBloc implements BaseBloc {
   /// Output [Stream]s
   ///
   final ValueObservable<bool> isLoading$;
+  final ValueObservable<File> avatar$;
   final Stream<FullNameError> fullNameError$;
   final Stream<EmailError> emailError$;
   final Stream<PasswordError> passwordError$;
@@ -78,6 +79,7 @@ class RegisterBloc implements BaseBloc {
     @required this.fullNameError$,
     @required this.addressError$,
     @required this.phoneError$,
+    @required this.avatar$,
     @required void Function() dispose,
   }) : _dispose = dispose;
 
@@ -175,6 +177,7 @@ class RegisterBloc implements BaseBloc {
     ];
 
     return RegisterBloc._(
+      avatar$: avatarSubject.stream,
       fullNameChanged: fullNameSubject.add,
       addressChanged: addressSubject.add,
       phoneChanged: phoneSubject.add,

@@ -57,5 +57,11 @@
   "account_exists_with_difference_credential_error": "Account exists with difference credential error",
   "operation_not_allowed_error": "Operation not allowed",
   "google_sign_in_canceled_error": "Google sign in canceled",
-  "facebook_login_cancelled_by_user": "Facebook sign in canceled by user"
+  "facebook_login_cancelled_by_user": "Facebook sign in canceled by user",
+  "full_name_at_least_6_characters": "Full name at least 6 characters",
+  "full_name": "Full name",
+  "invalid_phone_number": "Invalid phone number",
+  "empty_address": "Address must be not empty",
+  "address": "Địa chỉ",
+  "phone_number": "SĐT"
 }
