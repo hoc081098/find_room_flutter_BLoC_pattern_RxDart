@@ -57,30 +57,41 @@ class ForgotPasswordBloc implements BaseBloc {
         return null;
       }
       return const InvalidEmailAddress();
-    }).share();
+    });
 
-    final submitWithEmail$ = submitSubject
+    final valid$ = submitSubject
         .withLatestFrom(
-          emailError$,
-          (_, EmailError emailError) => emailError,
+          emailSubject,
+          (_, String email) => _isValidEmail(email),
         )
         .share();
 
-    final message$ = Observable.merge([
-      submitWithEmail$
-          .where((emailError) => emailError != null)
+    final message$ = Observable<ForgotPasswordMessage>.merge([
+      valid$
+          .doOnData((valid) => print('valid1=$valid'))
+          .where((valid) => !valid)
           .map((_) => const InvalidInformation()),
-      submitWithEmail$
-          .where((emailError) => emailError == null)
-          .map((_) => emailSubject.value)
-          .exhaustMap((email) => performSendEmail(
-                email,
-                userRepo,
-                isLoadingSubject,
-              )),
+      valid$
+          .doOnData((valid) => print('valid2=$valid'))
+          .where((valid) => valid)
+          .withLatestFrom(
+            emailSubject,
+            (_, String email) => email,
+          )
+          .doOnData((email) => print('email=$email'))
+          .doOnEach((error) => print('error=$error'))
+          .exhaustMap(
+            (email) => performSendEmail(
+                  email,
+                  userRepo,
+                  isLoadingSubject,
+                ),
+          ),
     ]).publish();
 
     final subscriptions = [
+      message$.listen(
+          (message) => print('[FORGOT_PASSWORD_BLOC] message=$message')),
       message$.connect(),
     ];
     final controllers = <StreamController>[
@@ -108,6 +119,7 @@ class ForgotPasswordBloc implements BaseBloc {
     FirebaseUserRepository userRepo,
     Sink<bool> isLoadingSink,
   ) async* {
+    print('[FORGOT_PASSWORD_BLOC] performSendEmail');
     isLoadingSink.add(true);
 
     try {

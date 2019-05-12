@@ -131,8 +131,8 @@ class _LoginPageState extends State<LoginPage> {
                                       return BlocProvider<ForgotPasswordBloc>(
                                         child: const ForgotPasswordPage(),
                                         bloc: ForgotPasswordBloc(
-                                            Injector.of(context)
-                                                .userRepository),
+                                          Injector.of(context).userRepository,
+                                        ),
                                       );
                                     },
                                   ),

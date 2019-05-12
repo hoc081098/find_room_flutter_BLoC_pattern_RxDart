@@ -66,7 +66,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           },
                         ),
                         SizedBox(height: 8.0),
-                        SendEmailBloc(),
+                        SendEmailButton(),
                         SizedBox(height: 12),
                       ],
                     ),
@@ -269,7 +269,7 @@ class _LoadingIndicatorState extends State<LoadingIndicator>
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 800,
+        milliseconds: 600,
       ),
     );
     _fadeAnimation = Tween<double>(
@@ -330,8 +330,8 @@ class _LoadingIndicatorState extends State<LoadingIndicator>
   }
 }
 
-class SendEmailBloc extends StatelessWidget {
-  const SendEmailBloc({Key key}) : super(key: key);
+class SendEmailButton extends StatelessWidget {
+  const SendEmailButton({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
