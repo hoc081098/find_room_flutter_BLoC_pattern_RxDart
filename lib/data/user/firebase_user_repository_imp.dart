@@ -166,4 +166,10 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
     print('[USER_REPO] registerWithEmail done');
   }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) {
+    if (email == null) return Future.error('email must be not null');
+    return _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
 }

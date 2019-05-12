@@ -69,5 +69,10 @@
   "register_success": "Đăng kí thành công",
   "register": "Đăng kí",
   "exit_login": "Bạn muốn thoát đăng nhập",
-  "exit_login_message": "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?"
+  "exit_login_message": "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?",
+  "send_email": "Gửi",
+  "forgot_password_title": "Quên mật khẩu",
+  "exit_send_email": "Bạn muốn thoát gửi email reset mật khẩu?",
+  "exit_send_email_message": "Đang xử lí gửi email reset mật khẩu... bạn có chắc chắn muốn thoát?",
+  "send_password_reset_email_success": "Gửi email reset mật khẩu thành công"
 }

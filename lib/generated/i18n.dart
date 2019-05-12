@@ -40,8 +40,11 @@ class S implements WidgetsLocalizations {
   String get exit_login_message => "Processing login...Are you sure you want to exit?";
   String get exit_register => "Exit register";
   String get exit_register_message => "Processing register...Are you sure you want to exit?";
+  String get exit_send_email => "Exit reset password";
+  String get exit_send_email_message => "Processing send email...Are you sure you want to exit?";
   String get facebook_login_cancelled_by_user => "Facebook sign in canceled by user";
   String get forgot_password => "Forgot password?";
+  String get forgot_password_title => "Forgot password";
   String get full_name => "Full name";
   String get full_name_at_least_6_characters => "Full name at least 6 characters";
   String get google_sign_in_canceled_error => "Google sign in canceled";
@@ -77,6 +80,8 @@ class S implements WidgetsLocalizations {
   String get saved_list_empty => "Saved list is empty";
   String get saved_rooms_title => "Saved rooms";
   String get see_all => "See all";
+  String get send_email => "Send email";
+  String get send_password_reset_email_success => "Send password reset email success";
   String get settings => "Settings";
   String get settings_title => "Settings";
   String get sure_want_to_exit_app => "Are you sure you want to exit the application?";
@@ -123,6 +128,8 @@ class $vi extends S {
   @override
   String get logout_success => "Đăng xuất thành công";
   @override
+  String get forgot_password_title => "Quên mật khẩu";
+  @override
   String get operation_not_allowed_error => "Hoạt động không được cho phép";
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
@@ -136,6 +143,8 @@ class $vi extends S {
   String get wrong_password_error => "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu";
   @override
   String get empty_address => "Địa chỉ trống";
+  @override
+  String get send_email => "Gửi";
   @override
   String get weak_password_error => "Mật khẩu đã cho không hợp lệ";
   @override
@@ -177,7 +186,11 @@ class $vi extends S {
   @override
   String get user_not_found_error => "Không có người dùng nào tương ứng với số nhận dạng này. Người dùng có thể đã bị xóa";
   @override
+  String get exit_send_email => "Bạn muốn thoát gửi email reset mật khẩu?";
+  @override
   String get change_language_success => "Thay đổi ngôn ngữ thành công";
+  @override
+  String get send_password_reset_email_success => "Gửi email reset mật khẩu thành công";
   @override
   String get invalid_email_error => "Địa chỉ email bị định dạng sai";
   @override
@@ -208,6 +221,8 @@ class $vi extends S {
   String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
   @override
   String get require_login => "Bạn cần phải đăng nhập";
+  @override
+  String get exit_send_email_message => "Đang xử lí gửi email reset mật khẩu... bạn có chắc chắn muốn thoát?";
   @override
   String get facebook_login_cancelled_by_user => "Đăng nhập bằng facebook bị hủy bởi người dùng";
   @override

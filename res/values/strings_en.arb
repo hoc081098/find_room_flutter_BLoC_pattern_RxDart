@@ -69,5 +69,10 @@
   "register_success": "Register successfully",
   "register": "Register",
   "exit_login": "Exit login",
-  "exit_login_message": "Processing login...Are you sure you want to exit?"
+  "exit_login_message": "Processing login...Are you sure you want to exit?",
+  "send_email": "Send email",
+  "forgot_password_title": "Forgot password",
+  "exit_send_email": "Exit reset password",
+  "exit_send_email_message": "Processing send email...Are you sure you want to exit?",
+  "send_password_reset_email_success": "Send password reset email success"
 }
