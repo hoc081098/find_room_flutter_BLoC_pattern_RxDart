@@ -13,8 +13,10 @@ import 'package:wave/wave.dart';
 class RegisterPage extends StatefulWidget {
   final FirebaseUserRepository userRepository;
 
-  const RegisterPage({Key key, @required this.userRepository})
-      : super(key: key);
+  const RegisterPage({
+    Key key,
+    @required this.userRepository,
+  }) : super(key: key);
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -37,7 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _bloc = RegisterBloc(widget.userRepository); //TODO
 
     _subscriptions = [
-      _bloc.message$.listen(_showRegisterMessage),
+      _bloc.message$.listen(_showRegisterMessage)
     ];
   }
 
@@ -52,13 +54,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    var s = S.of(context);
+    final s = S.of(context);
 
     return WillPopScope(
+      onWillPop: _onWillPop,
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
-          title: Text('Register'),
+          title: Text(s.register),
         ),
         body: SafeArea(
           child: Container(
@@ -75,32 +78,45 @@ class _RegisterPageState extends State<RegisterPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           SizedBox(height: 12),
-                          InkWell(
-                            child: StreamBuilder<File>(
-                                initialData: _bloc.avatar$.value,
-                                stream: _bloc.avatar$,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Image.file(
-                                      snapshot.data,
-                                      width: 48,
-                                      height: 48,
-                                    );
-                                  } else {
-                                    return Container(
-                                      width: 48,
-                                      height: 48,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.person,
-                                          color: Theme.of(context).accentColor,
-                                          size: 48,
-                                        ),
+                          Center(
+                            child: SizedBox(
+                              width: 72,
+                              height: 72,
+                              child: InkWell(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white70,
+                                        blurRadius: 12,
+                                        offset: Offset(4, 4),
                                       ),
-                                    );
-                                  }
-                                }),
-                            onTap: _pickImage,
+                                    ],
+                                    borderRadius: BorderRadius.circular(36),
+                                  ),
+                                  child: StreamBuilder<File>(
+                                      initialData: _bloc.avatar$.value,
+                                      stream: _bloc.avatar$,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return CircleAvatar(
+                                            backgroundImage:
+                                                FileImage(snapshot.data),
+                                            backgroundColor: Colors.white,
+                                          );
+                                        } else {
+                                          return const CircleAvatar(
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 48,
+                                            ),
+                                          );
+                                        }
+                                      }),
+                                ),
+                                onTap: _pickImage,
+                              ),
+                            ),
                           ),
                           EmailTextField(
                             bloc: _bloc,
@@ -126,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             bloc: _bloc,
                             focusNode: _addressFocusNode,
                           ),
-                          SizedBox(height: 12.0),
+                          SizedBox(height: 8.0),
                           StreamBuilder<bool>(
                             stream: _bloc.isLoading$,
                             initialData: _bloc.isLoading$.value,
@@ -137,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               );
                             },
                           ),
-                          SizedBox(height: 12.0),
+                          SizedBox(height: 8.0),
                           RegisterButton(bloc: _bloc),
                           SizedBox(height: 12),
                         ],
@@ -150,7 +166,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
-      onWillPop: _onWillPop,
     );
   }
 
@@ -195,20 +210,20 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<bool> _onWillPop() async {
     if (_bloc.isLoading$.value) {
+      final s = S.of(context);
       final exitRegister = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Bạn muốn thoát đăng kí'),
-            content:
-                const Text('Đang xử lí đăng kí, bạn có chắc chắn muốn thoát'),
+            title: Text(s.exit_register),
+            content: Text(s.exit_register_message),
             actions: <Widget>[
               FlatButton(
-                child: const Text('Không'),
+                child: Text(s.no),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               FlatButton(
-                child: const Text('Thoát'),
+                child: Text(s.exit),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],
@@ -224,13 +239,48 @@ class _RegisterPageState extends State<RegisterPage> {
     Scaffold.of(context, nullOk: true)?.showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _showRegisterMessage(RegisterMessage message) {
-    var s = S.of(context);
+  void _showRegisterMessage(RegisterMessage message) async {
+    final s = S.of(context);
+    if (message is RegisterMessageSuccess) {
+      _showSnackBar(s.register_success);
+    }
+    if (message is RegisterMessageError) {
+      final error = message.error;
+      print('[DEBUG] error=$error');
+
+      if (error is NetworkError) {
+        _showSnackBar(s.network_error);
+      }
+      if (error is TooManyRequestsError) {
+        _showSnackBar(s.too_many_requests_error);
+      }
+      if (error is UserNotFoundError) {
+        _showSnackBar(s.user_not_found_error);
+      }
+      if (error is WrongPasswordError) {
+        _showSnackBar(s.wrong_password_error);
+      }
+      if (error is InvalidEmailError) {
+        _showSnackBar(s.invalid_email_error);
+      }
+      if (error is EmailAlreadyInUseError) {
+        _showSnackBar(s.email_already_in_user_error);
+      }
+      if (error is WeakPasswordError) {
+        _showSnackBar(s.weak_password_error);
+      }
+
+      ///
+      if (error is UnknownError) {
+        print('[DEBUG] error=${error.error}');
+        _showSnackBar(s.error_occurred);
+      }
+    }
   }
 }
 
@@ -419,7 +469,7 @@ class _LoadingIndicatorState extends State<LoadingIndicator>
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 400,
+        milliseconds: 800,
       ),
     );
     _fadeAnimation = Tween<double>(
@@ -466,8 +516,9 @@ class _LoadingIndicatorState extends State<LoadingIndicator>
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation(Theme.of(context).accentColor),
+                  valueColor: AlwaysStoppedAnimation(
+                    Theme.of(context).accentColor,
+                  ),
                   strokeWidth: 3,
                 ),
               ),
@@ -502,7 +553,7 @@ class RegisterButton extends StatelessWidget {
           ),
         ),
         child: Text(
-          'Register',
+          S.of(context).register,
           style: Theme.of(context).textTheme.button.copyWith(
                 color: Colors.black87,
                 fontSize: 16,

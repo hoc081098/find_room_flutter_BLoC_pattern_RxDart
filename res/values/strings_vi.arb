@@ -62,6 +62,12 @@
   "full_name": "Họ tên",
   "invalid_phone_number": "Sai định dạng SĐT",
   "empty_address": "Địa chỉ trống",
-  "address": "Address",
-  "phone_number": "Phone number"
+  "address": "Địa chỉ",
+  "phone_number": "SĐT",
+  "exit_register": "Bạn muốn thoát đăng kí",
+  "exit_register_message": "Đang xử lí đăng kí... bạn có chắc chắn muốn thoát?",
+  "register_success": "Đăng kí thành công",
+  "register": "Đăng kí",
+  "exit_login": "Bạn muốn thoát đăng nhập",
+  "exit_login_message": "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?"
 }

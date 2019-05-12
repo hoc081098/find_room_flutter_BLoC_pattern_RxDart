@@ -62,6 +62,12 @@
   "full_name": "Full name",
   "invalid_phone_number": "Invalid phone number",
   "empty_address": "Address must be not empty",
-  "address": "Địa chỉ",
-  "phone_number": "SĐT"
+  "address": "Address",
+  "phone_number": "Phone number",
+  "exit_register": "Exit register",
+  "exit_register_message": "Processing register...Are you sure you want to exit?",
+  "register_success": "Register successfully",
+  "register": "Register",
+  "exit_login": "Exit login",
+  "exit_login_message": "Processing login...Are you sure you want to exit?"
 }

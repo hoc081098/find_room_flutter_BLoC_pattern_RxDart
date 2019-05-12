@@ -6,15 +6,17 @@ A Flutter project for learning. In progress...
 Support languages **Vietnamese**, **English**, you can refer to **Rxdart** usage, **BLoC** pattern 😁
 Star, fork if it is helful, issues and pull requests are always welcome
 
-Only configured for Android, no Ios yet.
 
-## Screenshot
+## Screenshots
 
 |  |  |   |
 | :---:                              | :---:                             | :---:                              |
-| <img height="480px" src="https://i.ibb.co/c2ddxFs/Screenshot-2019-01-18-18-07-16.png"> | <img height="480px" src="https://i.ibb.co/wdTgjrq/Screenshot-2019-01-18-18-08-14.png"> | <img height="480px" src="https://i.ibb.co/zhZRhPK/Screenshot-2019-01-18-18-07-39.png"> |
-| <img height="480px" src="https://i.ibb.co/XZfdYhJ/Screenshot-2019-01-18-18-07-46.png"> | <img height="480px" src="https://i.ibb.co/QC1xj5q/Screenshot-2019-01-18-18-07-51.png"> | <img height="480px" src="https://i.ibb.co/N6q0XhW/Screenshot-2019-01-18-18-07-56.png">
- 
+| <img height="480px" src="art/Screenshot_01.png"> | <img height="480px" src="art/Screenshot_02.png"> | <img height="480px" src="art/Screenshot_03.png"> |
+| <img height="480px" src="art/Screenshot_04.png"> | <img height="480px" src="art/Screenshot_05.png"> | <img height="480px" src="art/Screenshot_06.png"> |
+| <img height="480px" src="art/Screenshot_07.png"> | <img height="480px" src="art/Screenshot_08.png"> | <img height="480px" src="art/Screenshot_09.png"> |
+| <img height="480px" src="art/Screenshot_10.png"> | <img height="480px" src="art/Screenshot_11.png"> | <img height="480px" src="art/Screenshot_12.png"> |
+| <img height="480px" src="art/Screenshot_13.png"> | |  |
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

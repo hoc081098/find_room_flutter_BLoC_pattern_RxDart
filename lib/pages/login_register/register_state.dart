@@ -28,6 +28,14 @@ class NetworkError implements RegisterError {
   const NetworkError();
 }
 
+class OperationNotAllowedError implements RegisterError {
+  const OperationNotAllowedError();
+}
+
+class UserDisabledError implements RegisterError {
+  const UserDisabledError();
+}
+
 class TooManyRequestsError implements RegisterError {
   const TooManyRequestsError();
 }
@@ -51,6 +59,8 @@ class EmailAlreadyInUseError implements RegisterError {
 class WeakPasswordError implements RegisterError {
   const WeakPasswordError();
 }
+
+///
 
 class UnknownError implements RegisterError {
   final Object error;

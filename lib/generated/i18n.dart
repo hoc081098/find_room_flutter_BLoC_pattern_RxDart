@@ -23,7 +23,7 @@ class S implements WidgetsLocalizations {
   String get add_or_remove_saved_room_error => "An error occurred. Try again later";
   String get add_saved_room_success => "Added to saved list successfully";
   String get add_to_saved => "Add to saved";
-  String get address => "Địa chỉ";
+  String get address => "Address";
   String get app_title => "Find room";
   String get cancel => "Cancel";
   String get change_language => "Change language";
@@ -36,6 +36,10 @@ class S implements WidgetsLocalizations {
   String get error_occurred => "An error occurred";
   String get exit => "Exit";
   String get exit_app => "Exit app";
+  String get exit_login => "Exit login";
+  String get exit_login_message => "Processing login...Are you sure you want to exit?";
+  String get exit_register => "Exit register";
+  String get exit_register_message => "Processing register...Are you sure you want to exit?";
   String get facebook_login_cancelled_by_user => "Facebook sign in canceled by user";
   String get forgot_password => "Forgot password?";
   String get full_name => "Full name";
@@ -61,8 +65,10 @@ class S implements WidgetsLocalizations {
   String get or_connect_through => "Or connect through";
   String get password => "Password *";
   String get password_at_least_6_characters => "Password at least 6 characters";
-  String get phone_number => "SĐT";
+  String get phone_number => "Phone number";
+  String get register => "Register";
   String get register_now => "Register now";
+  String get register_success => "Register successfully";
   String get remove_from_saved => "Remove from saved";
   String get remove_saved_room_error => "Error when remove room from saved list";
   String get remove_saved_room_success => "Remove from saved list successfully";
@@ -153,7 +159,7 @@ class $vi extends S {
   @override
   String get see_all => "Xem tất cả";
   @override
-  String get phone_number => "Phone number";
+  String get phone_number => "SĐT";
   @override
   String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
   @override
@@ -164,6 +170,8 @@ class $vi extends S {
   String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
   @override
   String get no => "Không";
+  @override
+  String get register_success => "Đăng kí thành công";
   @override
   String get mostViewed => "Xem nhiều";
   @override
@@ -177,9 +185,11 @@ class $vi extends S {
   @override
   String get login_title => "Đăng nhập";
   @override
+  String get exit_login_message => "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?";
+  @override
   String get logout_error => "Lỗi xảy ra khi đăng xuất";
   @override
-  String get address => "Address";
+  String get address => "Địa chỉ";
   @override
   String get app_title => "Phòng trọ tốt";
   @override
@@ -188,6 +198,8 @@ class $vi extends S {
   String get email_already_in_user_error => "Địa chỉ email đã được một tài khoản khác sử dụng";
   @override
   String get invalid_credential_error => "Thông tin đăng nhập không hợp lệ";
+  @override
+  String get exit_register => "Bạn muốn thoát đăng kí";
   @override
   String get detail_title => "Chi tiết";
   @override
@@ -203,9 +215,13 @@ class $vi extends S {
   @override
   String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
   @override
+  String get exit_login => "Bạn muốn thoát đăng nhập";
+  @override
   String get password_at_least_6_characters => "Mật khẩu ít nhất 6 kí tự";
   @override
   String get full_name_at_least_6_characters => "Tên ít nhất 6 kí tự";
+  @override
+  String get exit_register_message => "Đang xử lí đăng kí... bạn có chắc chắn muốn thoát?";
   @override
   String get exit_app => "Thoát khỏi ứng dụng";
   @override
@@ -214,6 +230,8 @@ class $vi extends S {
   String get forgot_password => "Bạn quên mật khẩu?";
   @override
   String get google_sign_in_canceled_error => "Đăng nhập bằng google bị hủy";
+  @override
+  String get register => "Đăng kí";
   @override
   String change_language_error(String error) => "Lỗi khi thay đổi ngôn ngữ: $error";
   @override

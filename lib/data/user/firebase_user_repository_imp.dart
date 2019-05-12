@@ -37,8 +37,9 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     if (uid == null) {
       return Observable.just(null);
     }
-    return Observable(_firestore.document('users/$uid').snapshots())
-        .map((snapshot) => UserEntity.fromDocumentSnapshot(snapshot));
+    return Observable(_firestore.document('users/$uid').snapshots()).map(
+        (snapshot) =>
+            snapshot.exists ? UserEntity.fromDocumentSnapshot(snapshot) : null);
   }
 
   @override
@@ -79,16 +80,13 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     FirebaseUser user, [
     Map<String, dynamic> addition,
   ]) {
-    return _firestore.document('users/${user.uid}').setData(
-      <String, dynamic>{
-        'email': user.email,
-        'phone': user.phoneNumber,
-        'full_name': user.displayName,
-        'avatar': user.photoUrl,
-        ...?addition,
-      },
-      merge: true,
-    );
+    final data = <String, dynamic>{
+      'email': user.email,
+      'full_name': user.displayName,
+      'avatar': user.photoUrl,
+    };
+    print('[USER_REPO] _updateUserData data=$data');
+    return _firestore.document('users/${user.uid}').setData(data, merge: true);
   }
 
   @override
@@ -101,7 +99,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
           await _firebaseAuth.signInWithCredential(
         FacebookAuthProvider.getCredential(accessToken: token),
       );
-      _updateUserData(firebaseUser);
+      await _updateUserData(firebaseUser);
     }
     return result;
   }
@@ -121,13 +119,30 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     if (address == null) return Future.error('address must be not null');
     if (phoneNumber == null)
       return Future.error('phoneNumber must be not null');
+    print(
+        '[USER_REPO] registerWithEmail fullName=$fullName, email=$email, password=$password'
+        'address=$address, phoneNumber=$phoneNumber');
 
-    final firebaseUser = await _firebaseAuth.createUserWithEmailAndPassword(
+    // create firebase auth user and update displayName
+    var firebaseUser = await _firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    await firebaseUser.updateProfile(UserUpdateInfo()..displayName = fullName);
+    // then save to firestore user info and address
+    firebaseUser = await _firebaseAuth.currentUser();
+    await _updateUserData(
+      firebaseUser,
+      <String, dynamic>{
+        'address': address,
+        'phone': phoneNumber,
+      },
+    );
+    print('[USER_REPO] registerWithEmail firebaseUser=$firebaseUser');
 
+    // if avatar is present
     if (avatar != null) {
+      // upload image to firebase storage
       final uploadTask = _firebaseStorage
           .ref()
           .child('avatar_images')
@@ -135,19 +150,20 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
           .putFile(avatar);
       await uploadTask.onComplete;
 
+      // if upload task is successful
       if (uploadTask.isSuccessful) {
-        final photoUrl = await uploadTask.lastSnapshot.ref.getDownloadURL();
-        await firebaseUser.updateProfile(
-          UserUpdateInfo()
-            ..displayName = fullName
-            ..photoUrl = photoUrl,
-        );
+        // get photo url
+        final String photoUrl =
+            await uploadTask.lastSnapshot.ref.getDownloadURL();
+        print('[USER_REPO] registerWithEmail photoUrl=$photoUrl');
+
+        // update firebase user info with photo url and save to firestore
+        await firebaseUser.updateProfile(UserUpdateInfo()..photoUrl = photoUrl);
+        firebaseUser = await _firebaseAuth.currentUser();
+        await _updateUserData(firebaseUser);
       }
     }
 
-    await _updateUserData(
-      firebaseUser,
-      <String, dynamic>{'address': address},
-    );
+    print('[USER_REPO] registerWithEmail done');
   }
 }

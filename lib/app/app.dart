@@ -212,12 +212,17 @@ class DrawerUserHeader extends StatelessWidget {
 
         if (loginState is UserLogin) {
           return UserAccountsDrawerHeader(
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(loginState.avatar),
-              backgroundColor: Colors.white,
-            ),
+            currentAccountPicture:
+                loginState.avatar == null || loginState.avatar.isEmpty
+                    ? const CircleAvatar(
+                        child: Icon(Icons.image),
+                      )
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(loginState.avatar),
+                        backgroundColor: Colors.white,
+                      ),
             accountEmail: Text(loginState.email),
-            accountName: Text(loginState.fullName),
+            accountName: Text(loginState.fullName ?? ''),
           );
         }
 

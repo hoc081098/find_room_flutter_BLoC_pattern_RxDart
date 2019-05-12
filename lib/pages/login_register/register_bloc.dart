@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/login_register/register_state.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
 import 'package:rxdart/rxdart.dart';
 
 /// ignore_for_file: close_sinks
@@ -100,7 +103,7 @@ class RegisterBloc implements BaseBloc {
     final passwordSubject = BehaviorSubject<String>.seeded('');
     final addressSubject = BehaviorSubject<String>.seeded('');
     final phoneSubject = BehaviorSubject<String>.seeded('');
-    final avatarSubject = BehaviorSubject<File>.seeded(null);
+    final avatarSubject = PublishSubject<File>();
     final submitRegisterSubject = PublishSubject<void>();
     final isLoadingSubject = BehaviorSubject<bool>.seeded(false);
 
@@ -143,6 +146,11 @@ class RegisterBloc implements BaseBloc {
       (allError) => allError.every((error) => error == null),
     );
 
+    final avatar$ = publishValueDistinct<File>(
+      avatarSubject,
+      equals: (prev, next) => path.equals(prev?.path ?? '', next?.path ?? ''),
+    );
+
     final message$ = submitRegisterSubject
         .withLatestFrom(allFieldAreValid$, (_, bool isValid) => isValid)
         .where((isValid) => isValid)
@@ -154,7 +162,7 @@ class RegisterBloc implements BaseBloc {
                 passwordSubject.value,
                 phoneSubject.value,
                 addressSubject.value,
-                avatarSubject.value,
+                avatar$.value,
                 isLoadingSubject,
               ),
         )
@@ -164,6 +172,7 @@ class RegisterBloc implements BaseBloc {
     /// Controllers and subscriptions
     final subscriptions = <StreamSubscription>[
       message$.connect(),
+      avatar$.connect(),
     ];
     final controllers = <StreamController>[
       fullNameSubject,
@@ -177,7 +186,7 @@ class RegisterBloc implements BaseBloc {
     ];
 
     return RegisterBloc._(
-      avatar$: avatarSubject.stream,
+      avatar$: avatar$,
       fullNameChanged: fullNameSubject.add,
       addressChanged: addressSubject.add,
       phoneChanged: phoneSubject.add,
@@ -228,7 +237,28 @@ class RegisterBloc implements BaseBloc {
   }
 
   static RegisterMessageError _getRegisterError(error) {
-    //TODO: _getRegisterError
-    return null;
+    if (error is PlatformException) {
+      switch (error.code) {
+        case 'ERROR_WEAK_PASSWORD':
+          return const RegisterMessageError(WeakPasswordError());
+        case 'ERROR_INVALID_EMAIL':
+          return const RegisterMessageError(InvalidEmailError());
+        case 'ERROR_EMAIL_ALREADY_IN_USE':
+          return const RegisterMessageError(EmailAlreadyInUseError());
+        case 'ERROR_WRONG_PASSWORD':
+          return const RegisterMessageError(WrongPasswordError());
+        case 'ERROR_USER_DISABLED':
+          return const RegisterMessageError(UserDisabledError());
+        case 'ERROR_USER_NOT_FOUND':
+          return const RegisterMessageError(UserNotFoundError());
+        case 'ERROR_NETWORK_REQUEST_FAILED':
+          return const RegisterMessageError(NetworkError());
+        case 'ERROR_TOO_MANY_REQUESTS':
+          return const RegisterMessageError(TooManyRequestsError());
+        case 'ERROR_OPERATION_NOT_ALLOWED':
+          return const RegisterMessageError(OperationNotAllowedError());
+      }
+    }
+    return RegisterMessageError(UnknownError(error));
   }
 }

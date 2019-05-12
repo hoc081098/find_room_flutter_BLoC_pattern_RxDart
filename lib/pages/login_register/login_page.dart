@@ -62,9 +62,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var s = S.of(context);
+    final s = S.of(context);
 
     return WillPopScope(
+      onWillPop: _onWillPop,
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
@@ -199,7 +200,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-      onWillPop: _onWillPop,
     );
   }
 
@@ -248,20 +248,20 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> _onWillPop() async {
     if (_emailLoginBloc.isLoading$.value ||
         _googleSignInBloc.isLoading$.value) {
+      final s = S.of(context);
       final exitSignIn = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Bạn muốn thoát đăng nhập'),
-            content:
-                const Text('Đang xử lí đăng nhập, bạn có chắc chắn muốn thoát'),
+            title: Text(s.exit_login),
+            content: Text(s.exit_login_message),
             actions: <Widget>[
               FlatButton(
-                child: const Text('Không'),
+                child: Text(s.no),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               FlatButton(
-                child: const Text('Thoát'),
+                child: Text(s.exit),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],
@@ -277,15 +277,16 @@ class _LoginPageState extends State<LoginPage> {
     Scaffold.of(context, nullOk: true)?.showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _showLoginMessage(LoginMessage message) {
-    var s = S.of(context);
+  void _showLoginMessage(LoginMessage message) async {
+    final s = S.of(context);
     if (message is LoginMessageSuccess) {
       _showSnackBar(s.login_success);
+      await Future.delayed(const Duration(seconds: 2));
       Navigator.popUntil(context, ModalRoute.withName('/'));
     }
     if (message is LoginMessageError) {
