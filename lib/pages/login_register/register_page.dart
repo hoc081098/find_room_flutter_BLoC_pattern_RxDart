@@ -36,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
 
-    _bloc = RegisterBloc(widget.userRepository); //TODO
+    _bloc = RegisterBloc(widget.userRepository);
 
     _subscriptions = [
       _bloc.message$.listen(_showRegisterMessage)

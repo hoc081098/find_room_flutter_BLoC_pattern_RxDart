@@ -27,4 +27,6 @@ abstract class FirebaseUserRepository {
     @required String phoneNumber,
     File avatar,
   });
+
+  Future<void> sendPasswordResetEmail(String email);
 }
