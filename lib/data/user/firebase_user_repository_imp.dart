@@ -136,6 +136,9 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
       <String, dynamic>{
         'address': address,
         'phone': phoneNumber,
+        'is_active': true,
+        'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
       },
     );
     print('[USER_REPO] registerWithEmail firebaseUser=$firebaseUser');
