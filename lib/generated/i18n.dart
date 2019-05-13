@@ -30,6 +30,7 @@ class S implements WidgetsLocalizations {
   String get change_language_failure => "Error when chane language";
   String get change_language_success => "Change language successfully";
   String get detail_title => "Detail";
+  String get edit_profile => "Edit profile";
   String get email_already_in_user_error => "The email address is already in use by another account";
   String get empty_address => "Address must be not empty";
   String get empty_rooms => "Empty rooms...";
@@ -89,6 +90,7 @@ class S implements WidgetsLocalizations {
   String get too_many_requests_error => "Too many requests";
   String get user_disabled_error => "The user account has been disabled by an administrator";
   String get user_not_found_error => "There is no user record corresponding to this identifier. The user may have been deleted";
+  String get user_profile => "User profile";
   String get weak_password_error => "The given password is invalid";
   String get wrong_password_error => "The password is invalid or the user does not have a password";
   String change_language_error(String error) => "Error when chane language: $error";
@@ -192,6 +194,8 @@ class $vi extends S {
   @override
   String get send_password_reset_email_success => "Gửi email reset mật khẩu thành công";
   @override
+  String get user_profile => "Thông tin tài khoản";
+  @override
   String get invalid_email_error => "Địa chỉ email bị định dạng sai";
   @override
   String get change_language_failure => "Lỗi khi thay đổi ngôn ngữ";
@@ -199,6 +203,8 @@ class $vi extends S {
   String get login_title => "Đăng nhập";
   @override
   String get exit_login_message => "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?";
+  @override
+  String get edit_profile => "Chỉnh sửa thông tin";
   @override
   String get logout_error => "Lỗi xảy ra khi đăng xuất";
   @override

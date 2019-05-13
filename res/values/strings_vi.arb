@@ -74,5 +74,7 @@
   "forgot_password_title": "Quên mật khẩu",
   "exit_send_email": "Bạn muốn thoát gửi email reset mật khẩu?",
   "exit_send_email_message": "Đang xử lí gửi email reset mật khẩu... bạn có chắc chắn muốn thoát?",
-  "send_password_reset_email_success": "Gửi email reset mật khẩu thành công"
+  "send_password_reset_email_success": "Gửi email reset mật khẩu thành công",
+  "edit_profile": "Chỉnh sửa thông tin",
+  "user_profile": "Thông tin tài khoản"
 }

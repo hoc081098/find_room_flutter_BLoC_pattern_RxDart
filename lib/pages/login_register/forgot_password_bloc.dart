@@ -90,6 +90,10 @@ class ForgotPasswordBloc implements BaseBloc {
     ]).publish();
 
     final subscriptions = [
+      emailSubject
+          .listen((email) => print('[FORGOT_PASSWORD_BLOC] email=$email')),
+      emailError$.listen((emailError) =>
+          print('[FORGOT_PASSWORD_BLOC] emailError=$emailError')),
       message$.listen(
           (message) => print('[FORGOT_PASSWORD_BLOC] message=$message')),
       message$.connect(),

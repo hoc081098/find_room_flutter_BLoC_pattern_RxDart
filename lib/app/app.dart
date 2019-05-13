@@ -97,7 +97,9 @@ class MyApp extends StatelessWidget {
                 );
               },
               '/user_profile': (context) {
-                return const UserProfilePage();
+                return UserProfilePage(
+                  userBloc: BlocProvider.of<UserBloc>(context),
+                );
               }
             },
           );
@@ -189,6 +191,7 @@ class MyDrawer extends StatelessWidget {
           ),
           DrawerSavedListTile(navigator),
           Divider(),
+          DrawerUserProfileTile(navigator),
           DrawerLoginLogoutTile(navigator),
         ],
       ),
@@ -204,8 +207,7 @@ class DrawerUserHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<LoginState> loginState$ =
-        userBloc.loginState$;
+    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
@@ -268,8 +270,7 @@ class DrawerSavedListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<LoginState> loginState$ =
-        userBloc.loginState$;
+    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
@@ -376,6 +377,42 @@ class DrawerLoginLogoutTile extends StatelessWidget {
           width: 0,
           height: 0,
         );
+      },
+    );
+  }
+}
+
+class DrawerUserProfileTile extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
+
+  const DrawerUserProfileTile(this.navigator, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
+
+    return StreamBuilder<LoginState>(
+      stream: userBloc.loginState$,
+      initialData: userBloc.loginState$.value,
+      builder: (context, snapshot) {
+        final loginState = snapshot.data;
+
+        if (loginState is LoggedInUser) {
+          return ListTile(
+            title: Text(S.of(context).user_profile),
+            onTap: () {
+              drawerControllerState.close();
+              navigator.currentState.pushNamedAndRemoveUntil(
+                '/user_profile',
+                ModalRoute.withName('/'),
+              );
+            },
+            leading: Icon(Icons.person),
+          );
+        }
+
+        return Container(width: 0, height: 0);
       },
     );
   }

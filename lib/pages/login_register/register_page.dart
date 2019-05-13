@@ -38,9 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     _bloc = RegisterBloc(widget.userRepository);
 
-    _subscriptions = [
-      _bloc.message$.listen(_showRegisterMessage)
-    ];
+    _subscriptions = [_bloc.message$.listen(_showRegisterMessage)];
   }
 
   _pickImage() async {
@@ -80,14 +78,14 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 12),
                           Center(
                             child: SizedBox(
-                              width: 72,
-                              height: 72,
+                              width: 96,
+                              height: 96,
                               child: InkWell(
                                 child: Container(
                                   decoration: BoxDecoration(
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white70,
+                                        color: Colors.indigo.shade100,
                                         blurRadius: 12,
                                         offset: Offset(4, 4),
                                       ),
@@ -100,15 +98,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                       builder: (context, snapshot) {
                                         if (snapshot.hasData) {
                                           return CircleAvatar(
+                                            radius: 48,
                                             backgroundImage:
                                                 FileImage(snapshot.data),
                                             backgroundColor: Colors.white,
                                           );
                                         } else {
                                           return const CircleAvatar(
+                                            radius: 48,
                                             child: Icon(
                                               Icons.person,
-                                              size: 48,
+                                              size: 72,
                                             ),
                                           );
                                         }
