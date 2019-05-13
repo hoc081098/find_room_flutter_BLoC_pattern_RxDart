@@ -15,7 +15,7 @@ class UserBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<UserLoginState> userLoginState$;
+  final ValueObservable<LoginState> loginState$;
   final Stream<UserMessage> message$;
 
   ///Cleanup
@@ -27,7 +27,7 @@ class UserBloc implements BaseBloc {
     final user$ = Observable(userRepository.user())
         .map(_toLoginState)
         .distinct()
-        .publishValueSeeded(const NotLogin());
+        .publishValueSeeded(const Unauthenticated());
 
     final signOutMessage$ = signOutController.exhaustMap((_) {
       return Observable.fromFuture(userRepository.signOut())
@@ -54,7 +54,7 @@ class UserBloc implements BaseBloc {
 
   UserBloc._(
     this._dispose,
-    this.userLoginState$,
+    this.loginState$,
     this.signOut,
     this.message$,
   );
@@ -62,15 +62,20 @@ class UserBloc implements BaseBloc {
   @override
   void dispose() => _dispose();
 
-  static UserLoginState _toLoginState(UserEntity userEntity) {
+  static LoginState _toLoginState(UserEntity userEntity) {
     if (userEntity == null) {
-      return const NotLogin();
+      return const Unauthenticated();
     }
-    return UserLogin(
+    return LoggedInUser(
       avatar: userEntity.avatar,
       fullName: userEntity.fullName,
       email: userEntity.email,
       uid: userEntity.id,
+      isActive: userEntity.isActive,
+      address: userEntity.address,
+      createdAt: userEntity.createdAt.toDate(),
+      updatedAt: userEntity.updatedAt.toDate(),
+      phone: userEntity.phone,
     );
   }
 }

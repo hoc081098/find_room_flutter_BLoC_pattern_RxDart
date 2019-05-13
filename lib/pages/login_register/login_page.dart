@@ -56,8 +56,8 @@ class _LoginPageState extends State<LoginPage> {
         _emailLoginBloc.message$,
         _googleSignInBloc.message$,
         _facebookLoginBloc.message$,
-        widget.userBloc.userLoginState$
-            .where((state) => state is UserLogin)
+        widget.userBloc.loginState$
+            .where((state) => state is LoggedInUser)
             .map((_) => const LoginMessageSuccess()),
       ]).listen(_showLoginMessage),
     ];
