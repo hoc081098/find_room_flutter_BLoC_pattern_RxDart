@@ -9,6 +9,7 @@ import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
+import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         stream: localeBloc.locale$,
         initialData: localeBloc.locale$.value,
         builder: (context, snapshot) {
-          print('[LOCALE] locale = ${snapshot.data}');
+          print('[APP_LOCALE] locale = ${snapshot.data}');
 
           if (!snapshot.hasData) {
             return Container(
@@ -44,8 +45,6 @@ class MyApp extends StatelessWidget {
               height: double.infinity,
             );
           }
-
-          print('[APP_LOCALE] locale = ${snapshot.data}');
 
           return MaterialApp(
             locale: snapshot.data,
@@ -96,11 +95,25 @@ class MyApp extends StatelessWidget {
                   userRepository: Injector.of(context).userRepository,
                 );
               },
-              '/user_profile': (context) {
-                return UserProfilePage(
-                  userBloc: BlocProvider.of<UserBloc>(context),
+            },
+            onGenerateRoute: (routerSettings) {
+              if (routerSettings.name == '/user_profile') {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return BlocProvider<UserProfileBloc>(
+                      bloc: UserProfileBloc(
+                        Injector.of(context).userRepository,
+                        routerSettings.arguments as String,
+                      ),
+                      child: UserProfilePage(),
+                    );
+                  },
+                  settings: routerSettings,
                 );
               }
+
+              /// The other paths we support are in the routes table.
+              return null;
             },
           );
         });
@@ -234,6 +247,7 @@ class DrawerUserHeader extends StatelessWidget {
               navigator.currentState.pushNamedAndRemoveUntil(
                 '/user_profile',
                 ModalRoute.withName('/'),
+                arguments: loginState.uid,
               );
             },
           );
@@ -406,6 +420,7 @@ class DrawerUserProfileTile extends StatelessWidget {
               navigator.currentState.pushNamedAndRemoveUntil(
                 '/user_profile',
                 ModalRoute.withName('/'),
+                arguments: loginState.uid,
               );
             },
             leading: Icon(Icons.person),
