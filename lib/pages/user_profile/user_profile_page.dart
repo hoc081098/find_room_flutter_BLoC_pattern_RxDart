@@ -50,7 +50,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
             initialData: bloc.state$.value,
             stream: bloc.state$,
             builder: (context, snapshot) {
-              final state = snapshot.data;
+              if (!snapshot.hasData) {
+                //TODO: loading
+              }
+              final profile = snapshot.data.profile;
+              if (profile == null) {
+                //TODO: user not found
+              }
 
               return CustomScrollView(
                 slivers: <Widget>[
@@ -71,7 +77,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 ]),
                             width: 96,
                             height: 96,
-                            child: state.avatar == null || state.avatar.isEmpty
+                            child: profile.avatar == null || profile.avatar.isEmpty
                                 ? CircleAvatar(
                                     backgroundColor:
                                         Colors.white.withOpacity(0.9),
@@ -84,14 +90,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                   )
                                 : CircleAvatar(
                                     radius: 48,
-                                    backgroundImage: NetworkImage(state.avatar),
+                                    backgroundImage: NetworkImage(profile.avatar),
                                     backgroundColor: Colors.white,
                                   ),
                           ),
                         ),
                         SizedBox(height: 16),
                         Text(
-                          state.fullName,
+                          profile.fullName,
                           style: Theme.of(context).textTheme.display1.copyWith(
                                 fontSize: 30,
                                 fontFamily: 'SF-Pro-Display',
@@ -111,7 +117,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 backgroundColor: Colors.white70,
                                 padding: const EdgeInsets.all(6),
                                 label: Text(
-                                  state.email,
+                                  profile.email,
                                   style: Theme.of(context)
                                       .textTheme
                                       .display1
@@ -123,12 +129,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                   color: Theme.of(context).accentColor,
                                 ),
                               ),
-                              if (state.phone != null && state.phone.isNotEmpty)
+                              if (profile.phone != null && profile.phone.isNotEmpty)
                                 Chip(
                                   backgroundColor: Colors.white70,
                                   padding: const EdgeInsets.all(6),
                                   label: Text(
-                                    state.phone,
+                                    profile.phone,
                                     style: Theme.of(context)
                                         .textTheme
                                         .display1
@@ -140,13 +146,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                     color: Theme.of(context).accentColor,
                                   ),
                                 ),
-                              if (state.address != null &&
-                                  state.address.isNotEmpty)
+                              if (profile.address != null &&
+                                  profile.address.isNotEmpty)
                                 Chip(
                                   backgroundColor: Colors.white70,
                                   padding: const EdgeInsets.all(6),
                                   label: Text(
-                                    state.address,
+                                    profile.address,
                                     style: Theme.of(context)
                                         .textTheme
                                         .display1
@@ -162,7 +168,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 backgroundColor: Colors.white70,
                                 padding: const EdgeInsets.all(6),
                                 label: Text(
-                                  state.isActive ? 'Active' : 'Inactive',
+                                  profile.isActive ? 'Active' : 'Inactive',
                                   style: Theme.of(context)
                                       .textTheme
                                       .display1
@@ -171,7 +177,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 elevation: 4,
                                 avatar: Icon(
                                   Icons.done,
-                                  color: state.isActive
+                                  color: profile.isActive
                                       ? Colors.greenAccent
                                       : Colors.redAccent,
                                 ),
@@ -180,7 +186,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 backgroundColor: Colors.white70,
                                 padding: const EdgeInsets.all(6),
                                 label: Text(
-                                  'Created: ${DateFormat.yMMMMd().add_Hms().format(state.createdAt)}',
+                                  'Created: ${DateFormat.yMMMMd().add_Hms().format(profile.createdAt)}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .display1
@@ -196,7 +202,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 backgroundColor: Colors.white70,
                                 padding: const EdgeInsets.all(6),
                                 label: Text(
-                                  'Updated: ${DateFormat.yMMMMd().add_Hms().format(state.updatedAt)}',
+                                  'Updated: ${DateFormat.yMMMMd().add_Hms().format(profile.updatedAt)}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .display1
