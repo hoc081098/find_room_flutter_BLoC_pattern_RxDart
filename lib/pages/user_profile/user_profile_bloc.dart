@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
@@ -34,7 +35,9 @@ class UserProfileBloc implements BaseBloc {
       userBloc.loginState$,
       (UserEntity entity, LoginState loginState) {
         if (entity == null) {
-          return UserProfileState((b) => b.isCurrentUser = false);
+          return UserProfileState((b) => b
+            ..isCurrentUser = false
+            ..postedRooms = ListBuilder<UserProfileRoomItem>());
         }
         return UserProfileState((b) {
           b.profile
@@ -48,6 +51,7 @@ class UserProfileBloc implements BaseBloc {
             ..updatedAt = entity.updatedAt.toDate();
           b.isCurrentUser =
               loginState is LoggedInUser ? loginState.uid == entity.id : false;
+          b.postedRooms = ListBuilder<UserProfileRoomItem>();
         });
       },
     );

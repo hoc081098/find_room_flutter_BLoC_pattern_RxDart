@@ -20,4 +20,10 @@ abstract class FirestoreRoomRepository {
   });
 
   Stream<List<RoomEntity>> savedList({@required String uid});
+
+  Future<List<RoomEntity>> postedList({
+    @required String uid,
+    @required int pageSize,
+    startAfter,
+  });
 }
