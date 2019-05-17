@@ -7,6 +7,7 @@ abstract class UserProfileState
   // is null if user does not exist
   @nullable
   UserProfile get profile;
+  bool get isCurrentUser;
 
   UserProfileState._();
 

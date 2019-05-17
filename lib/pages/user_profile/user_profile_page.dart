@@ -77,22 +77,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 ]),
                             width: 96,
                             height: 96,
-                            child: profile.avatar == null || profile.avatar.isEmpty
-                                ? CircleAvatar(
-                                    backgroundColor:
-                                        Colors.white.withOpacity(0.9),
-                                    radius: 48,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 72,
-                                      color: Theme.of(context).accentColor,
-                                    ),
-                                  )
-                                : CircleAvatar(
-                                    radius: 48,
-                                    backgroundImage: NetworkImage(profile.avatar),
-                                    backgroundColor: Colors.white,
-                                  ),
+                            child:
+                                profile.avatar == null || profile.avatar.isEmpty
+                                    ? CircleAvatar(
+                                        backgroundColor:
+                                            Colors.white.withOpacity(0.9),
+                                        radius: 48,
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 72,
+                                          color: Theme.of(context).accentColor,
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 48,
+                                        backgroundImage:
+                                            NetworkImage(profile.avatar),
+                                        backgroundColor: Colors.white,
+                                      ),
                           ),
                         ),
                         SizedBox(height: 16),
@@ -129,7 +131,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                   color: Theme.of(context).accentColor,
                                 ),
                               ),
-                              if (profile.phone != null && profile.phone.isNotEmpty)
+                              if (profile.phone != null &&
+                                  profile.phone.isNotEmpty)
                                 Chip(
                                   backgroundColor: Colors.white70,
                                   padding: const EdgeInsets.all(6),
@@ -238,20 +241,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
           left: 8,
           child: BackButton(color: Colors.white),
         ),
-        Positioned(
-          top: paddingTop + 8,
-          right: 8,
-          child: IconButton(
-            tooltip: S.of(context).edit_profile,
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              //TODO: edit
-            },
-          ),
-        ),
+        StreamBuilder<UserProfileState>(
+            stream: bloc.state$,
+            initialData: bloc.state$.value,
+            builder: (context, snapshot) {
+              return AnimatedOpacity(
+                duration: const Duration(seconds: 1),
+                opacity: (snapshot.data?.isCurrentUser ?? false) ? 1 : 0,
+                child: Positioned(
+                  top: paddingTop + 8,
+                  right: 8,
+                  child: IconButton(
+                    tooltip: S.of(context).edit_profile,
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      //TODO: edit
+                    },
+                  ),
+                ),
+              );
+            }),
       ],
     );
   }

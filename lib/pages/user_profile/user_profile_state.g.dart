@@ -9,12 +9,18 @@ part of 'user_profile_state.dart';
 class _$UserProfileState extends UserProfileState {
   @override
   final UserProfile profile;
+  @override
+  final bool isCurrentUser;
 
   factory _$UserProfileState(
           [void Function(UserProfileStateBuilder) updates]) =>
       (new UserProfileStateBuilder()..update(updates)).build();
 
-  _$UserProfileState._({this.profile}) : super._();
+  _$UserProfileState._({this.profile, this.isCurrentUser}) : super._() {
+    if (isCurrentUser == null) {
+      throw new BuiltValueNullFieldError('UserProfileState', 'isCurrentUser');
+    }
+  }
 
   @override
   UserProfileState rebuild(void Function(UserProfileStateBuilder) updates) =>
@@ -27,18 +33,21 @@ class _$UserProfileState extends UserProfileState {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is UserProfileState && profile == other.profile;
+    return other is UserProfileState &&
+        profile == other.profile &&
+        isCurrentUser == other.isCurrentUser;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(0, profile.hashCode));
+    return $jf($jc($jc(0, profile.hashCode), isCurrentUser.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('UserProfileState')
-          ..add('profile', profile))
+          ..add('profile', profile)
+          ..add('isCurrentUser', isCurrentUser))
         .toString();
   }
 }
@@ -52,11 +61,17 @@ class UserProfileStateBuilder
       _$this._profile ??= new UserProfileBuilder();
   set profile(UserProfileBuilder profile) => _$this._profile = profile;
 
+  bool _isCurrentUser;
+  bool get isCurrentUser => _$this._isCurrentUser;
+  set isCurrentUser(bool isCurrentUser) =>
+      _$this._isCurrentUser = isCurrentUser;
+
   UserProfileStateBuilder();
 
   UserProfileStateBuilder get _$this {
     if (_$v != null) {
       _profile = _$v.profile?.toBuilder();
+      _isCurrentUser = _$v.isCurrentUser;
       _$v = null;
     }
     return this;
@@ -79,7 +94,9 @@ class UserProfileStateBuilder
   _$UserProfileState build() {
     _$UserProfileState _$result;
     try {
-      _$result = _$v ?? new _$UserProfileState._(profile: _profile?.build());
+      _$result = _$v ??
+          new _$UserProfileState._(
+              profile: _profile?.build(), isCurrentUser: isCurrentUser);
     } catch (_) {
       String _$failedField;
       try {
