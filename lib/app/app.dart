@@ -102,6 +102,7 @@ class MyApp extends StatelessWidget {
                   builder: (context) {
                     return BlocProvider<UserProfileBloc>(
                       bloc: UserProfileBloc(
+                        BlocProvider.of<UserBloc>(context),
                         Injector.of(context).userRepository,
                         routerSettings.arguments as String,
                       ),
