@@ -93,11 +93,11 @@ class SavedBloc implements BaseBloc {
   void dispose() => _dispose();
 
   static Observable<SavedListState> _toState(
-    UserLoginState loginState,
+    LoginState loginState,
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
   ) {
-    if (loginState is NotLogin) {
+    if (loginState is Unauthenticated) {
       return Observable.just(
         _kInitialSavedListState.copyWith(
           error: NotLoginError(),
@@ -105,7 +105,7 @@ class SavedBloc implements BaseBloc {
         ),
       );
     }
-    if (loginState is UserLogin) {
+    if (loginState is LoggedInUser) {
       return Observable(roomRepository.savedList(uid: loginState.uid))
           .map((entities) {
             return _entitiesToRoomItems(
@@ -159,7 +159,7 @@ class SavedBloc implements BaseBloc {
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
   ) {
-    return userBloc.userLoginState$.switchMap((loginState) {
+    return userBloc.loginState$.switchMap((loginState) {
       return _toState(
         loginState,
         roomRepository,
@@ -174,12 +174,12 @@ class SavedBloc implements BaseBloc {
     FirestoreRoomRepository roomRepository,
   ) {
     return removeFromSaved.flatMap((roomId) {
-      var loginState = userBloc.userLoginState$.value;
-      if (loginState is NotLogin) {
+      var loginState = userBloc.loginState$.value;
+      if (loginState is Unauthenticated) {
         return Observable.just(RemovedSaveRoomMessageError(NotLoginError()));
       }
 
-      if (loginState is UserLogin) {
+      if (loginState is LoggedInUser) {
         return Observable.fromFuture(roomRepository.addOrRemoveSavedRoom(
                 roomId: roomId,
                 userId: loginState.uid,

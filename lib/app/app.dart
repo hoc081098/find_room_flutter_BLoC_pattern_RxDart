@@ -9,6 +9,8 @@ import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
+import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
+import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +37,7 @@ class MyApp extends StatelessWidget {
         stream: localeBloc.locale$,
         initialData: localeBloc.locale$.value,
         builder: (context, snapshot) {
-          print('[LOCALE] locale = ${snapshot.data}');
+          print('[APP_LOCALE] locale = ${snapshot.data}');
 
           if (!snapshot.hasData) {
             return Container(
@@ -43,8 +45,6 @@ class MyApp extends StatelessWidget {
               height: double.infinity,
             );
           }
-
-          print('[APP_LOCALE] locale = ${snapshot.data}');
 
           return MaterialApp(
             locale: snapshot.data,
@@ -95,6 +95,26 @@ class MyApp extends StatelessWidget {
                   userRepository: Injector.of(context).userRepository,
                 );
               },
+            },
+            onGenerateRoute: (routerSettings) {
+              if (routerSettings.name == '/user_profile') {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return BlocProvider<UserProfileBloc>(
+                      bloc: UserProfileBloc(
+                        BlocProvider.of<UserBloc>(context),
+                        Injector.of(context).userRepository,
+                        routerSettings.arguments as String,
+                      ),
+                      child: UserProfilePage(),
+                    );
+                  },
+                  settings: routerSettings,
+                );
+              }
+
+              /// The other paths we support are in the routes table.
+              return null;
             },
           );
         });
@@ -185,6 +205,7 @@ class MyDrawer extends StatelessWidget {
           ),
           DrawerSavedListTile(navigator),
           Divider(),
+          DrawerUserProfileTile(navigator),
           DrawerLoginLogoutTile(navigator),
         ],
       ),
@@ -200,17 +221,16 @@ class DrawerUserHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<UserLoginState> loginState$ =
-        userBloc.userLoginState$;
+    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
-    return StreamBuilder<UserLoginState>(
+    return StreamBuilder<LoginState>(
       stream: loginState$,
       initialData: loginState$.value,
       builder: (context, snapshot) {
         final loginState = snapshot.data;
 
-        if (loginState is UserLogin) {
+        if (loginState is LoggedInUser) {
           return UserAccountsDrawerHeader(
             currentAccountPicture:
                 loginState.avatar == null || loginState.avatar.isEmpty
@@ -223,10 +243,18 @@ class DrawerUserHeader extends StatelessWidget {
                       ),
             accountEmail: Text(loginState.email),
             accountName: Text(loginState.fullName ?? ''),
+            onDetailsPressed: () {
+              drawerControllerState.close();
+              navigator.currentState.pushNamedAndRemoveUntil(
+                '/user_profile',
+                ModalRoute.withName('/'),
+                arguments: loginState.uid,
+              );
+            },
           );
         }
 
-        if (loginState is NotLogin) {
+        if (loginState is Unauthenticated) {
           return UserAccountsDrawerHeader(
             currentAccountPicture: CircleAvatar(
               child: const Icon(Icons.image),
@@ -257,24 +285,23 @@ class DrawerSavedListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<UserLoginState> loginState$ =
-        userBloc.userLoginState$;
+    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
-    return StreamBuilder<UserLoginState>(
+    return StreamBuilder<LoginState>(
       stream: loginState$,
       initialData: loginState$.value,
       builder: (context, snapshot) {
         final loginState = snapshot.data;
 
-        if (loginState is NotLogin) {
+        if (loginState is Unauthenticated) {
           return Container(
             width: 0,
             height: 0,
           );
         }
 
-        if (loginState is UserLogin) {
+        if (loginState is LoggedInUser) {
           return ListTile(
             title: Text(S.of(context).saved_rooms_title),
             onTap: () {
@@ -307,13 +334,13 @@ class DrawerLoginLogoutTile extends StatelessWidget {
     final userBloc = BlocProvider.of<UserBloc>(context);
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
-    return StreamBuilder<UserLoginState>(
-      stream: userBloc.userLoginState$,
-      initialData: userBloc.userLoginState$.value,
+    return StreamBuilder<LoginState>(
+      stream: userBloc.loginState$,
+      initialData: userBloc.loginState$.value,
       builder: (context, snapshot) {
         final loginState = snapshot.data;
 
-        if (loginState is NotLogin) {
+        if (loginState is Unauthenticated) {
           return ListTile(
             title: Text(S.of(context).login_title),
             onTap: () {
@@ -327,7 +354,7 @@ class DrawerLoginLogoutTile extends StatelessWidget {
           );
         }
 
-        if (loginState is UserLogin) {
+        if (loginState is LoggedInUser) {
           return ListTile(
             title: Text(S.of(context).logout),
             onTap: () async {
@@ -365,6 +392,43 @@ class DrawerLoginLogoutTile extends StatelessWidget {
           width: 0,
           height: 0,
         );
+      },
+    );
+  }
+}
+
+class DrawerUserProfileTile extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
+
+  const DrawerUserProfileTile(this.navigator, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
+
+    return StreamBuilder<LoginState>(
+      stream: userBloc.loginState$,
+      initialData: userBloc.loginState$.value,
+      builder: (context, snapshot) {
+        final loginState = snapshot.data;
+
+        if (loginState is LoggedInUser) {
+          return ListTile(
+            title: Text(S.of(context).user_profile),
+            onTap: () {
+              drawerControllerState.close();
+              navigator.currentState.pushNamedAndRemoveUntil(
+                '/user_profile',
+                ModalRoute.withName('/'),
+                arguments: loginState.uid,
+              );
+            },
+            leading: Icon(Icons.person),
+          );
+        }
+
+        return Container(width: 0, height: 0);
       },
     );
   }

@@ -34,8 +34,8 @@ class _SavedPageState extends State<SavedPage> {
 
     _savedBloc = widget.initSavedBloc();
     _subscriptions = [
-      widget.userBloc.userLoginState$
-          .where((state) => state is NotLogin)
+      widget.userBloc.loginState$
+          .where((state) => state is Unauthenticated)
           .listen((_) => Navigator.popUntil(context, ModalRoute.withName('/'))),
       _savedBloc.removeMessage$.listen(_showMessageResult),
     ];

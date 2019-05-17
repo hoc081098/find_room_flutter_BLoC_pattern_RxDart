@@ -229,8 +229,8 @@ class HomeBloc implements BaseBloc {
     return addOrRemoveSaved$
         .throttle(Duration(milliseconds: 500))
         .withLatestFrom(
-          userBloc.userLoginState$,
-          (roomId, UserLoginState userLoginState) =>
+          userBloc.loginState$,
+          (roomId, LoginState userLoginState) =>
               Tuple2(roomId, userLoginState),
         )
         .flatMap(
@@ -254,8 +254,8 @@ class HomeBloc implements BaseBloc {
             selectedProvince: province,
             limit: _kLimitRoom,
           ),
-          userBloc.userLoginState$,
-          (List<RoomEntity> entities, UserLoginState loginState) =>
+          userBloc.loginState$,
+          (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(
                 entities,
                 loginState,
@@ -277,8 +277,8 @@ class HomeBloc implements BaseBloc {
             selectedProvince: province,
             limit: _kLimitRoom,
           ),
-          userBloc.userLoginState$,
-          (List<RoomEntity> entities, UserLoginState loginState) =>
+          userBloc.loginState$,
+          (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(
                 entities,
                 loginState,
@@ -289,14 +289,14 @@ class HomeBloc implements BaseBloc {
   }
 
   static Stream<AddOrRemovedSavedMessage> _addOrRemoveSavedRoom(
-    Tuple2<String, UserLoginState> tuple,
+    Tuple2<String, LoginState> tuple,
     FirestoreRoomRepository roomRepository,
     List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     final roomId = tuple.item1;
     final loginState = tuple.item2;
 
-    final userId = loginState is UserLogin ? loginState.uid : null;
+    final userId = loginState is LoggedInUser ? loginState.uid : null;
     if (userId == null) {
       return Observable.just(
           const AddOrRemovedSavedMessageError(NotLoginError()));
@@ -343,14 +343,14 @@ class HomeBloc implements BaseBloc {
 
   static List<RoomItem> _toRoomItems(
     List<RoomEntity> roomEntities,
-    UserLoginState loginState,
+    LoginState loginState,
     NumberFormat priceFormat,
   ) {
     return roomEntities.map((roomEntity) {
       BookmarkIconState iconState;
-      if (loginState is NotLogin) {
+      if (loginState is Unauthenticated) {
         iconState = BookmarkIconState.hide;
-      } else if (loginState is UserLogin) {
+      } else if (loginState is LoggedInUser) {
         if (roomEntity.userIdsSaved.containsKey(loginState.uid)) {
           iconState = BookmarkIconState.showSaved;
         } else {

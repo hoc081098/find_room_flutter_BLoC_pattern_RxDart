@@ -29,11 +29,10 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   @override
   Stream<UserEntity> user() {
     return Observable(_firebaseAuth.onAuthStateChanged)
-        .switchMap(_toUserEntity);
+        .switchMap((user) => _getUserByUid$(user?.uid));
   }
 
-  Stream<UserEntity> _toUserEntity(FirebaseUser firebaseUser) {
-    final uid = firebaseUser?.uid;
+  Stream<UserEntity> _getUserByUid$(String uid) {
     if (uid == null) {
       return Observable.just(null);
     }
@@ -175,4 +174,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     if (email == null) return Future.error('email must be not null');
     return _firebaseAuth.sendPasswordResetEmail(email: email);
   }
+
+  @override
+  Stream<UserEntity> getUserBy({String uid}) => _getUserByUid$(uid);
 }
