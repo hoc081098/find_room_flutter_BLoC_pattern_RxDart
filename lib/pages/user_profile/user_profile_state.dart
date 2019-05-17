@@ -4,7 +4,7 @@ part 'user_profile_state.g.dart';
 
 abstract class UserProfileState
     implements Built<UserProfileState, UserProfileStateBuilder> {
-  // null if user is not exist
+  // is null if user does not exist
   @nullable
   UserProfile get profile;
 
