@@ -126,4 +126,24 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
       return RoomEntity.fromDocumentSnapshot(documentSnapshot);
     }).toList();
   }
+
+  @override
+  Future<List<RoomEntity>> postedList({
+    String uid,
+    int pageSize,
+    startAfter,
+  }) {
+    if (uid == null) {
+      return Future.error('uid must be not null');
+    }
+    return _firestore
+        .collection('motelrooms')
+        .where('user', isEqualTo: _firestore.document('users/$uid'))
+        .where('approve', isEqualTo: true)
+        .orderBy('updated_at', descending: true)
+        .startAfter([startAfter])
+        .limit(pageSize)
+        .getDocuments()
+        .then(_toEntities);
+  }
 }
