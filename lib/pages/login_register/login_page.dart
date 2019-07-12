@@ -124,18 +124,9 @@ class _LoginPageState extends State<LoginPage> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               onPressed: () {
-                                Navigator.push(
+                                Navigator.pushNamed(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return BlocProvider<ForgotPasswordBloc>(
-                                        child: const ForgotPasswordPage(),
-                                        bloc: ForgotPasswordBloc(
-                                          Injector.of(context).userRepository,
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                  '/forgot_password',
                                 );
                               },
                             ),
@@ -189,16 +180,9 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text(S.of(context).register_now),
                                 textColor: Colors.indigo,
                                 onPressed: () {
-                                  Navigator.push(
+                                  Navigator.pushNamed(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return RegisterPage(
-                                          userRepository: Injector.of(context)
-                                              .userRepository,
-                                        );
-                                      },
-                                    ),
+                                    '/register',
                                   );
                                 },
                               )

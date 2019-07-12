@@ -51,11 +51,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
             stream: bloc.state$,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                //TODO: loading
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
               }
-              final profile = snapshot.data.profile;
+
+              final profile = snapshot.data?.profile;
               if (profile == null) {
-                //TODO: user not found
+                return Center(
+                  child: Text('User not found'),
+                );
               }
 
               return CustomScrollView(
@@ -245,12 +250,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
             stream: bloc.state$,
             initialData: bloc.state$.value,
             builder: (context, snapshot) {
-              return AnimatedOpacity(
-                duration: const Duration(seconds: 1),
-                opacity: (snapshot.data?.isCurrentUser ?? false) ? 1 : 0,
-                child: Positioned(
-                  top: paddingTop + 8,
-                  right: 8,
+              return Positioned(
+                top: paddingTop + 8,
+                right: 8,
+                child: AnimatedOpacity(
+                  duration: const Duration(seconds: 1),
+                  opacity: (snapshot.data?.isCurrentUser ?? false) ? 1 : 0,
                   child: IconButton(
                     tooltip: S.of(context).edit_profile,
                     icon: Icon(

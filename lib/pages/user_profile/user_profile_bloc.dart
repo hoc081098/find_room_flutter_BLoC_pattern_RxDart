@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/models/user_entity.dart';
 import 'package:find_room/pages/user_profile/user_profile_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -25,19 +28,45 @@ class UserProfileBloc implements BaseBloc {
   @override
   void dispose() => _dispose();
 
-  factory UserProfileBloc(
-    final UserBloc userBloc,
-    final FirebaseUserRepository userRepo,
-    String uid,
-  ) {
-    final Observable<UserProfileState> userProfile$ = Observable.combineLatest2(
+  factory UserProfileBloc({
+    @required final UserBloc userBloc,
+    @required final FirebaseUserRepository userRepo,
+    @required final FirestoreRoomRepository roomsRepo,
+    @required final String uid,
+    @required final NumberFormat priceFormat,
+  }) {
+    final rooms$ =
+        Observable.fromFuture(roomsRepo.postedList(uid: uid)).map((rooms) {
+      final items = rooms.map(
+        (r) => UserProfileRoomItem((b) => b
+          ..id = r.id
+          ..title = r.title
+          ..address = r.address
+          ..districtName = r.districtName
+          ..image = r.images.first
+          ..price = priceFormat.format(r.price)
+          ..createdTime = r.createdAt.toDate()
+          ..updatedTime = r.updatedAt.toDate()),
+      );
+      return BuiltList<UserProfileRoomItem>.of(items);
+    }).shareReplay();
+
+    final Observable<UserProfileState> userProfile$ = Observable.combineLatest3(
       userRepo.getUserBy(uid: uid),
       userBloc.loginState$,
-      (UserEntity entity, LoginState loginState) {
+      rooms$,
+      (
+        UserEntity entity,
+        LoginState loginState,
+        BuiltList<UserProfileRoomItem> rooms,
+      ) {
+        // if user does not exist
         if (entity == null) {
-          return UserProfileState((b) => b
-            ..isCurrentUser = false
-            ..postedRooms = ListBuilder<UserProfileRoomItem>());
+          return UserProfileState(
+            (b) => b
+              ..isCurrentUser = false
+              ..postedRooms = ListBuilder<UserProfileRoomItem>(),
+          );
         }
         return UserProfileState((b) {
           b.profile
@@ -51,7 +80,7 @@ class UserProfileBloc implements BaseBloc {
             ..updatedAt = entity.updatedAt.toDate();
           b.isCurrentUser =
               loginState is LoggedInUser ? loginState.uid == entity.id : false;
-          b.postedRooms = ListBuilder<UserProfileRoomItem>();
+          b.postedRooms = rooms.toBuilder();
         });
       },
     );

@@ -77,15 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.settings),
                 tooltip: s.settings,
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushNamed(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return SettingPage(
-                          localeBloc: BlocProvider.of<LocaleBloc>(context),
-                        );
-                      },
-                    ),
+                    '/settings',
                   );
                 },
               ),
@@ -355,11 +349,10 @@ class HomeHeaderItem extends StatelessWidget {
             ),
             MaterialButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => SeeAllPage(seeAllQuery),
-                  ),
+                  '/see_all',
+                  arguments: seeAllQuery,
                 );
               },
               padding: const EdgeInsets.all(12.0),
@@ -542,10 +535,9 @@ class HomeNewestRoomsListItem extends StatelessWidget {
               child: InkWell(
                 splashColor: themeData.accentColor.withOpacity(0.5),
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushNamed(
                     context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => RoomDetailPage()),
+                    '/room_detail',
                   );
                 },
               ),
@@ -792,11 +784,9 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
       elevation: 2.0,
       child: InkWell(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => RoomDetailPage(),
-            ),
+            '/room_detail',
           );
         },
         child: Container(

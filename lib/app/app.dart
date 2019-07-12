@@ -4,11 +4,18 @@ import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
+import 'package:find_room/pages/home/home_state.dart';
+import 'package:find_room/pages/home/see_all_page.dart';
+import 'package:find_room/pages/login_register/forgot_password_bloc.dart';
+import 'package:find_room/pages/login_register/forgot_password_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
+import 'package:find_room/pages/login_register/register_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
+import 'package:find_room/pages/setting/setting_page.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
@@ -27,6 +34,89 @@ class MyApp extends StatelessWidget {
     accentColor: const Color(0xffFF5722),
     dividerColor: const Color(0xffBDBDBD),
   );
+
+  final appRoutes = <String, WidgetBuilder>{
+    '/': (context) {
+      return MyHomePage(
+        homeBloc: BlocProvider.of<HomeBloc>(context),
+      );
+    },
+    '/settings': (context) {
+      return SettingPage(
+        localeBloc: BlocProvider.of<LocaleBloc>(context),
+      );
+    },
+    '/saved': (context) {
+      return SavedPage(
+        initSavedBloc: () {
+          return SavedBloc(
+            userBloc: BlocProvider.of<UserBloc>(context),
+            roomRepository: Injector.of(context).roomRepository,
+            priceFormat: Injector.of(context).priceFormat,
+          );
+        },
+        userBloc: BlocProvider.of<UserBloc>(context),
+      );
+    },
+    '/room_detail': (context) {
+      return RoomDetailPage();
+    },
+    '/login': (context) {
+      return LoginPage(
+        userBloc: BlocProvider.of<UserBloc>(context),
+        userRepository: Injector.of(context).userRepository,
+      );
+    },
+    '/forgot_password': (context) {
+      return BlocProvider<ForgotPasswordBloc>(
+        child: const ForgotPasswordPage(),
+        bloc: ForgotPasswordBloc(
+          Injector.of(context).userRepository,
+        ),
+      );
+    },
+    '/register': (context) {
+      return RegisterPage(
+        userRepository: Injector.of(context).userRepository,
+      );
+    },
+  };
+
+  final RouteFactory onGenerateRoute = (routerSettings) {
+    if (routerSettings.name == '/user_profile') {
+      return MaterialPageRoute(
+        builder: (context) {
+          final injector = Injector.of(context);
+
+          return BlocProvider<UserProfileBloc>(
+            bloc: UserProfileBloc(
+              priceFormat: injector.priceFormat,
+              roomsRepo: injector.roomRepository,
+              uid: routerSettings.arguments as String,
+              userBloc: BlocProvider.of<UserBloc>(context),
+              userRepo: injector.userRepository,
+            ),
+            child: UserProfilePage(),
+          );
+        },
+        settings: routerSettings,
+      );
+    }
+
+    if (routerSettings.name == '/see_all') {
+      return MaterialPageRoute(
+        builder: (context) {
+          return SeeAllPage(
+            routerSettings.arguments as SeeAllQuery,
+          );
+        },
+        settings: routerSettings,
+      );
+    }
+
+    /// The other paths we support are in the routes table.
+    return null;
+  };
 
   // This widget is the root of your application.
   @override
@@ -71,51 +161,8 @@ class MyApp extends StatelessWidget {
               );
             },
             initialRoute: '/',
-            routes: <String, WidgetBuilder>{
-              '/': (context) {
-                return MyHomePage(
-                  homeBloc: BlocProvider.of<HomeBloc>(context),
-                );
-              },
-              '/saved': (context) {
-                return SavedPage(
-                  initSavedBloc: () {
-                    return SavedBloc(
-                      userBloc: BlocProvider.of<UserBloc>(context),
-                      roomRepository: Injector.of(context).roomRepository,
-                      priceFormat: Injector.of(context).priceFormat,
-                    );
-                  },
-                  userBloc: BlocProvider.of<UserBloc>(context),
-                );
-              },
-              '/login': (context) {
-                return LoginPage(
-                  userBloc: BlocProvider.of<UserBloc>(context),
-                  userRepository: Injector.of(context).userRepository,
-                );
-              },
-            },
-            onGenerateRoute: (routerSettings) {
-              if (routerSettings.name == '/user_profile') {
-                return MaterialPageRoute(
-                  builder: (context) {
-                    return BlocProvider<UserProfileBloc>(
-                      bloc: UserProfileBloc(
-                        BlocProvider.of<UserBloc>(context),
-                        Injector.of(context).userRepository,
-                        routerSettings.arguments as String,
-                      ),
-                      child: UserProfilePage(),
-                    );
-                  },
-                  settings: routerSettings,
-                );
-              }
-
-              /// The other paths we support are in the routes table.
-              return null;
-            },
+            routes: appRoutes,
+            onGenerateRoute: onGenerateRoute,
           );
         });
   }

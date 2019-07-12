@@ -196,7 +196,7 @@ class HomeBloc implements BaseBloc {
               ),
         )
         .publishValueSeeded(
-           Tuple2(
+          Tuple2(
             seedValue,
             [seedValue],
           ),
@@ -227,11 +227,10 @@ class HomeBloc implements BaseBloc {
     List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     return addOrRemoveSaved$
-        .throttle(Duration(milliseconds: 500))
+        .throttleTime(const Duration(milliseconds: 500))
         .withLatestFrom(
           userBloc.loginState$,
-          (roomId, LoginState userLoginState) =>
-              Tuple2(roomId, userLoginState),
+          (roomId, LoginState userLoginState) => Tuple2(roomId, userLoginState),
         )
         .flatMap(
           (tuple2) => _addOrRemoveSavedRoom(
