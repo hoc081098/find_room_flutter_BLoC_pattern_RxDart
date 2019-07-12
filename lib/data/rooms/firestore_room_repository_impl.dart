@@ -3,7 +3,6 @@ import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:tuple/tuple.dart';
 
 class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   final Firestore _firestore;
@@ -129,11 +128,11 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   }
 
   @override
-  Future<List<RoomEntity>> postedList({
+  Stream<List<RoomEntity>> postedList({
     String uid,
   }) {
     if (uid == null) {
-      return Future.error('uid must be not null');
+      return Observable.error('uid must be not null');
     }
 
     Query query = _firestore
@@ -142,6 +141,6 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .where('approve', isEqualTo: true)
         .orderBy('updated_at', descending: true);
 
-    return query.getDocuments().then(_toEntities);
+    return query.snapshots().map(_toEntities);
   }
 }

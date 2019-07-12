@@ -1,15 +1,11 @@
 ﻿import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/models/province.dart';
-import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_state.dart';
-import 'package:find_room/pages/home/see_all_page.dart';
-import 'package:find_room/pages/setting/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:tuple/tuple.dart';

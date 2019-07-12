@@ -21,5 +21,5 @@ abstract class FirestoreRoomRepository {
 
   Stream<List<RoomEntity>> savedList({@required String uid});
 
-  Future<List<RoomEntity>> postedList({@required String uid});
+  Stream<List<RoomEntity>> postedList({@required String uid});
 }

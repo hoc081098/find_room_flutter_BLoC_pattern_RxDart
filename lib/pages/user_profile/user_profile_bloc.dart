@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
@@ -36,7 +35,7 @@ class UserProfileBloc implements BaseBloc {
     @required final NumberFormat priceFormat,
   }) {
     final rooms$ =
-        Observable.fromFuture(roomsRepo.postedList(uid: uid)).map((rooms) {
+        roomsRepo.postedList(uid: uid).map((rooms) {
       final items = rooms.map(
         (r) => UserProfileRoomItem((b) => b
           ..id = r.id
@@ -49,7 +48,7 @@ class UserProfileBloc implements BaseBloc {
           ..updatedTime = r.updatedAt.toDate()),
       );
       return BuiltList<UserProfileRoomItem>.of(items);
-    }).shareReplay();
+    });
 
     final Observable<UserProfileState> userProfile$ = Observable.combineLatest3(
       userRepo.getUserBy(uid: uid),
@@ -70,7 +69,7 @@ class UserProfileBloc implements BaseBloc {
         }
         return UserProfileState((b) {
           b.profile
-            ..avatar = entity.address
+            ..avatar = entity.avatar
             ..fullName = entity.fullName
             ..email = entity.email
             ..phone = entity.phone
