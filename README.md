@@ -6,6 +6,7 @@ A Flutter project for learning. In progress...
 Support languages **Vietnamese**, **English**, you can refer to **Rxdart** usage, **BLoC** pattern 😁
 Star, fork if it is helful, issues and pull requests are always welcome
 
+## A deep dive to RxDart, BLoC pattern
 
 ## Screenshots
 
