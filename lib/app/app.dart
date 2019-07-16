@@ -9,10 +9,10 @@ import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/pages/home/see_all_page.dart';
-import 'package:find_room/pages/login_register/forgot_password_bloc.dart';
-import 'package:find_room/pages/login_register/forgot_password_page.dart';
+import 'package:find_room/pages/login_register/forgot_password/forgot_password_bloc.dart';
+import 'package:find_room/pages/login_register/forgot_password/forgot_password_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
-import 'package:find_room/pages/login_register/register_page.dart';
+import 'package:find_room/pages/login_register/register/register_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/pages/setting/setting_page.dart';
@@ -110,6 +110,13 @@ class MyApp extends StatelessWidget {
             routerSettings.arguments as SeeAllQuery,
           );
         },
+        settings: routerSettings,
+      );
+    }
+
+    if (routerSettings.name == '/update_user_info') {
+      return MaterialPageRoute(
+        builder: (context) {},
         settings: routerSettings,
       );
     }

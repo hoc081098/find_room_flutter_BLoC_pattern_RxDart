@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
-import 'package:find_room/pages/login_register/register_bloc.dart';
-import 'package:find_room/pages/login_register/register_state.dart';
+import 'package:find_room/pages/login_register/register/register_bloc.dart';
+import 'package:find_room/pages/login_register/register/register_state.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wave/config.dart';

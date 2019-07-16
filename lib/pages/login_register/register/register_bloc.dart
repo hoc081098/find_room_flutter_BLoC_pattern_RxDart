@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
-import 'package:find_room/pages/login_register/register_state.dart';
+import 'package:find_room/pages/login_register/register/register_state.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;

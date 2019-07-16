@@ -132,7 +132,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    //TODO: edit
+                    showModalBottomSheet(
+                      builder: (context) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              leading: const Icon(Icons.info),
+                              title: Text('Update user info'),
+                              onTap: () {
+                                Navigator.popAndPushNamed(
+                                  context,
+                                  '/update_user_info',
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.lock),
+                              title: Text('Change password'),
+                              onTap: () {
+                                Navigator.popAndPushNamed(
+                                  context,
+                                  '/change_password',
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                      context: context,
+                    );
                   },
                 ),
               ),

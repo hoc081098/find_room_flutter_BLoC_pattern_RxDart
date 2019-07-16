@@ -177,4 +177,10 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
   @override
   Stream<UserEntity> getUserBy({String uid}) => _getUserByUid$(uid);
+
+  @override
+  Future<void> updateUserInfo({String fullName, String address, String phoneNumber, File avatar}) {
+    // TODO: implement updateUserInfo
+    return null;
+  }
 }
