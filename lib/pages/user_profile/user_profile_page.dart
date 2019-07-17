@@ -42,7 +42,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
         ),
         ClipPath(
-          clipper: _CustomShapeClipper(),
+          clipper: CustomShapeClipper(),
           child: Container(
             height: 400.0,
             decoration: BoxDecoration(
@@ -509,7 +509,7 @@ class _PostedRoomItem extends StatelessWidget {
   }
 }
 
-class _CustomShapeClipper extends CustomClipper<Path> {
+class CustomShapeClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final Path path = Path();

@@ -7,6 +7,7 @@ import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:path/path.dart' as path;
@@ -67,20 +68,23 @@ class UpdateUserInfoBloc implements BaseBloc {
     assert(uid != null, 'uid cannot be null');
     assert(userRepo != null, 'userRepo cannot be null');
     assert(userBloc != null, 'userBloc cannot be null');
-    assert(() {
+
+    final currentUser = () {
       final loginState = userBloc.loginState$.value;
-      if (loginState == null) return false;
-      if (loginState is Unauthenticated) return false;
-      if (loginState is LoggedInUser) return loginState.uid == uid;
-    }(), 'User is not logged in or invalid user id');
+      if (loginState == null || loginState is Unauthenticated) return null;
+      if (loginState is LoggedInUser) return loginState;
+      return null;
+    }();
+    assert(currentUser == null || currentUser.uid != uid,
+        'User is not logged in or invalid user id');
 
     ///
     /// Controllers
     ///
     final submitController = PublishSubject<void>();
-    final fullNameController = BehaviorSubject.seeded('');
-    final addressController = BehaviorSubject.seeded('');
-    final phoneNumberController = BehaviorSubject.seeded('');
+    final fullNameController = BehaviorSubject.seeded(currentUser.fullName);
+    final addressController = BehaviorSubject.seeded(currentUser.address);
+    final phoneNumberController = BehaviorSubject.seeded(currentUser.phone);
     final isLoadingController = BehaviorSubject.seeded(false);
     final avatarSubject = PublishSubject<File>();
 
@@ -89,7 +93,7 @@ class UpdateUserInfoBloc implements BaseBloc {
     ///
     final fullNameError$ = fullNameController.map((name) {
       if (name == null || name.length < 3) {
-        return const LengthOfFullNameLessThen3CharactersError();
+        return const FullNameError.lengthOfFullNameLessThan3Chars();
       }
       return null;
     }).share();
@@ -97,7 +101,7 @@ class UpdateUserInfoBloc implements BaseBloc {
     final addressError$ = addressController.map(
       (address) {
         if (address == null || address.isEmpty) {
-          return const EmptyAddressError();
+          return const AddressError.emptyAddress();
         }
         return null;
       },
@@ -107,7 +111,7 @@ class UpdateUserInfoBloc implements BaseBloc {
       (phoneNumber) {
         const regex = r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$';
         if (!RegExp(regex, caseSensitive: false).hasMatch(phoneNumber)) {
-          return const InvalidPhoneNumberError();
+          return const PhoneNumberError.invalidPhoneNumber();
         }
         return null;
       },
@@ -231,7 +235,21 @@ class UpdateUserInfoBloc implements BaseBloc {
     }
   }
 
-  static UpdateUserInfoError getError(e) {
-    //TODO:
+  static UpdateUserInfoError getError(error) {
+    if (error is PlatformException) {
+      switch (error.code) {
+        case 'ERROR_USER_DISABLED':
+          return const UpdateUserInfoError.userDisabled();
+        case 'ERROR_USER_NOT_FOUND':
+          return const UpdateUserInfoError.userNotFound();
+        case 'ERROR_NETWORK_REQUEST_FAILED':
+          return const UpdateUserInfoError.networkError();
+        case 'ERROR_TOO_MANY_REQUESTS':
+          return const UpdateUserInfoError.tooManyRequestsError();
+        case 'ERROR_OPERATION_NOT_ALLOWED':
+          return const UpdateUserInfoError.operationNotAllowedError();
+      }
+    }
+    return UpdateUserInfoError.unknown(error);
   }
 }

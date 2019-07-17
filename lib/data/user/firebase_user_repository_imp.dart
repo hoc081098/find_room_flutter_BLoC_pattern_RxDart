@@ -128,8 +128,9 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
       password: password,
     );
     await firebaseUser.updateProfile(UserUpdateInfo()..displayName = fullName);
-    // then save to firestore user info and address
     firebaseUser = await _firebaseAuth.currentUser();
+
+    // then save to firestore user info and address
     await _updateUserData(
       firebaseUser,
       <String, dynamic>{
@@ -179,8 +180,61 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   Stream<UserEntity> getUserBy({String uid}) => _getUserByUid$(uid);
 
   @override
-  Future<void> updateUserInfo({String fullName, String address, String phoneNumber, File avatar}) {
-    // TODO: implement updateUserInfo
-    return null;
+  Future<void> updateUserInfo({
+    String fullName,
+    String address,
+    String phoneNumber,
+    File avatar,
+  }) async {
+    if (fullName == null) return Future.error('fullName must be not null');
+    if (address == null) return Future.error('address must be not null');
+    if (phoneNumber == null)
+      return Future.error('phoneNumber must be not null');
+
+    print('[USER_REPO] updateUserInfo fullName=$fullName, address=$address, '
+        'phoneNumber=$phoneNumber, avatar=$avatar');
+
+    var firebaseUser = await _firebaseAuth.currentUser();
+
+    // update display name of firebase user
+    await firebaseUser.updateProfile(UserUpdateInfo()..displayName = fullName);
+    firebaseUser = await _firebaseAuth.currentUser();
+
+    // then save to firestore user info and address
+    await _updateUserData(
+      firebaseUser,
+      <String, dynamic>{
+        'address': address,
+        'phone': phoneNumber,
+        'is_active': true,
+        'updated_at': FieldValue.serverTimestamp(),
+      },
+    );
+
+    // if avatar is present
+    if (avatar != null) {
+      // upload image to firebase storage
+      final uploadTask = _firebaseStorage
+          .ref()
+          .child('avatar_images')
+          .child(firebaseUser.uid)
+          .putFile(avatar);
+      await uploadTask.onComplete;
+
+      // if upload task is successful
+      if (uploadTask.isSuccessful) {
+        // get photo url
+        final String photoUrl =
+            await uploadTask.lastSnapshot.ref.getDownloadURL();
+        print('[USER_REPO] updateUserInfo photoUrl=$photoUrl');
+
+        // update firebase user info with photo url and save to firestore
+        await firebaseUser.updateProfile(UserUpdateInfo()..photoUrl = photoUrl);
+        firebaseUser = await _firebaseAuth.currentUser();
+        await _updateUserData(firebaseUser);
+      }
+    }
+
+    print('[USER_REPO] updateUserInfo done');
   }
 }
