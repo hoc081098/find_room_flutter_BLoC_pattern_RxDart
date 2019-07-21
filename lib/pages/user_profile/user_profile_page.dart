@@ -108,7 +108,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black12,
+              color: Colors.black26,
             ),
             child: BackButton(
               color: Colors.white,
@@ -125,44 +125,52 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: AnimatedOpacity(
                 duration: const Duration(seconds: 1),
                 opacity: (snapshot.data?.isCurrentUser ?? false) ? 1 : 0,
-                child: IconButton(
-                  tooltip: S.of(context).edit_profile,
-                  icon: Icon(
-                    Icons.edit,
-                    color: Colors.white,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black26,
                   ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      builder: (context) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                              leading: const Icon(Icons.info),
-                              title: Text('Update user info'),
-                              onTap: () {
-                                Navigator.popAndPushNamed(
-                                  context,
-                                  '/update_user_info',
-                                );
-                              },
+                  child: IconButton(
+                    tooltip: S.of(context).edit_profile,
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        builder: (context) {
+                          return Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                ListTile(
+                                  leading: const Icon(Icons.info),
+                                  title: Text('Update user info'),
+                                  onTap: () {
+                                    Navigator.popAndPushNamed(
+                                        context, '/update_user_info',
+                                        arguments: snapshot.data.profile.uid);
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.lock),
+                                  title: Text('Change password'),
+                                  onTap: () {
+                                    Navigator.popAndPushNamed(
+                                      context,
+                                      '/change_password',
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            ListTile(
-                              leading: const Icon(Icons.lock),
-                              title: Text('Change password'),
-                              onTap: () {
-                                Navigator.popAndPushNamed(
-                                  context,
-                                  '/change_password',
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                      context: context,
-                    );
-                  },
+                          );
+                        },
+                        context: context,
+                      );
+                    },
+                  ),
                 ),
               ),
             );

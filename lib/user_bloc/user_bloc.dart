@@ -17,6 +17,10 @@ class UserBloc implements BaseBloc {
   ///
   final ValueObservable<LoginState> loginState$;
   final Stream<UserMessage> message$;
+  ///
+  /// Return current user [LoggedInUser] if logged in, otherwise return null
+  ///
+  final LoggedInUser Function() currentUser;
 
   ///Cleanup
   final void Function() _dispose;
@@ -49,6 +53,12 @@ class UserBloc implements BaseBloc {
       user$,
       signOutController.sink,
       signOutMessage$,
+      () {
+        final loginState = user$.value;
+        if (loginState == null || loginState is Unauthenticated) return null;
+        if (loginState is LoggedInUser) return loginState;
+        return null;
+      },
     );
   }
 
@@ -57,6 +67,7 @@ class UserBloc implements BaseBloc {
     this.loginState$,
     this.signOut,
     this.message$,
+    this.currentUser,
   );
 
   @override

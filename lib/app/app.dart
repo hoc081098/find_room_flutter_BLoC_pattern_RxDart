@@ -16,6 +16,8 @@ import 'package:find_room/pages/login_register/register/register_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/pages/setting/setting_page.dart';
+import 'package:find_room/pages/user_profile/update_user_info/update_user_info_bloc.dart';
+import 'package:find_room/pages/user_profile/update_user_info/update_user_info_page.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
@@ -116,7 +118,21 @@ class MyApp extends StatelessWidget {
 
     if (routerSettings.name == '/update_user_info') {
       return MaterialPageRoute(
-        builder: (context) {},
+        builder: (context) {
+          final userRepo = Injector.of(context).userRepository;
+          final userBloc = BlocProvider.of<UserBloc>(context);
+
+          return BlocProvider<UpdateUserInfoBloc>(
+            child: UpdateUserInfoPage(
+              userBloc: userBloc,
+            ),
+            bloc: UpdateUserInfoBloc(
+              uid: routerSettings.arguments as String,
+              userBloc: userBloc,
+              userRepo: userRepo,
+            ),
+          );
+        },
         settings: routerSettings,
       );
     }

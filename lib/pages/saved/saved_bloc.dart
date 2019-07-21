@@ -188,6 +188,7 @@ class SavedBloc implements BaseBloc {
             .cast<RemovedSaveRoomMessage>()
             .onErrorReturnWith((e) => RemovedSaveRoomMessageError(e));
       }
+      return null;
     }).publish();
   }
 }

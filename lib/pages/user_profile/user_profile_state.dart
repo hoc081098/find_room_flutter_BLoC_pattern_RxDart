@@ -18,6 +18,7 @@ abstract class UserProfileState
 }
 
 abstract class UserProfile implements Built<UserProfile, UserProfileBuilder> {
+  String get uid;
   @nullable
   String get avatar;
   String get fullName;

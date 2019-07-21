@@ -68,15 +68,8 @@ class UpdateUserInfoBloc implements BaseBloc {
     assert(uid != null, 'uid cannot be null');
     assert(userRepo != null, 'userRepo cannot be null');
     assert(userBloc != null, 'userBloc cannot be null');
-
-    final currentUser = () {
-      final loginState = userBloc.loginState$.value;
-      if (loginState == null || loginState is Unauthenticated) return null;
-      if (loginState is LoggedInUser) return loginState;
-      return null;
-    }();
-    assert(currentUser == null || currentUser.uid != uid,
-        'User is not logged in or invalid user id');
+    final currentUser = userBloc.currentUser();
+    assert(currentUser?.uid == uid, 'User is not logged in or invalid user id');
 
     ///
     /// Controllers
@@ -109,6 +102,9 @@ class UpdateUserInfoBloc implements BaseBloc {
 
     final phoneNumberError$ = phoneNumberController.map(
       (phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isEmpty) {
+          return null;
+        }
         const regex = r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$';
         if (!RegExp(regex, caseSensitive: false).hasMatch(phoneNumber)) {
           return const PhoneNumberError.invalidPhoneNumber();
@@ -153,13 +149,13 @@ class UpdateUserInfoBloc implements BaseBloc {
           .map((_) => const UpdateUserInfoMessage.invalidInfomation()),
       validSubmit$.where((isValid) => isValid).exhaustMap(
             (_) => _performUpdateInfo(
-                  address: addressController.value,
-                  avatar: avatar$.value,
-                  fullName: fullNameController.value,
-                  isLoadingSink: isLoadingController,
-                  phoneNumber: phoneNumberController.value,
-                  userRepo: userRepo,
-                ),
+              address: addressController.value,
+              avatar: avatar$.value,
+              fullName: fullNameController.value,
+              isLoadingSink: isLoadingController,
+              phoneNumber: phoneNumberController.value,
+              userRepo: userRepo,
+            ),
           ),
     ]).publish();
 
@@ -207,7 +203,7 @@ class UpdateUserInfoBloc implements BaseBloc {
       message$: message$,
       avatar$: avatar$,
       addressError$: addressError$,
-      phoneNumberError$: null,
+      phoneNumberError$: phoneNumberError$,
     );
   }
 

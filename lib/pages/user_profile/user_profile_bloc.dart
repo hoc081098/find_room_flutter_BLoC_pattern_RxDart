@@ -69,6 +69,7 @@ class UserProfileBloc implements BaseBloc {
         }
         return UserProfileState((b) {
           b.profile
+            ..uid = entity.id
             ..avatar = entity.avatar
             ..fullName = entity.fullName
             ..email = entity.email

@@ -234,10 +234,10 @@ class HomeBloc implements BaseBloc {
         )
         .flatMap(
           (tuple2) => _addOrRemoveSavedRoom(
-                tuple2,
-                roomRepository,
-                subjects,
-              ),
+            tuple2,
+            roomRepository,
+            subjects,
+          ),
         );
   }
 
@@ -308,6 +308,7 @@ class HomeBloc implements BaseBloc {
       if (result['status'] == 'removed') {
         return const RemoveSavedMessageSuccess();
       }
+      return null;
     };
     return Observable.fromFuture(
             roomRepository.addOrRemoveSavedRoom(roomId: roomId, userId: userId))
