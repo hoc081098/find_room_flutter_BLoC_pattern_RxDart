@@ -15,13 +15,21 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   @override
+  void initState() {
+    super.initState();
+    print('[USER_PROFILE_PAGE]  { init }');
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    print('[USER_PROFILE_PAGE]  { dep change }');
   }
 
   @override
   void dispose() {
     super.dispose();
+    print('[USER_PROFILE_PAGE]  { dispose }');
   }
 
   @override
@@ -42,7 +50,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
         ),
         ClipPath(
-          clipper: _CustomShapeClipper(),
+          clipper: CustomShapeClipper(),
           child: Container(
             height: 400.0,
             decoration: BoxDecoration(
@@ -80,6 +88,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               }
 
               return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
                 slivers: <Widget>[
                   SliverToBoxAdapter(
                     child: _ProfileInfoWidget(
@@ -108,7 +117,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black12,
+              color: Colors.black26,
             ),
             child: BackButton(
               color: Colors.white,
@@ -125,15 +134,50 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: AnimatedOpacity(
                 duration: const Duration(seconds: 1),
                 opacity: (snapshot.data?.isCurrentUser ?? false) ? 1 : 0,
-                child: IconButton(
-                  tooltip: S.of(context).edit_profile,
-                  icon: Icon(
-                    Icons.edit,
-                    color: Colors.white,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black26,
                   ),
-                  onPressed: () {
-                    //TODO: edit
-                  },
+                  child: IconButton(
+                    tooltip: S.of(context).edit_profile,
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      final routeName = await showModalBottomSheet<String>(
+                        builder: (context) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                leading: const Icon(Icons.info),
+                                title: Text('Update user info'),
+                                onTap: () =>
+                                    Navigator.pop(context, '/update_user_info'),
+                                contentPadding: const EdgeInsets.all(12),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.lock),
+                                title: Text('Change password'),
+                                onTap: () =>
+                                    Navigator.pop(context, '/change_password'),
+                                contentPadding: const EdgeInsets.all(12),
+                              ),
+                            ],
+                          );
+                        },
+                        context: context,
+                      );
+
+                      Navigator.pushNamed(
+                        context,
+                        routeName,
+                        arguments: snapshot.data.profile.uid,
+                      );
+                    },
+                  ),
                 ),
               ),
             );
@@ -278,22 +322,23 @@ class _ProfileInfoWidget extends StatelessWidget {
                         : Colors.redAccent,
                   ),
                 ),
-                ListTile(
-                  title: Text(
-                    'Joined date',
-                    style: display1Text16,
-                  ),
-                  subtitle: Text(
-                    DateFormat.yMMMd().format(
-                      profile.createdAt,
+                if (profile.createdAt != null)
+                  ListTile(
+                    title: Text(
+                      'Joined date',
+                      style: display1Text16,
+                    ),
+                    subtitle: Text(
+                      DateFormat.yMMMd().format(
+                        profile.createdAt,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_view_day,
+                      color: accentColor,
                     ),
                   ),
-                  leading: Icon(
-                    Icons.calendar_view_day,
-                    color: accentColor,
-                  ),
-                ),
-                if (isCurrentUser)
+                if (isCurrentUser && profile.updatedAt != null)
                   ListTile(
                     title: Text(
                       'Last updated',
@@ -480,7 +525,7 @@ class _PostedRoomItem extends StatelessWidget {
   }
 }
 
-class _CustomShapeClipper extends CustomClipper<Path> {
+class CustomShapeClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final Path path = Path();

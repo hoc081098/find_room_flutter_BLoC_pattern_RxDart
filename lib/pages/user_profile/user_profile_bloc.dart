@@ -34,8 +34,9 @@ class UserProfileBloc implements BaseBloc {
     @required final String uid,
     @required final NumberFormat priceFormat,
   }) {
-    final rooms$ =
-        roomsRepo.postedList(uid: uid).map((rooms) {
+    print('[USER_PROFILE_BLOC] { init }');
+
+    final rooms$ = roomsRepo.postedList(uid: uid).map((rooms) {
       final items = rooms.map(
         (r) => UserProfileRoomItem((b) => b
           ..id = r.id
@@ -69,6 +70,7 @@ class UserProfileBloc implements BaseBloc {
         }
         return UserProfileState((b) {
           b.profile
+            ..uid = entity.id
             ..avatar = entity.avatar
             ..fullName = entity.fullName
             ..email = entity.email
@@ -76,7 +78,7 @@ class UserProfileBloc implements BaseBloc {
             ..address = entity.address
             ..isActive = entity.isActive
             ..createdAt = entity.createdAt.toDate()
-            ..updatedAt = entity.updatedAt.toDate();
+            ..updatedAt = entity.updatedAt?.toDate();
           b.isCurrentUser =
               loginState is LoggedInUser ? loginState.uid == entity.id : false;
           b.postedRooms = rooms.toBuilder();
@@ -89,14 +91,13 @@ class UserProfileBloc implements BaseBloc {
     );
 
     final subscriptions = <StreamSubscription>[
-      userProfileDistinct$
-          .listen((state) => print('[USER_PROFILE_BLOC] state=$state')),
       userProfileDistinct$.connect(),
     ];
 
     return UserProfileBloc._(
       () async {
         await Future.wait(subscriptions.map((s) => s.cancel()));
+        print('[USER_PROFILE_BLOC]  { disposed }');
       },
       state$: userProfileDistinct$,
     );

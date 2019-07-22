@@ -17,7 +17,7 @@ Star, fork if it is helful, issues and pull requests are always welcome
 | <img height="480px" src="art/Screenshot_07.png"> | <img height="480px" src="art/Screenshot_08.png"> | <img height="480px" src="art/Screenshot_09.png"> |
 | <img height="480px" src="art/Screenshot_10.png"> | <img height="480px" src="art/Screenshot_11.png"> | <img height="480px" src="art/Screenshot_12.png"> |
 | <img height="480px" src="art/Screenshot_13.png"> | <img height="480px" src="art/Screenshot_14.png"> | <img height="480px" src="art/Screenshot_15.png"> |
-| <img height="480px" src="art/Screenshot_16.png"> | | |
+| <img height="480px" src="art/Screenshot_16.png"> | <img height="480px" src="art/Screenshot_17.png"> | |
 
 ## Getting Started
 

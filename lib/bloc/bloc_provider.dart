@@ -5,12 +5,12 @@ abstract class BaseBloc {
 }
 
 class BlocProvider<T extends BaseBloc> extends StatefulWidget {
-  final T bloc;
+  final T Function() blocSupplier;
   final Widget child;
 
   const BlocProvider({
     Key key,
-    @required this.bloc,
+    @required this.blocSupplier,
     @required this.child,
   }) : super(key: key);
 
@@ -31,17 +31,25 @@ class BlocProvider<T extends BaseBloc> extends StatefulWidget {
 }
 
 class _BlocProviderState<T extends BaseBloc> extends State<BlocProvider<T>> {
+  T _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = widget.blocSupplier();
+  }
+
   @override
   Widget build(BuildContext context) {
     return _BlocProviderInheritedWidget<T>(
-      bloc: widget.bloc,
+      bloc: _bloc,
       child: widget.child,
     );
   }
 
   @override
   void dispose() {
-    widget.bloc.dispose();
+    _bloc.dispose();
     print('[DEBUG] Bloc disposed');
     super.dispose();
   }

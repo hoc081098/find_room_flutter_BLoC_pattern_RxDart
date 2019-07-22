@@ -31,4 +31,11 @@ abstract class FirebaseUserRepository {
   Future<void> sendPasswordResetEmail(String email);
 
   Stream<UserEntity> getUserBy({@required String uid});
+
+  Future<void> updateUserInfo({
+    @required String fullName,
+    @required String address,
+    @required String phoneNumber,
+    File avatar,
+  });
 }

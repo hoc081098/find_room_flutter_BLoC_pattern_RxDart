@@ -136,6 +136,8 @@ class UserProfileStateBuilder
 
 class _$UserProfile extends UserProfile {
   @override
+  final String uid;
+  @override
   final String avatar;
   @override
   final String fullName;
@@ -156,7 +158,8 @@ class _$UserProfile extends UserProfile {
       (new UserProfileBuilder()..update(updates)).build();
 
   _$UserProfile._(
-      {this.avatar,
+      {this.uid,
+      this.avatar,
       this.fullName,
       this.email,
       this.phone,
@@ -165,6 +168,9 @@ class _$UserProfile extends UserProfile {
       this.createdAt,
       this.updatedAt})
       : super._() {
+    if (uid == null) {
+      throw new BuiltValueNullFieldError('UserProfile', 'uid');
+    }
     if (fullName == null) {
       throw new BuiltValueNullFieldError('UserProfile', 'fullName');
     }
@@ -173,12 +179,6 @@ class _$UserProfile extends UserProfile {
     }
     if (isActive == null) {
       throw new BuiltValueNullFieldError('UserProfile', 'isActive');
-    }
-    if (createdAt == null) {
-      throw new BuiltValueNullFieldError('UserProfile', 'createdAt');
-    }
-    if (updatedAt == null) {
-      throw new BuiltValueNullFieldError('UserProfile', 'updatedAt');
     }
   }
 
@@ -193,6 +193,7 @@ class _$UserProfile extends UserProfile {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is UserProfile &&
+        uid == other.uid &&
         avatar == other.avatar &&
         fullName == other.fullName &&
         email == other.email &&
@@ -210,7 +211,9 @@ class _$UserProfile extends UserProfile {
             $jc(
                 $jc(
                     $jc(
-                        $jc($jc($jc(0, avatar.hashCode), fullName.hashCode),
+                        $jc(
+                            $jc($jc($jc(0, uid.hashCode), avatar.hashCode),
+                                fullName.hashCode),
                             email.hashCode),
                         phone.hashCode),
                     address.hashCode),
@@ -222,6 +225,7 @@ class _$UserProfile extends UserProfile {
   @override
   String toString() {
     return (newBuiltValueToStringHelper('UserProfile')
+          ..add('uid', uid)
           ..add('avatar', avatar)
           ..add('fullName', fullName)
           ..add('email', email)
@@ -236,6 +240,10 @@ class _$UserProfile extends UserProfile {
 
 class UserProfileBuilder implements Builder<UserProfile, UserProfileBuilder> {
   _$UserProfile _$v;
+
+  String _uid;
+  String get uid => _$this._uid;
+  set uid(String uid) => _$this._uid = uid;
 
   String _avatar;
   String get avatar => _$this._avatar;
@@ -273,6 +281,7 @@ class UserProfileBuilder implements Builder<UserProfile, UserProfileBuilder> {
 
   UserProfileBuilder get _$this {
     if (_$v != null) {
+      _uid = _$v.uid;
       _avatar = _$v.avatar;
       _fullName = _$v.fullName;
       _email = _$v.email;
@@ -303,6 +312,7 @@ class UserProfileBuilder implements Builder<UserProfile, UserProfileBuilder> {
   _$UserProfile build() {
     final _$result = _$v ??
         new _$UserProfile._(
+            uid: uid,
             avatar: avatar,
             fullName: fullName,
             email: email,
@@ -365,12 +375,6 @@ class _$UserProfileRoomItem extends UserProfileRoomItem {
     }
     if (image == null) {
       throw new BuiltValueNullFieldError('UserProfileRoomItem', 'image');
-    }
-    if (createdTime == null) {
-      throw new BuiltValueNullFieldError('UserProfileRoomItem', 'createdTime');
-    }
-    if (updatedTime == null) {
-      throw new BuiltValueNullFieldError('UserProfileRoomItem', 'updatedTime');
     }
   }
 

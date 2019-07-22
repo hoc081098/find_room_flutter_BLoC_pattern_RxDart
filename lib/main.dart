@@ -57,6 +57,7 @@ Future<void> main() async {
     provinceDistrictWardRepository: provinceDistrictWardRepository,
     priceFormat: priceFormat,
   );
+  final localeBloc = LocaleBloc(sharedPrefUtil);
 
   runApp(
     Injector(
@@ -64,11 +65,11 @@ Future<void> main() async {
       roomRepository: roomRepository,
       priceFormat: priceFormat,
       child: BlocProvider<UserBloc>(
-        bloc: userBloc,
+        blocSupplier: () => userBloc,
         child: BlocProvider<HomeBloc>(
-          bloc: homeBloc,
+          blocSupplier: () => homeBloc,
           child: BlocProvider<LocaleBloc>(
-            bloc: LocaleBloc(sharedPrefUtil),
+            blocSupplier: () => localeBloc,
             child: MyApp(),
           ),
         ),
