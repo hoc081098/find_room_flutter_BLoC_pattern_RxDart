@@ -147,6 +147,23 @@ class MyApp extends StatelessWidget {
       );
     }
 
+    if (routerSettings.name == '/change_password') {
+      return MaterialPageRoute(
+        builder: (context) {
+          print('[onGenerateRoute] /change_password builder');
+
+          final userRepo = Injector.of(context).userRepository;
+          final userBloc = BlocProvider.of<UserBloc>(context);
+
+          return BlocProvider(
+            child: null,
+            blocSupplier: () {},
+          );
+        },
+        settings: routerSettings,
+      );
+    }
+
     /// The other paths we support are in the routes table.
     return null;
   };
