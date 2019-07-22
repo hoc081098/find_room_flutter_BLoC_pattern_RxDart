@@ -6,11 +6,11 @@ import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:path/path.dart' as path;
+import 'package:tuple/tuple.dart';
 
 // ignore_for_file: close_sinks
 
@@ -62,6 +62,8 @@ class UpdateUserInfoBloc implements BaseBloc {
     @required FirebaseUserRepository userRepo,
     @required UserBloc userBloc,
   }) {
+    print('[UPDATE_USER_INFO_BLOC] { init }');
+
     ///
     /// Asserts
     ///
@@ -91,27 +93,23 @@ class UpdateUserInfoBloc implements BaseBloc {
       return null;
     }).share();
 
-    final addressError$ = addressController.map(
-      (address) {
-        if (address == null || address.isEmpty) {
-          return const AddressError.emptyAddress();
-        }
-        return null;
-      },
-    ).share();
+    final addressError$ = addressController.map((address) {
+      if (address == null || address.isEmpty) {
+        return const AddressError.emptyAddress();
+      }
+      return null;
+    }).share();
 
-    final phoneNumberError$ = phoneNumberController.map(
-      (phoneNumber) {
-        if (phoneNumber == null || phoneNumber.isEmpty) {
-          return null;
-        }
-        const regex = r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$';
-        if (!RegExp(regex, caseSensitive: false).hasMatch(phoneNumber)) {
-          return const PhoneNumberError.invalidPhoneNumber();
-        }
-        return null;
-      },
-    ).share();
+    final phoneNumberError$ = phoneNumberController.map((phoneNumber) {
+      if (phoneNumber == null || phoneNumber.isEmpty) {
+        return const PhoneNumberError.invalidPhoneNumber();
+      }
+      const regex = r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$';
+      if (!RegExp(regex, caseSensitive: false).hasMatch(phoneNumber)) {
+        return const PhoneNumberError.invalidPhoneNumber();
+      }
+      return null;
+    }).share();
 
     ///
     /// Combine error streams with submit stream
@@ -127,6 +125,7 @@ class UpdateUserInfoBloc implements BaseBloc {
     );
 
     final validSubmit$ = submitController
+        .throttleTime(const Duration(milliseconds: 600))
         .withLatestFrom(
           isValid$,
           (_, isValid) => isValid,
@@ -138,35 +137,37 @@ class UpdateUserInfoBloc implements BaseBloc {
     ///
 
     final avatar$ = publishValueDistinct<File>(
-      avatarSubject
-          .doOnData((file) => print('[UPDATE_USER_INFO_BLOC] file=$file')),
+      avatarSubject,
       equals: (prev, next) => path.equals(prev?.path ?? '', next?.path ?? ''),
     );
 
-    final message$ = Observable.merge([
-      validSubmit$
-          .where((isValid) => !isValid)
-          .map((_) => const UpdateUserInfoMessage.invalidInfomation()),
-      validSubmit$.where((isValid) => isValid).exhaustMap(
-            (_) => _performUpdateInfo(
-              address: addressController.value,
-              avatar: avatar$.value,
-              fullName: fullNameController.value,
-              isLoadingSink: isLoadingController,
-              phoneNumber: phoneNumberController.value,
-              userRepo: userRepo,
+    final message$ = Observable.merge(
+      [
+        validSubmit$
+            .where((isValid) => !isValid)
+            .map((_) => const UpdateUserInfoMessage.invalidInfomation()),
+        validSubmit$.where((isValid) => isValid).exhaustMap(
+              (_) => _performUpdateInfo(
+                address: addressController.value,
+                avatar: avatar$.value,
+                fullName: fullNameController.value,
+                isLoadingSink: isLoadingController,
+                phoneNumber: phoneNumberController.value,
+                userRepo: userRepo,
+              ),
             ),
-          ),
-    ]).publish();
+      ],
+    ).publish();
 
     ///
     /// Subscriptions & controllers
     ///
     final subscriptions = <StreamSubscription>[
       avatar$
-          .listen((file) => print('[UPDATE_USER_INFO_BLOC] final file=$file')),
+          .listen((file) => print('[UPDATE_USER_INFO_BLOC] file=$file')),
       message$.listen(
           (message) => print('[UPDATE_USER_INFO_BLOC] message=$message')),
+      ///
       message$.connect(),
       avatar$.connect(),
     ];
@@ -183,7 +184,7 @@ class UpdateUserInfoBloc implements BaseBloc {
       () async {
         await Future.wait(subscriptions.map((s) => s.cancel()));
         await Future.wait(controllers.map((c) => c.close()));
-        print('[UPDATE_USER_INFO_BLOC] disposed');
+        print('[UPDATE_USER_INFO_BLOC] { disposed }');
       },
 
       ///
@@ -216,6 +217,9 @@ class UpdateUserInfoBloc implements BaseBloc {
     @required Sink<bool> isLoadingSink,
   }) async* {
     try {
+      print(
+          '[UPDATE_USER_INFO_BLOC] _performUpdateInfo fullName=$fullName, address=$address,'
+          ' phoneNumber=$phoneNumber, avatar=$avatar');
       isLoadingSink.add(true);
       await userRepo.updateUserInfo(
         fullName: fullName,

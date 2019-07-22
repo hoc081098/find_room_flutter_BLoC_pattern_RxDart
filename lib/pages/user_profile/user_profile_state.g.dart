@@ -180,12 +180,6 @@ class _$UserProfile extends UserProfile {
     if (isActive == null) {
       throw new BuiltValueNullFieldError('UserProfile', 'isActive');
     }
-    if (createdAt == null) {
-      throw new BuiltValueNullFieldError('UserProfile', 'createdAt');
-    }
-    if (updatedAt == null) {
-      throw new BuiltValueNullFieldError('UserProfile', 'updatedAt');
-    }
   }
 
   @override
@@ -381,12 +375,6 @@ class _$UserProfileRoomItem extends UserProfileRoomItem {
     }
     if (image == null) {
       throw new BuiltValueNullFieldError('UserProfileRoomItem', 'image');
-    }
-    if (createdTime == null) {
-      throw new BuiltValueNullFieldError('UserProfileRoomItem', 'createdTime');
-    }
-    if (updatedTime == null) {
-      throw new BuiltValueNullFieldError('UserProfileRoomItem', 'updatedTime');
     }
   }
 

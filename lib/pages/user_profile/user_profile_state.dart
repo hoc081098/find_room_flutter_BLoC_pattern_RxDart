@@ -28,7 +28,9 @@ abstract class UserProfile implements Built<UserProfile, UserProfileBuilder> {
   @nullable
   String get address;
   bool get isActive;
+  @nullable
   DateTime get createdAt;
+  @nullable
   DateTime get updatedAt;
 
   UserProfile._();
@@ -44,7 +46,9 @@ abstract class UserProfileRoomItem
   String get address;
   String get districtName;
   String get image;
+  @nullable
   DateTime get createdTime;
+  @nullable
   DateTime get updatedTime;
 
   UserProfileRoomItem._();

@@ -83,6 +83,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
       'email': user.email,
       'full_name': user.displayName,
       'avatar': user.photoUrl,
+      ...?addition
     };
     print('[USER_REPO] _updateUserData data=$data');
     return _firestore.document('users/${user.uid}').setData(data, merge: true);

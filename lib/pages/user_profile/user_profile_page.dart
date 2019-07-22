@@ -15,13 +15,21 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   @override
+  void initState() {
+    super.initState();
+    print('[USER_PROFILE_PAGE]  { init }');
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    print('[USER_PROFILE_PAGE]  { dep change }');
   }
 
   @override
   void dispose() {
     super.dispose();
+    print('[USER_PROFILE_PAGE]  { dispose }');
   }
 
   @override
@@ -80,6 +88,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               }
 
               return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
                 slivers: <Widget>[
                   SliverToBoxAdapter(
                     child: _ProfileInfoWidget(
@@ -136,38 +145,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       Icons.edit,
                       color: Colors.white,
                     ),
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final routeName = await showModalBottomSheet<String>(
                         builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ListTile(
-                                  leading: const Icon(Icons.info),
-                                  title: Text('Update user info'),
-                                  onTap: () {
-                                    Navigator.popAndPushNamed(
-                                        context, '/update_user_info',
-                                        arguments: snapshot.data.profile.uid);
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.lock),
-                                  title: Text('Change password'),
-                                  onTap: () {
-                                    Navigator.popAndPushNamed(
-                                      context,
-                                      '/change_password',
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                leading: const Icon(Icons.info),
+                                title: Text('Update user info'),
+                                onTap: () =>
+                                    Navigator.pop(context, '/update_user_info'),
+                                contentPadding: const EdgeInsets.all(12),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.lock),
+                                title: Text('Change password'),
+                                onTap: () =>
+                                    Navigator.pop(context, '/change_password'),
+                                contentPadding: const EdgeInsets.all(12),
+                              ),
+                            ],
                           );
                         },
                         context: context,
+                      );
+
+                      Navigator.pushNamed(
+                        context,
+                        routeName,
+                        arguments: snapshot.data.profile.uid,
                       );
                     },
                   ),
@@ -315,22 +322,23 @@ class _ProfileInfoWidget extends StatelessWidget {
                         : Colors.redAccent,
                   ),
                 ),
-                ListTile(
-                  title: Text(
-                    'Joined date',
-                    style: display1Text16,
-                  ),
-                  subtitle: Text(
-                    DateFormat.yMMMd().format(
-                      profile.createdAt,
+                if (profile.createdAt != null)
+                  ListTile(
+                    title: Text(
+                      'Joined date',
+                      style: display1Text16,
+                    ),
+                    subtitle: Text(
+                      DateFormat.yMMMd().format(
+                        profile.createdAt,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_view_day,
+                      color: accentColor,
                     ),
                   ),
-                  leading: Icon(
-                    Icons.calendar_view_day,
-                    color: accentColor,
-                  ),
-                ),
-                if (isCurrentUser)
+                if (isCurrentUser && profile.updatedAt != null)
                   ListTile(
                     title: Text(
                       'Last updated',

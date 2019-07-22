@@ -70,11 +70,11 @@ class MyApp extends StatelessWidget {
       );
     },
     '/forgot_password': (context) {
+      final userRepo = Injector.of(context).userRepository;
+
       return BlocProvider<ForgotPasswordBloc>(
         child: const ForgotPasswordPage(),
-        bloc: ForgotPasswordBloc(
-          Injector.of(context).userRepository,
-        ),
+        blocSupplier: () => ForgotPasswordBloc(userRepo),
       );
     },
     '/register': (context) {
@@ -85,20 +85,25 @@ class MyApp extends StatelessWidget {
   };
 
   final RouteFactory onGenerateRoute = (routerSettings) {
+    print('[onGenerateRoute] routerSettings=$routerSettings');
+
     if (routerSettings.name == '/user_profile') {
       return MaterialPageRoute(
         builder: (context) {
-          final injector = Injector.of(context);
+          print('[onGenerateRoute] /user_profile builder');
 
+          final injector = Injector.of(context);
           return BlocProvider<UserProfileBloc>(
-            bloc: UserProfileBloc(
-              priceFormat: injector.priceFormat,
-              roomsRepo: injector.roomRepository,
-              uid: routerSettings.arguments as String,
-              userBloc: BlocProvider.of<UserBloc>(context),
-              userRepo: injector.userRepository,
-            ),
-            child: UserProfilePage(),
+            blocSupplier: () {
+              return UserProfileBloc(
+                priceFormat: injector.priceFormat,
+                roomsRepo: injector.roomRepository,
+                uid: routerSettings.arguments as String,
+                userBloc: BlocProvider.of<UserBloc>(context),
+                userRepo: injector.userRepository,
+              );
+            },
+            child: const UserProfilePage(),
           );
         },
         settings: routerSettings,
@@ -108,6 +113,7 @@ class MyApp extends StatelessWidget {
     if (routerSettings.name == '/see_all') {
       return MaterialPageRoute(
         builder: (context) {
+          print('[onGenerateRoute] /see_all builder');
           return SeeAllPage(
             routerSettings.arguments as SeeAllQuery,
           );
@@ -119,6 +125,8 @@ class MyApp extends StatelessWidget {
     if (routerSettings.name == '/update_user_info') {
       return MaterialPageRoute(
         builder: (context) {
+          print('[onGenerateRoute] /update_user_info builder');
+
           final userRepo = Injector.of(context).userRepository;
           final userBloc = BlocProvider.of<UserBloc>(context);
 
@@ -126,11 +134,13 @@ class MyApp extends StatelessWidget {
             child: UpdateUserInfoPage(
               userBloc: userBloc,
             ),
-            bloc: UpdateUserInfoBloc(
-              uid: routerSettings.arguments as String,
-              userBloc: userBloc,
-              userRepo: userRepo,
-            ),
+            blocSupplier: () {
+              return UpdateUserInfoBloc(
+                uid: routerSettings.arguments as String,
+                userBloc: userBloc,
+                userRepo: userRepo,
+              );
+            },
           );
         },
         settings: routerSettings,
@@ -147,47 +157,48 @@ class MyApp extends StatelessWidget {
     final localeBloc = BlocProvider.of<LocaleBloc>(context);
 
     return StreamBuilder<Locale>(
-        stream: localeBloc.locale$,
-        initialData: localeBloc.locale$.value,
-        builder: (context, snapshot) {
-          print('[APP_LOCALE] locale = ${snapshot.data}');
+      stream: localeBloc.locale$,
+      initialData: localeBloc.locale$.value,
+      builder: (context, snapshot) {
+        print('[APP_LOCALE] locale = ${snapshot.data}');
 
-          if (!snapshot.hasData) {
-            return Container(
-              width: double.infinity,
-              height: double.infinity,
-            );
-          }
-
-          return MaterialApp(
-            locale: snapshot.data,
-            supportedLocales: S.delegate.supportedLocales,
-            localizationsDelegates: [
-              S.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-            ],
-            localeResolutionCallback:
-                S.delegate.resolution(fallback: const Locale('en', '')),
-            onGenerateTitle: (context) => S.of(context).app_title,
-            theme: appTheme,
-            builder: (BuildContext context, Widget child) {
-              print('[DEBUG] App builder');
-              return Scaffold(
-                drawer: MyDrawer(
-                  navigator: child.key as GlobalKey<NavigatorState>,
-                ),
-                body: BodyChild(
-                  child: child,
-                  userBloc: BlocProvider.of<UserBloc>(context),
-                ),
-              );
-            },
-            initialRoute: '/',
-            routes: appRoutes,
-            onGenerateRoute: onGenerateRoute,
+        if (!snapshot.hasData) {
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
           );
-        });
+        }
+
+        return MaterialApp(
+          locale: snapshot.data,
+          supportedLocales: S.delegate.supportedLocales,
+          localizationsDelegates: [
+            S.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+          ],
+          localeResolutionCallback:
+              S.delegate.resolution(fallback: const Locale('en', '')),
+          onGenerateTitle: (context) => S.of(context).app_title,
+          theme: appTheme,
+          builder: (BuildContext context, Widget child) {
+            print('[DEBUG] App builder');
+            return Scaffold(
+              drawer: MyDrawer(
+                navigator: child.key as GlobalKey<NavigatorState>,
+              ),
+              body: BodyChild(
+                child: child,
+                userBloc: BlocProvider.of<UserBloc>(context),
+              ),
+            );
+          },
+          initialRoute: '/',
+          routes: appRoutes,
+          onGenerateRoute: onGenerateRoute,
+        );
+      },
+    );
   }
 }
 

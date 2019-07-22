@@ -84,8 +84,8 @@ class UserBloc implements BaseBloc {
       uid: userEntity.id,
       isActive: userEntity.isActive,
       address: userEntity.address,
-      createdAt: userEntity.createdAt.toDate(),
-      updatedAt: userEntity.updatedAt.toDate(),
+      createdAt: userEntity.createdAt?.toDate(),
+      updatedAt: userEntity.updatedAt?.toDate(),
       phone: userEntity.phone,
     );
   }
