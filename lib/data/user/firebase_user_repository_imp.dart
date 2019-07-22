@@ -238,4 +238,14 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
     print('[USER_REPO] updateUserInfo done');
   }
+
+  @override
+  Future<void> updatePassword(String password) async {
+    final user = await _firebaseAuth.currentUser();
+    if (user == null) {
+      return Future.error('User not signed-in');
+    }
+    await user.updatePassword(password);
+    print('[USER_REPO] updatePassword done');
+  }
 }
