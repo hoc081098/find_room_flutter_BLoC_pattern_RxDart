@@ -311,8 +311,17 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
                 );
               },
               errorWidget: (context, url, error) {
-                return Center(
-                  child: Icon(Icons.image),
+                return Container(
+                  color: Colors.black12,
+                  width: 128,
+                  height: 128,
+                  child: Center(
+                    child: Icon(
+                      Icons.image,
+                      color: Theme.of(context).accentColor,
+                      size: 32,
+                    ),
+                  ),
                 );
               },
             ),

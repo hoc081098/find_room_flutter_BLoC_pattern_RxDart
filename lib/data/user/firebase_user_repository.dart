@@ -38,4 +38,6 @@ abstract class FirebaseUserRepository {
     @required String phoneNumber,
     File avatar,
   });
+
+  Future<void> updatePassword(String password);
 }
