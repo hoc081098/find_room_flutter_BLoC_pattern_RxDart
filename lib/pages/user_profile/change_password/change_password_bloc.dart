@@ -45,10 +45,17 @@ class ChangePasswordBloc implements BaseBloc {
     final currentUser = userBloc.currentUser();
     assert(currentUser?.uid == uid, 'User is not logged in or invalid user id');
 
+
+    ///
+    /// Stream controllers
+    ///
     final passwordSubject = BehaviorSubject.seeded('');
     final submitSubject = PublishSubject<void>();
     final isLoadingSubject = BehaviorSubject.seeded(false);
 
+    ///
+    /// Map password string to password error
+    ///
     final passwordError$ = passwordSubject.map(
       (password) {
         if (password == null || password.length < 6) {
@@ -100,12 +107,27 @@ class ChangePasswordBloc implements BaseBloc {
       ],
     ).publish();
 
+
+    ///
+    /// Keep references to dispose later
+    ///
     final subscriptions = <StreamSubscription>[
+      message$.listen(
+          (message) => print('[CHANGE_PASSWORD_BLOC] message=$message')),
       message$.connect(),
+    ];
+    final controllers = <StreamController>[
+      passwordSubject,
+      submitSubject,
+      isLoadingSubject,
     ];
 
     return ChangePasswordBloc._(
-      () async {},
+      () async {
+        await Future.wait(subscriptions.map((s) => s.cancel()));
+        await Future.wait(controllers.map((c) => c.close()));
+        print('[CHANGE_PASSWORD_BLOC] disposed');
+      },
       passwordChanged: passwordSubject.add,
       passwordError$: passwordError$,
       submit: () => submitSubject.add(null),
