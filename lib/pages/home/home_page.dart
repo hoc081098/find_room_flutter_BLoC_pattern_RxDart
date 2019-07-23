@@ -443,6 +443,8 @@ class HomeNewestRoomsListItem extends StatelessWidget {
                 return Center(
                   child: new Icon(
                     Icons.image,
+                    color: Theme.of(context).accentColor,
+                    size: 54,
                   ),
                 );
               },
@@ -461,6 +463,12 @@ class HomeNewestRoomsListItem extends StatelessWidget {
                     Colors.black26,
                     Colors.black12,
                     Colors.transparent,
+                  ],
+                  stops: [
+                    0.33,
+                    0.66,
+                    0.9,
+                    1,
                   ],
                   begin: AlignmentDirectional.bottomCenter,
                   end: AlignmentDirectional.topCenter,
@@ -597,28 +605,46 @@ class HomeBookmarkIcon extends StatelessWidget {
     if (roomItem.iconState == BookmarkIconState.hide) {
       return SizedBox(width: 0, height: 0);
     }
+
     final accentColor = Theme.of(context).accentColor;
     final s = S.of(context);
 
-    final Widget iconButton = IconButton(
-      icon: roomItem.iconState == BookmarkIconState.showNotSaved
-          ? Icon(
-              Icons.bookmark_border,
-              color: accentColor,
-            )
-          : Icon(
-              Icons.bookmark,
-              color: accentColor,
+    final icon = roomItem.iconState == BookmarkIconState.showNotSaved
+        ? Icon(
+            Icons.bookmark_border,
+            color: accentColor,
+            size: 28,
+          )
+        : Icon(
+            Icons.bookmark,
+            color: accentColor,
+            size: 28,
+          );
+
+    final tooltip = roomItem.iconState == BookmarkIconState.showNotSaved
+        ? s.add_to_saved
+        : s.remove_from_saved;
+
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        child: InkWell(
+          splashColor: accentColor,
+          customBorder: CircleBorder(),
+          onTap: () => BlocProvider.of<HomeBloc>(context)
+              .addOrRemoveSaved
+              .add(roomItem.id),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black12,
             ),
-      onPressed: () =>
-          BlocProvider.of<HomeBloc>(context).addOrRemoveSaved.add(roomItem.id),
-      tooltip: roomItem.iconState == BookmarkIconState.showNotSaved
-          ? s.add_to_saved
-          : s.remove_from_saved,
-    );
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: iconButton,
+            padding: const EdgeInsets.all(16),
+            child: icon,
+          ),
+        ),
+        message: tooltip,
+      ),
     );
   }
 }
@@ -789,10 +815,37 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Row(
             children: <Widget>[
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: CachedNetworkImageProvider(item.image),
-                backgroundColor: Colors.transparent,
+              ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: item.image,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) {
+                    return Center(
+                      child: new CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                      ),
+                    );
+                  },
+                  errorWidget: (context, url, error) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black12,
+                      ),
+                      width: 80,
+                      height: 80,
+                      child: Center(
+                        child: Icon(
+                          Icons.image,
+                          color: Theme.of(context).accentColor,
+                          size: 32,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
               Expanded(
                 child: Padding(

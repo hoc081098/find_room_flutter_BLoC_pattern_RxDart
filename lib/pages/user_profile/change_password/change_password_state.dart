@@ -18,6 +18,12 @@ class PasswordError extends Union1Impl<_PasswordLengthLessThan6Chars> {
       ),
     );
   }
+
+  factory PasswordError.none() {
+    return PasswordError._(
+      _factory.none(),
+    );
+  }
 }
 
 class _PasswordLengthLessThan6Chars {
@@ -44,7 +50,7 @@ class ChangePasswordMessage
     );
   }
 
-  factory ChangePasswordMessage.changeFaiulre(ChangePasswordError error) {
+  factory ChangePasswordMessage.changeFailure(ChangePasswordError error) {
     return ChangePasswordMessage._(
       _factory.second(
         _ChangeFailure(error),

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/user_profile/change_password/change_password_bloc.dart';
+import 'package:find_room/pages/user_profile/change_password/change_password_state.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +15,22 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  StreamSubscription<ChangePasswordMessage> _subscription;
+
+  @override
+  void didChangeDependencies() {
+    _subscription ??= BlocProvider.of<ChangePasswordBloc>(context)
+        .message$
+        .listen(_handleMessage);
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -65,6 +84,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const SizedBox(height: 8),
+                      StreamBuilder<PasswordError>(
+                        stream: bloc.passwordError$,
+                        builder: (context, snapshot) {
+                          final errorText = snapshot.data?.join(
+                            (_) => s.password_at_least_6_characters,
+                            () => null,
+                          );
+
+                          return PasswordTextField(
+                            errorText: errorText,
+                            onChanged: bloc.passwordChanged,
+                          );
+                        },
+                      ),
                       const SizedBox(height: 16),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: width / 6),
@@ -88,7 +121,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                                 splashColor: Colors.white,
                                 onPressed: bloc.submit,
                                 child: Text(
-                                  'Submit changes',
+                                  'Change password',
                                   style: Theme.of(context)
                                       .textTheme
                                       .title
@@ -125,7 +158,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  static Future<bool> _onWillPop(ChangePasswordBloc bloc, BuildContext context) async {
+  static Future<bool> _onWillPop(
+      ChangePasswordBloc bloc, BuildContext context) async {
     if (bloc.isLoading$.value) {
       final exit = await showDialog<bool>(
         context: context,
@@ -134,8 +168,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
           return AlertDialog(
             title: Text('Exit update password'),
-            content:
-                Text('Processing update password...Are you sure you want to exit?'),
+            content: Text(
+                'Processing update password...Are you sure you want to exit?'),
             actions: <Widget>[
               FlatButton(
                 child: Text(s.no),
@@ -152,5 +186,85 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return exit ?? false;
     }
     return true;
+  }
+
+  _showSnackBar(String message) {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _handleMessage(ChangePasswordMessage event) {
+    event.continued(
+      (_) {
+        _showSnackBar('Change password successfully');
+        Future.delayed(
+          const Duration(seconds: 2),
+          () => Navigator.pop(context),
+        );
+      },
+      (message) {
+        final messageText = message.error.join(
+          (_) => 'Unknown error',
+          (_) => 'Weak password',
+          (_) => 'User disabled',
+          (_) => 'User not found',
+          (_) => 'Requires recent login',
+          (_) => 'Operation not allowed',
+        );
+        _showSnackBar('Change password not successfully, error: $messageText');
+      },
+      (_) {
+        _showSnackBar('Invalid password');
+      },
+    );
+  }
+}
+
+class PasswordTextField extends StatefulWidget {
+  final ValueChanged<String> onChanged;
+  final String errorText;
+
+  const PasswordTextField({
+    Key key,
+    @required this.onChanged,
+    @required this.errorText,
+  }) : super(key: key);
+
+  @override
+  _PasswordTextFieldState createState() => _PasswordTextFieldState();
+}
+
+class _PasswordTextFieldState extends State<PasswordTextField> {
+  bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      autocorrect: true,
+      obscureText: _obscureText,
+      decoration: InputDecoration(
+        errorText: widget.errorText,
+        suffixIcon: IconButton(
+          onPressed: () => setState(() => _obscureText = !_obscureText),
+          icon: Icon(
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+          ),
+        ),
+        labelText: 'Password',
+        prefixIcon: Padding(
+          padding: const EdgeInsetsDirectional.only(end: 8.0),
+          child: Icon(Icons.lock),
+        ),
+      ),
+      keyboardType: TextInputType.text,
+      maxLines: 1,
+      style: TextStyle(fontSize: 16.0),
+      onChanged: widget.onChanged,
+      textInputAction: TextInputAction.done,
+    );
   }
 }

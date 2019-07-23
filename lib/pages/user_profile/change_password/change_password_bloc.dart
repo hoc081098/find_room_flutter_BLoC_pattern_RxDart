@@ -70,14 +70,16 @@ class ChangePasswordBloc implements BaseBloc {
         if (password == null || password.length < 6) {
           return PasswordError.passwordLengthLessThan6Chars();
         }
-        return null;
+        return PasswordError.none();
       },
     ).share();
 
-    final submit$ = submitSubject.withLatestFrom(
-      passwordError$,
-      (_, error) => error == null,
-    );
+    final submit$ = submitSubject
+        .withLatestFrom(
+          passwordError$,
+          (_, PasswordError error) => error.join((_) => false, () => true),
+        )
+        .share();
 
     getError(e) {
       if (e is PlatformException) {
@@ -106,7 +108,7 @@ class ChangePasswordBloc implements BaseBloc {
                 .doOnListen(() => isLoadingSubject.add(true))
                 .map((_) => ChangePasswordMessage.changeSuccess())
                 .onErrorReturnWith(
-                    (e) => ChangePasswordMessage.changeFaiulre(getError(e)))
+                    (e) => ChangePasswordMessage.changeFailure(getError(e)))
                 .doOnDone(() => isLoadingSubject.add(false));
           },
         ),
