@@ -1,28 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
+import 'package:find_room/pages/user_profile/change_password/change_password_state.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:tuple/tuple.dart';
-
-abstract class PasswordError {
-  const PasswordError._();
-  const factory PasswordError.passwordLengthLessThan6Chars() =
-      _PasswordLengthLessThan6Chars;
-}
-
-class _PasswordLengthLessThan6Chars extends PasswordError {
-  const _PasswordLengthLessThan6Chars() : super._();
-}
-
-///
-///
-///
-///
-
-abstract class ChangePasswordMessage {}
 
 class ChangePasswordBloc implements BaseBloc {
   final Stream<PasswordError> passwordError$;
@@ -64,22 +49,54 @@ class ChangePasswordBloc implements BaseBloc {
     final submitSubject = PublishSubject<void>();
     final isLoadingSubject = BehaviorSubject.seeded(false);
 
-    final passwordError$ = passwordSubject.map((password) {
-      if (password == null || password.length < 6) {
-        return const PasswordError.passwordLengthLessThan6Chars();
-      }
-      return null;
-    }).share();
+    final passwordError$ = passwordSubject.map(
+      (password) {
+        if (password == null || password.length < 6) {
+          return PasswordError.passwordLengthLessThan6Chars();
+        }
+        return null;
+      },
+    ).share();
 
     final submit$ = submitSubject.withLatestFrom(
       passwordError$,
       (_, error) => error == null,
     );
 
+    getError(e) {
+      if (e is PlatformException) {
+        switch (e.code) {
+          case 'ERROR_WEAK_PASSWORD':
+            return ChangePasswordError.weakPassword();
+          case 'ERROR_USER_DISABLED':
+            return ChangePasswordError.userDisabled();
+          case 'ERROR_USER_NOT_FOUND':
+            return ChangePasswordError.userNotFound();
+          case 'ERROR_REQUIRES_RECENT_LOGIN':
+            return ChangePasswordError.requiresRecentLogin();
+          case 'ERROR_OPERATION_NOT_ALLOWED':
+            return ChangePasswordError.operationNotAllowed();
+        }
+      }
+      return ChangePasswordError.unknownError(e);
+    }
+
     final message$ = Observable.merge(
       [
-        submit$.where((isValid) => isValid).exhaustMap((_) {}),
-        submit$.where((isValid) => !isValid).map(() {}),
+        submit$.where((isValid) => isValid).exhaustMap(
+          (_) {
+            return Observable.defer(() => Stream.fromFuture(
+                    userRepo.updatePassword(passwordSubject.value)))
+                .doOnListen(() => isLoadingSubject.add(true))
+                .map((_) => ChangePasswordMessage.changeSuccess())
+                .onErrorReturnWith(
+                    (e) => ChangePasswordMessage.changeFaiulre(getError(e)))
+                .doOnDone(() => isLoadingSubject.add(false));
+          },
+        ),
+        submit$
+            .where((isValid) => !isValid)
+            .map((_) => ChangePasswordMessage.invalidInformation()),
       ],
     ).publish();
 
