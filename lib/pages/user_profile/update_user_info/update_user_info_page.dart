@@ -11,7 +11,6 @@ import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tuple/tuple.dart';
 
 class UpdateUserInfoPage extends StatefulWidget {
   final UserBloc userBloc;
