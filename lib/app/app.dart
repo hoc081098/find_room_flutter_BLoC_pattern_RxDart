@@ -16,6 +16,7 @@ import 'package:find_room/pages/login_register/register/register_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/pages/setting/setting_page.dart';
+import 'package:find_room/pages/user_profile/change_password/change_password_bloc.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_bloc.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_page.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
@@ -155,9 +156,15 @@ class MyApp extends StatelessWidget {
           final userRepo = Injector.of(context).userRepository;
           final userBloc = BlocProvider.of<UserBloc>(context);
 
-          return BlocProvider(
+          return BlocProvider<ChangePasswordBloc>(
             child: null,
-            blocSupplier: () {},
+            blocSupplier: () {
+              return ChangePasswordBloc(
+                uid: routerSettings.arguments as String,
+                userBloc: userBloc,
+                userRepo: userRepo,
+              );
+            },
           );
         },
         settings: routerSettings,

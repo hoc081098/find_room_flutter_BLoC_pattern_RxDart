@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
@@ -9,15 +8,29 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
+// ignore_for_file: close_sinks
+
 class ChangePasswordBloc implements BaseBloc {
+  ///
+  /// Outputs
+  ///
   final Stream<PasswordError> passwordError$;
   final Stream<ChangePasswordMessage> message$;
   final ValueObservable<bool> isLoading$;
 
+  ///
+  /// Inputs
+  ///
   final void Function(String) passwordChanged;
   final void Function() submit;
 
+  ///
+  /// Clean up
+  ///
   final void Function() _dispose;
+
+  @override
+  void dispose() => _dispose();
 
   ChangePasswordBloc._(
     this._dispose, {
@@ -27,9 +40,6 @@ class ChangePasswordBloc implements BaseBloc {
     @required this.isLoading$,
     @required this.message$,
   });
-
-  @override
-  void dispose() => _dispose();
 
   factory ChangePasswordBloc({
     @required String uid,
@@ -44,7 +54,6 @@ class ChangePasswordBloc implements BaseBloc {
     assert(userBloc != null, 'userBloc cannot be null');
     final currentUser = userBloc.currentUser();
     assert(currentUser?.uid == uid, 'User is not logged in or invalid user id');
-
 
     ///
     /// Stream controllers
@@ -106,7 +115,6 @@ class ChangePasswordBloc implements BaseBloc {
             .map((_) => ChangePasswordMessage.invalidInformation()),
       ],
     ).publish();
-
 
     ///
     /// Keep references to dispose later

@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:path/path.dart' as path;
-import 'package:tuple/tuple.dart';
 
 // ignore_for_file: close_sinks
 
@@ -163,10 +162,10 @@ class UpdateUserInfoBloc implements BaseBloc {
     /// Subscriptions & controllers
     ///
     final subscriptions = <StreamSubscription>[
-      avatar$
-          .listen((file) => print('[UPDATE_USER_INFO_BLOC] file=$file')),
+      avatar$.listen((file) => print('[UPDATE_USER_INFO_BLOC] file=$file')),
       message$.listen(
           (message) => print('[UPDATE_USER_INFO_BLOC] message=$message')),
+
       ///
       message$.connect(),
       avatar$.connect(),
