@@ -22,6 +22,7 @@ class S implements WidgetsLocalizations {
   TextDirection get textDirection => TextDirection.ltr;
 
   String get account_exists_with_difference_credential_error => "Account exists with difference credential error";
+  String get active => "Active";
   String get add_or_remove_saved_room_error => "An error occurred. Try again later";
   String get add_saved_room_success => "Added to saved list successfully";
   String get add_to_saved => "Add to saved";
@@ -31,8 +32,11 @@ class S implements WidgetsLocalizations {
   String get change_language => "Change language";
   String get change_language_failure => "Error when chane language";
   String get change_language_success => "Change language successfully";
+  String get change_password => "Change password";
+  String get change_password_successfully => "Change password successfully";
   String get detail_title => "Detail";
   String get edit_profile => "Edit profile";
+  String get email => "Email";
   String get email_already_in_user_error => "The email address is already in use by another account";
   String get empty_address => "Address must be not empty";
   String get empty_rooms => "Empty rooms...";
@@ -45,6 +49,8 @@ class S implements WidgetsLocalizations {
   String get exit_register_message => "Processing register...Are you sure you want to exit?";
   String get exit_send_email => "Exit reset password";
   String get exit_send_email_message => "Processing send email...Are you sure you want to exit?";
+  String get exit_update_password => "Exit update password";
+  String get exit_update_user_info => "Exit update user info";
   String get facebook_login_cancelled_by_user => "Facebook sign in canceled by user";
   String get forgot_password => "Forgot password?";
   String get forgot_password_title => "Forgot password";
@@ -52,10 +58,15 @@ class S implements WidgetsLocalizations {
   String get full_name_at_least_6_characters => "Full name at least 6 characters";
   String get google_sign_in_canceled_error => "Google sign in canceled";
   String get home_page_title => "Home page";
+  String get inactive => "Inactive";
   String get invalid_credential_error => "Invalid credential";
   String get invalid_email_address => "Invalid email address";
   String get invalid_email_error => "The email address is badly formatted";
+  String get invalid_information => "Invalid information";
+  String get invalid_password => "Invalid password";
   String get invalid_phone_number => "Invalid phone number";
+  String get joined_date => "Joined date";
+  String get last_updated => "Last updated";
   String get login_now => "Login now";
   String get login_success => "Login successfully";
   String get login_title => "Login";
@@ -67,11 +78,16 @@ class S implements WidgetsLocalizations {
   String get newest => "Newest";
   String get no => "No";
   String get no_account => "No account?";
+  String get operation_not_allowed => "Operation not allowed";
   String get operation_not_allowed_error => "Operation not allowed";
   String get or_connect_through => "Or connect through";
   String get password => "Password *";
   String get password_at_least_6_characters => "Password at least 6 characters";
+  String get phone => "Phone";
   String get phone_number => "Phone number";
+  String get posted_rooms_ => "Posted rooms:";
+  String get processing_update_infoare_you_sure_you_want_to_exit => "Processing update info...Are you sure you want to exit?";
+  String get processing_update_passwordare_you_sure_you_want_to_exit => "Processing update password...Are you sure you want to exit?";
   String get register => "Register";
   String get register_now => "Register now";
   String get register_success => "Register successfully";
@@ -80,6 +96,7 @@ class S implements WidgetsLocalizations {
   String get remove_saved_room_success => "Remove from saved list successfully";
   String get removed => "Removed";
   String get require_login => "You must be signed in";
+  String get requires_recent_login => "Requires recent login";
   String get saved_list_empty => "Saved list is empty";
   String get saved_rooms_title => "Saved rooms";
   String get see_all => "See all";
@@ -87,17 +104,30 @@ class S implements WidgetsLocalizations {
   String get send_password_reset_email_success => "Send password reset email success";
   String get settings => "Settings";
   String get settings_title => "Settings";
+  String get status => "Status";
+  String get submit_changes => "Submit changes";
   String get sure_want_to_exit_app => "Are you sure you want to exit the application?";
   String get sure_want_to_logout => "Are you sure you want to logout?";
   String get too_many_requests_error => "Too many requests";
+  String get uknown_error => "Unknown error";
+  String get unknown_error => "Unknown error";
+  String get update_successfully => "Update successfully";
+  String get update_user_info => "Update user info";
+  String get user_disabled => "User disabled";
   String get user_disabled_error => "The user account has been disabled by an administrator";
+  String get user_information => "User information";
+  String get user_not_found => "User not found";
   String get user_not_found_error => "There is no user record corresponding to this identifier. The user may have been deleted";
   String get user_profile => "User profile";
+  String get weak_password => "Weak password";
   String get weak_password_error => "The given password is invalid";
   String get wrong_password_error => "The password is invalid or the user does not have a password";
   String change_language_error(String error) => "Error when chane language: $error";
+  String change_password_not_successfully_error_messagetext(String messageText) => "Change password not successfully, error: $messageText";
   String change_province_error(String provinceName) => "Error when change to '$provinceName'";
   String change_province_success(String provinceName) => "Change to '$provinceName' successfully";
+  String created_date(String date) => "Created: $date";
+  String last_updated_date(String date) => "Last updated: $date";
   String remove_saved_room_success_with_title(String title) => "Remove room '$title' from saved list successfully";
 }
 
@@ -112,49 +142,37 @@ class vi extends S {
   @override
   String get cancel => "Hủy";
   @override
-  String get network_error => "Lỗi kết nối mạng";
-  @override
   String get add_or_remove_saved_room_error => "Đã có lỗi xảy ra. Hãy thử lại";
   @override
   String get error_occurred => "Có lỗi xảy ra";
   @override
-  String get login_now => "Đăng nhập ngay";
-  @override
   String get account_exists_with_difference_credential_error => "Tài khoản tồn tại với khác nhau";
   @override
-  String get settings_title => "Cài đặt";
+  String get uknown_error => "Lỗi không rõ";
+  @override
+  String get user_not_found => "Không tìm thấy người dùng";
   @override
   String get password => "Mật khẩu *";
   @override
   String get logout => "Đăng xuất";
   @override
-  String get add_to_saved => "Thêm vào đã lưu";
+  String get inactive => "Không hoạt động";
   @override
-  String get logout_success => "Đăng xuất thành công";
-  @override
-  String get forgot_password_title => "Quên mật khẩu";
-  @override
-  String get operation_not_allowed_error => "Hoạt động không được cho phép";
+  String get processing_update_passwordare_you_sure_you_want_to_exit => "Xử lý mật khẩu cập nhật ... Bạn có chắc chắn muốn thoát?";
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
   @override
-  String get newest => "Mới nhất";
-  @override
-  String get settings => "Cài đặt";
+  String get last_updated => "Cập nhật mới nhất";
   @override
   String get change_language => "Thay đổi ngôn ngữ";
   @override
-  String get wrong_password_error => "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu";
-  @override
   String get empty_address => "Địa chỉ trống";
   @override
-  String get send_email => "Gửi";
+  String get requires_recent_login => "Yêu cầu đăng nhập gần đây";
   @override
-  String get weak_password_error => "Mật khẩu đã cho không hợp lệ";
+  String get active => "Hoạt động";
   @override
   String get login_success => "Đăng nhập thành công";
-  @override
-  String get invalid_email_address => "Sai định dạng email";
   @override
   String get exit => "Thoát";
   @override
@@ -170,27 +188,21 @@ class vi extends S {
   @override
   String get too_many_requests_error => "Quá nhiều request";
   @override
+  String get phone => "Điện thoại";
+  @override
   String get see_all => "Xem tất cả";
-  @override
-  String get phone_number => "SĐT";
-  @override
-  String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
   @override
   String get user_disabled_error => "Tài khoản người dùng đã bị quản trị viên vô hiệu hóa";
   @override
-  String get remove_saved_room_error => "Lỗi khi xóa khỏi danh sách đã lưu";
+  String get submit_changes => "Gửi thay đổi";
   @override
-  String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
+  String get update_successfully => "Cập nhật thành công";
   @override
-  String get no => "Không";
-  @override
-  String get register_success => "Đăng kí thành công";
+  String get status => "Trạng thái";
   @override
   String get mostViewed => "Xem nhiều";
   @override
   String get user_not_found_error => "Không có người dùng nào tương ứng với số nhận dạng này. Người dùng có thể đã bị xóa";
-  @override
-  String get exit_send_email => "Bạn muốn thoát gửi email reset mật khẩu?";
   @override
   String get change_language_success => "Thay đổi ngôn ngữ thành công";
   @override
@@ -198,15 +210,13 @@ class vi extends S {
   @override
   String get user_profile => "Thông tin tài khoản";
   @override
-  String get invalid_email_error => "Địa chỉ email bị định dạng sai";
+  String get unknown_error => "Lỗi không rõ";
   @override
   String get change_language_failure => "Lỗi khi thay đổi ngôn ngữ";
   @override
-  String get login_title => "Đăng nhập";
+  String get user_disabled => "Người dùng bị vô hiệu hóa";
   @override
-  String get exit_login_message => "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?";
-  @override
-  String get edit_profile => "Chỉnh sửa thông tin";
+  String get email => "Email";
   @override
   String get logout_error => "Lỗi xảy ra khi đăng xuất";
   @override
@@ -218,27 +228,13 @@ class vi extends S {
   @override
   String get email_already_in_user_error => "Địa chỉ email đã được một tài khoản khác sử dụng";
   @override
-  String get invalid_credential_error => "Thông tin đăng nhập không hợp lệ";
-  @override
-  String get exit_register => "Bạn muốn thoát đăng kí";
-  @override
-  String get detail_title => "Chi tiết";
-  @override
   String get remove_from_saved => "Xóa khỏi đã lưu";
   @override
-  String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
-  @override
   String get require_login => "Bạn cần phải đăng nhập";
-  @override
-  String get exit_send_email_message => "Đang xử lí gửi email reset mật khẩu... bạn có chắc chắn muốn thoát?";
   @override
   String get facebook_login_cancelled_by_user => "Đăng nhập bằng facebook bị hủy bởi người dùng";
   @override
   String get removed => "Xóa";
-  @override
-  String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
-  @override
-  String get exit_login => "Bạn muốn thoát đăng nhập";
   @override
   String get password_at_least_6_characters => "Mật khẩu ít nhất 6 kí tự";
   @override
@@ -246,23 +242,117 @@ class vi extends S {
   @override
   String get exit_register_message => "Đang xử lí đăng kí... bạn có chắc chắn muốn thoát?";
   @override
+  String get google_sign_in_canceled_error => "Đăng nhập bằng google bị hủy";
+  @override
+  String get register => "Đăng kí";
+  @override
+  String get network_error => "Lỗi kết nối mạng";
+  @override
+  String get login_now => "Đăng nhập ngay";
+  @override
+  String get settings_title => "Cài đặt";
+  @override
+  String get update_user_info => "Cập nhật thông tin người dùng";
+  @override
+  String get change_password => "Thay đổi mật khẩu";
+  @override
+  String get add_to_saved => "Thêm vào đã lưu";
+  @override
+  String get logout_success => "Đăng xuất thành công";
+  @override
+  String get forgot_password_title => "Quên mật khẩu";
+  @override
+  String get operation_not_allowed_error => "Hoạt động không được cho phép";
+  @override
+  String get newest => "Mới nhất";
+  @override
+  String get settings => "Cài đặt";
+  @override
+  String get wrong_password_error => "Mật khẩu không hợp lệ hoặc người dùng không có mật khẩu";
+  @override
+  String get joined_date => "Ngày tham gia";
+  @override
+  String get send_email => "Gửi";
+  @override
+  String get weak_password_error => "Mật khẩu đã cho không hợp lệ";
+  @override
+  String get invalid_email_address => "Sai định dạng email";
+  @override
+  String get processing_update_infoare_you_sure_you_want_to_exit => "Xử lý thông tin cập nhật ... Bạn có chắc chắn muốn thoát?";
+  @override
+  String get invalid_password => "Mật khẩu không hợp lệ";
+  @override
+  String get phone_number => "SĐT";
+  @override
+  String get remove_saved_room_success => "Xóa khỏi danh sách đã lưu thành công";
+  @override
+  String get remove_saved_room_error => "Lỗi khi xóa khỏi danh sách đã lưu";
+  @override
+  String get sure_want_to_logout => "Bạn chắc chắn muốn đăng xuất?";
+  @override
+  String get no => "Không";
+  @override
+  String get register_success => "Đăng kí thành công";
+  @override
+  String get weak_password => "Mật khẩu yếu";
+  @override
+  String get exit_send_email => "Bạn muốn thoát gửi email reset mật khẩu?";
+  @override
+  String get invalid_email_error => "Địa chỉ email bị định dạng sai";
+  @override
+  String get exit_update_password => "Thoát cập nhật mật khẩu";
+  @override
+  String get change_password_successfully => "Thay đổi mật khẩu thành công";
+  @override
+  String get login_title => "Đăng nhập";
+  @override
+  String get exit_login_message => "Đang xử lí đăng nhập... bạn có chắc chắn muốn thoát?";
+  @override
+  String get edit_profile => "Chỉnh sửa thông tin";
+  @override
+  String get operation_not_allowed => "Hoạt động không cho phép";
+  @override
+  String get invalid_credential_error => "Thông tin đăng nhập không hợp lệ";
+  @override
+  String get exit_register => "Bạn muốn thoát đăng kí";
+  @override
+  String get detail_title => "Chi tiết";
+  @override
+  String get add_saved_room_success => "Thêm vào danh sách đã lưu thành công";
+  @override
+  String get exit_send_email_message => "Đang xử lí gửi email reset mật khẩu... bạn có chắc chắn muốn thoát?";
+  @override
+  String get user_information => "Thông tin người dùng";
+  @override
+  String get exit_update_user_info => "Thoát cập nhật thông tin người dùng";
+  @override
+  String get sure_want_to_exit_app => "Bạn chắc chắn muốn thoát khỏi ứng dụng?";
+  @override
+  String get exit_login => "Bạn muốn thoát đăng nhập";
+  @override
+  String get invalid_information => "Thông tin không hợp lệ";
+  @override
+  String get posted_rooms_ => "Phòng đã đăng:";
+  @override
   String get exit_app => "Thoát khỏi ứng dụng";
   @override
   String get invalid_phone_number => "Sai định dạng SĐT";
   @override
   String get forgot_password => "Bạn quên mật khẩu?";
   @override
-  String get google_sign_in_canceled_error => "Đăng nhập bằng google bị hủy";
-  @override
-  String get register => "Đăng kí";
-  @override
   String change_language_error(String error) => "Lỗi khi thay đổi ngôn ngữ: $error";
-  @override
-  String change_province_success(String provinceName) => "Chuyển sang '$provinceName' thành công";
   @override
   String change_province_error(String provinceName) => "Lỗi xảy ra khi chuyển sang '$provinceName'";
   @override
+  String change_province_success(String provinceName) => "Chuyển sang '$provinceName' thành công";
+  @override
+  String change_password_not_successfully_error_messagetext(String messageText) => "Thay đổi mật khẩu không thành công, lỗi: $messageText";
+  @override
+  String last_updated_date(String date) => "Cập nhật mới nhất: $date";
+  @override
   String remove_saved_room_success_with_title(String title) => "Xóa '$title' khỏi danh sách đã lưu thành công";
+  @override
+  String created_date(String date) => "Tạo: $date";
 }
 
 class en extends S {

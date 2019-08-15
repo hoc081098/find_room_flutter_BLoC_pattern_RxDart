@@ -121,7 +121,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                                 splashColor: Colors.white,
                                 onPressed: bloc.submit,
                                 child: Text(
-                                  'Change password',
+                                  S.of(context).change_password,
                                   style: Theme.of(context)
                                       .textTheme
                                       .title
@@ -167,9 +167,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           final s = S.of(context);
 
           return AlertDialog(
-            title: Text('Exit update password'),
+            title: Text(S.of(context).exit_update_password),
             content: Text(
-                'Processing update password...Are you sure you want to exit?'),
+                S.of(context).processing_update_passwordare_you_sure_you_want_to_exit),
             actions: <Widget>[
               FlatButton(
                 child: Text(s.no),
@@ -200,7 +200,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   void _handleMessage(ChangePasswordMessage event) {
     event.continued(
       (_) {
-        _showSnackBar('Change password successfully');
+        _showSnackBar(S.of(context).change_password_successfully);
         Future.delayed(
           const Duration(seconds: 2),
           () => Navigator.pop(context),
@@ -208,17 +208,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       },
       (message) {
         final messageText = message.error.join(
-          (_) => 'Unknown error',
-          (_) => 'Weak password',
-          (_) => 'User disabled',
-          (_) => 'User not found',
-          (_) => 'Requires recent login',
-          (_) => 'Operation not allowed',
+          (_) => S.of(context).unknown_error,
+          (_) => S.of(context).weak_password,
+          (_) => S.of(context).user_disabled,
+          (_) => S.of(context).user_not_found,
+          (_) => S.of(context).requires_recent_login,
+          (_) => S.of(context).operation_not_allowed,
         );
-        _showSnackBar('Change password not successfully, error: $messageText');
+        _showSnackBar(S.of(context).change_password_not_successfully_error_messagetext(messageText));
       },
       (_) {
-        _showSnackBar('Invalid password');
+        _showSnackBar(S.of(context).invalid_password);
       },
     );
   }
@@ -254,7 +254,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
             _obscureText ? Icons.visibility_off : Icons.visibility,
           ),
         ),
-        labelText: 'Password',
+        labelText: S.of(context).password,
         prefixIcon: Padding(
           padding: const EdgeInsetsDirectional.only(end: 8.0),
           child: Icon(Icons.lock),

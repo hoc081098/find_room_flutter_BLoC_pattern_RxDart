@@ -1,3 +1,4 @@
+import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
@@ -81,7 +82,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               if (profile == null) {
                 return Center(
                   child: Text(
-                    'User not found',
+                    S.of(context).user_not_found,
                     style: display1Text30,
                   ),
                 );
@@ -153,14 +154,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             children: <Widget>[
                               ListTile(
                                 leading: const Icon(Icons.info),
-                                title: Text('Update user info'),
+                                title: Text(S.of(context).update_user_info),
                                 onTap: () =>
                                     Navigator.pop(context, '/update_user_info'),
                                 contentPadding: const EdgeInsets.all(12),
                               ),
                               ListTile(
                                 leading: const Icon(Icons.lock),
-                                title: Text('Change password'),
+                                title: Text(S.of(context).change_password),
                                 onTap: () =>
                                     Navigator.pop(context, '/change_password'),
                                 contentPadding: const EdgeInsets.all(12),
@@ -211,6 +212,8 @@ class _ProfileInfoWidget extends StatelessWidget {
           color: Colors.white,
         );
     final accentColor = Theme.of(context).accentColor;
+    final currentLocale =
+        BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -271,12 +274,12 @@ class _ProfileInfoWidget extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 ListTile(
-                  title: Text('User information'),
+                  title: Text(S.of(context).user_information),
                 ),
                 Divider(),
                 ListTile(
                   title: Text(
-                    'Email',
+                    S.of(context).email,
                     style: display1Text16,
                   ),
                   subtitle: Text(profile.email),
@@ -288,7 +291,7 @@ class _ProfileInfoWidget extends StatelessWidget {
                 if (profile.phone != null && profile.phone.isNotEmpty)
                   ListTile(
                     title: Text(
-                      'Phone',
+                      S.of(context).phone,
                       style: display1Text16,
                     ),
                     subtitle: Text(profile.phone),
@@ -300,7 +303,7 @@ class _ProfileInfoWidget extends StatelessWidget {
                 if (profile.address != null && profile.address.isNotEmpty)
                   ListTile(
                     title: Text(
-                      'Address',
+                      S.of(context).address,
                       style: display1Text16,
                     ),
                     subtitle: Text(profile.address),
@@ -311,10 +314,12 @@ class _ProfileInfoWidget extends StatelessWidget {
                   ),
                 ListTile(
                   title: Text(
-                    'Status',
+                    S.of(context).status,
                     style: display1Text16,
                   ),
-                  subtitle: Text(profile.isActive ? 'Active' : 'Inactive'),
+                  subtitle: Text(profile.isActive
+                      ? S.of(context).active
+                      : S.of(context).inactive),
                   leading: Icon(
                     Icons.done,
                     color: profile.isActive
@@ -325,11 +330,11 @@ class _ProfileInfoWidget extends StatelessWidget {
                 if (profile.createdAt != null)
                   ListTile(
                     title: Text(
-                      'Joined date',
+                      S.of(context).joined_date,
                       style: display1Text16,
                     ),
                     subtitle: Text(
-                      DateFormat.yMMMd().format(
+                      DateFormat.yMMMd(currentLocale).format(
                         profile.createdAt,
                       ),
                     ),
@@ -341,11 +346,11 @@ class _ProfileInfoWidget extends StatelessWidget {
                 if (isCurrentUser && profile.updatedAt != null)
                   ListTile(
                     title: Text(
-                      'Last updated',
+                      S.of(context).last_updated,
                       style: display1Text16,
                     ),
                     subtitle: Text(
-                      DateFormat.yMMMd().add_Hms().format(
+                      DateFormat.yMMMd(currentLocale).add_Hms().format(
                             profile.updatedAt,
                           ),
                     ),
@@ -376,7 +381,7 @@ class _ProfileInfoWidget extends StatelessWidget {
                 ],
                 borderRadius: BorderRadius.circular(8)),
             child: Text(
-              'Posted rooms: ',
+              S.of(context).posted_rooms_,
               style: display1Text16.copyWith(color: Colors.white),
             ),
           )
@@ -402,6 +407,8 @@ class _PostedRoomItem extends StatelessWidget {
     final subTitle12 = subTitle14.copyWith(fontSize: 12);
     const factor = 2;
     const factorContent = 1.7;
+    final currentLocale =
+        BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
     return Dismissible(
       child: InkWell(
@@ -469,14 +476,20 @@ class _PostedRoomItem extends StatelessWidget {
                               ),
                         ),
                         Text(
-                          'Created: ${DateFormat.yMMMd().add_Hm().format(item.createdTime)}',
+                          S.of(context).created_date(
+                              DateFormat.yMMMd(currentLocale)
+                                  .add_Hm()
+                                  .format(item.createdTime)),
                           maxLines: 1,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.ellipsis,
                           style: subTitle12,
                         ),
                         Text(
-                          'Last updated: ${DateFormat.yMMMd().add_Hm().format(item.createdTime)}',
+                          S.of(context).last_updated_date(
+                              DateFormat.yMMMd(currentLocale)
+                                  .add_Hm()
+                                  .format(item.createdTime)),
                           maxLines: 1,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.ellipsis,
