@@ -72,20 +72,20 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
     print('[UPDATE_USER_INFO_PAGE] message=$message');
 
     message.fold(
-      onInvalidInformation: () => _showSnackBar('Invalid information'),
+      onInvalidInformation: () => _showSnackBar(S.of(context).invalid_information),
       onUpdateFailure: (UpdateUserInfoError error) {
         final errorText = error.fold(
-          onNetworkError: () => 'Network error',
-          onOperationNotAllowedError: () => 'Operation not allowed error',
-          onTooManyRequestsError: () => 'Too many requests error',
-          onUnknown: () => 'Uknown error',
-          onUserDisable: () => 'User disabled error',
-          onUserNotFound: () => 'User not found error',
+          onNetworkError: () => S.of(context).network_error,
+          onOperationNotAllowedError: () => S.of(context).operation_not_allowed_error,
+          onTooManyRequestsError: () => S.of(context).too_many_requests_error,
+          onUnknown: () => S.of(context).uknown_error,
+          onUserDisable: () => S.of(context).user_disabled_error,
+          onUserNotFound: () => S.of(context).user_not_found_error,
         );
         _showSnackBar(errorText);
       },
       onUpdateSuccess: () {
-        _showSnackBar('Update successfully');
+        _showSnackBar(S.of(context).update_successfully);
         Future.delayed(
           const Duration(seconds: 2),
           () => Navigator.pop(context),
@@ -199,7 +199,7 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
                                 splashColor: Colors.white,
                                 onPressed: bloc.submitChanges,
                                 child: Text(
-                                  'Submit changes',
+                                  S.of(context).submit_changes,
                                   style: Theme.of(context)
                                       .textTheme
                                       .title
@@ -244,9 +244,9 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
           final s = S.of(context);
 
           return AlertDialog(
-            title: Text('Exit update user info'),
+            title: Text(S.of(context).exit_update_user_info),
             content:
-                Text('Processing update info...Are you sure you want to exit?'),
+                Text(S.of(context).processing_update_infoare_you_sure_you_want_to_exit),
             actions: <Widget>[
               FlatButton(
                 child: Text(s.no),

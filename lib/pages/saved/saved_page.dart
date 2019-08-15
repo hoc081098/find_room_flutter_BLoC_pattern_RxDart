@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
+import 'package:find_room/app/app_locale_bloc.dart';
+import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
@@ -247,6 +249,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
     final themeData = Theme.of(context);
     final s = S.of(context);
     final item = widget.roomItem;
+    final currentLocale = BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
     var background = Container(
       child: Padding(
@@ -384,7 +387,9 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        DateFormat.yMMMMd().add_Hms().format(item.savedTime),
+                        DateFormat.yMMMMd(currentLocale)
+                            .add_Hms()
+                            .format(item.savedTime),
                         maxLines: 1,
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.ellipsis,
