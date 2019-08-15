@@ -127,8 +127,9 @@ class S implements WidgetsLocalizations {
   String change_province_error(String provinceName) => "Error when change to '$provinceName'";
   String change_province_success(String provinceName) => "Change to '$provinceName' successfully";
   String created_date(String date) => "Created: $date";
-  String last_updated_date(String date) => "Last updated: $date";
+  String last_updated_date(String date) => "Updated: $date";
   String remove_saved_room_success_with_title(String title) => "Remove room '$title' from saved list successfully";
+  String see_all_(String title) => "See all: $title";
 }
 
 class vi extends S {
@@ -162,7 +163,7 @@ class vi extends S {
   @override
   String get saved_list_empty => "Bạn chưa lưu nhà trọ nào";
   @override
-  String get last_updated => "Cập nhật mới nhất";
+  String get last_updated => "Cập nhật";
   @override
   String get change_language => "Thay đổi ngôn ngữ";
   @override
@@ -348,9 +349,11 @@ class vi extends S {
   @override
   String change_password_not_successfully_error_messagetext(String messageText) => "Thay đổi mật khẩu không thành công, lỗi: $messageText";
   @override
-  String last_updated_date(String date) => "Cập nhật mới nhất: $date";
+  String last_updated_date(String date) => "Cập nhật: $date";
   @override
   String remove_saved_room_success_with_title(String title) => "Xóa '$title' khỏi danh sách đã lưu thành công";
+  @override
+  String see_all_(String title) => "Xem tất cả: $title";
   @override
   String created_date(String date) => "Tạo: $date";
 }

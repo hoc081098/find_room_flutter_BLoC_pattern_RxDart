@@ -249,10 +249,12 @@ class HomeBloc implements BaseBloc {
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
-          roomRepository.newestRooms(
-            selectedProvince: province,
-            limit: _kLimitRoom,
-          ),
+          roomRepository
+              .newestRooms(
+                selectedProvince: province,
+                limit: _kLimitRoom,
+              )
+              .map((tuple) => tuple.item1),
           userBloc.loginState$,
           (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(
@@ -272,10 +274,12 @@ class HomeBloc implements BaseBloc {
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
-          roomRepository.mostViewedRooms(
-            selectedProvince: province,
-            limit: _kLimitRoom,
-          ),
+          roomRepository
+              .mostViewedRooms(
+                selectedProvince: province,
+                limit: _kLimitRoom,
+              )
+              .map((tuple) => tuple.item1),
           userBloc.loginState$,
           (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(

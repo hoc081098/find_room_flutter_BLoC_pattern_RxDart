@@ -27,7 +27,7 @@ dependencies:
   image_picker: ^0.6.0+3
   json_serializable: ^2.3.0 #flutter packages pub run build_runner build
   distinct_value_connectable_observable: ^2.0.1
-  rxdart: ^0.22.0
+  rxdart: ^0.22.1+1
   shared_preferences: ^0.5.2
   flutter_swiper: ^1.1.6
   intl: ^0.15.8

@@ -3,6 +3,7 @@ import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tuple/tuple.dart';
 
 class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   final Firestore _firestore;
@@ -10,9 +11,10 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   const FirestoreRoomRepositoryImpl(this._firestore);
 
   @override
-  Stream<List<RoomEntity>> mostViewedRooms({
+  Stream<Tuple2<List<RoomEntity>, DocumentSnapshot>> mostViewedRooms({
     Province selectedProvince,
     int limit,
+    DocumentSnapshot after,
   }) {
     if (selectedProvince == null) {
       return Observable.error("Selected province id must be not null");
@@ -24,19 +26,26 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     final DocumentReference selectedProvinceRef =
         _firestore.document('provinces/${selectedProvince.id}');
 
-    return _firestore
+    Query query = _firestore
         .collection('motelrooms')
         .where('province', isEqualTo: selectedProvinceRef)
         .where('approve', isEqualTo: true)
         .where('available', isEqualTo: true)
-        .orderBy('updated_at', descending: true)
-        .limit(limit)
-        .snapshots()
-        .map(_toEntities);
+        .orderBy('updated_at', descending: true);
+
+    if (after != null) {
+      query = query.startAfterDocument(after);
+    }
+
+    return query.limit(limit).snapshots().map(_toEntities);
   }
 
   @override
-  Stream<List<RoomEntity>> newestRooms({Province selectedProvince, int limit}) {
+  Stream<Tuple2<List<RoomEntity>, DocumentSnapshot>> newestRooms({
+    Province selectedProvince,
+    int limit,
+    DocumentSnapshot after,
+  }) {
     if (selectedProvince == null) {
       return Observable.error("Selected province id must be not null");
     }
@@ -47,15 +56,18 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     final DocumentReference selectedProvinceRef =
         _firestore.document('provinces/${selectedProvince.id}');
 
-    return _firestore
+    Query query = _firestore
         .collection('motelrooms')
         .where('province', isEqualTo: selectedProvinceRef)
         .where('approve', isEqualTo: true)
         .where('available', isEqualTo: true)
-        .orderBy('count_view', descending: true)
-        .limit(limit)
-        .snapshots()
-        .map(_toEntities);
+        .orderBy('count_view', descending: true);
+
+    if (after != null) {
+      query = query.startAfterDocument(after);
+    }
+
+    return query.limit(limit).snapshots().map(_toEntities);
   }
 
   @override
@@ -118,13 +130,22 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .collection('motelrooms')
         .orderBy('user_ids_saved.$uid', descending: true)
         .snapshots()
-        .map(_toEntities);
+        .map(_toEntities)
+        .map((tuple) => tuple.item1);
   }
 
-  List<RoomEntity> _toEntities(QuerySnapshot querySnapshot) {
-    return querySnapshot.documents.map((documentSnapshot) {
-      return RoomEntity.fromDocumentSnapshot(documentSnapshot);
-    }).toList();
+  Tuple2<List<RoomEntity>, DocumentSnapshot> _toEntities(
+    QuerySnapshot querySnapshot,
+  ) {
+    final rooms = querySnapshot.documents.map(
+      (documentSnapshot) {
+        return RoomEntity.fromDocumentSnapshot(documentSnapshot);
+      },
+    ).toList(growable: false);
+    return Tuple2(
+      rooms,
+      querySnapshot.documents.isEmpty ? null : querySnapshot.documents.last,
+    );
   }
 
   @override
@@ -141,6 +162,6 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .where('approve', isEqualTo: true)
         .orderBy('updated_at', descending: true);
 
-    return query.snapshots().map(_toEntities);
+    return query.snapshots().map(_toEntities).map((tuple) => tuple.item1);
   }
 }
