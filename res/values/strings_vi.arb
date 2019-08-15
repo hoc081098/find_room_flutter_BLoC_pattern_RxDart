@@ -15,6 +15,7 @@
   "no": "Không",
   "exit": "Thoát",
   "settings": "Cài đặt",
+  "see_all_": "Xem tất cả: $title",
   "see_all": "Xem tất cả",
   "add_to_saved": "Thêm vào đã lưu",
   "remove_from_saved": "Xóa khỏi đã lưu",
@@ -103,8 +104,8 @@
   "active": "Hoạt động",
   "inactive": "Không hoạt động",
   "joined_date": "Ngày tham gia",
-  "last_updated": "Cập nhật mới nhất",
+  "last_updated": "Cập nhật",
   "posted_rooms_": "Phòng đã đăng:",
   "created_date": "Tạo: $date",
-  "last_updated_date": "Cập nhật mới nhất: $date"
+  "last_updated_date": "Cập nhật: $date"
 }

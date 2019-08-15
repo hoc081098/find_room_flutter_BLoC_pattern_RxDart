@@ -8,7 +8,9 @@ import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
 import 'package:find_room/pages/home/home_state.dart';
-import 'package:find_room/pages/home/see_all_page.dart';
+import 'package:find_room/pages/home/see_all/see_all_bloc.dart';
+import 'package:find_room/pages/home/see_all/see_all_interactor.dart';
+import 'package:find_room/pages/home/see_all/see_all_page.dart';
 import 'package:find_room/pages/login_register/forgot_password/forgot_password_bloc.dart';
 import 'package:find_room/pages/login_register/forgot_password/forgot_password_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
@@ -22,6 +24,7 @@ import 'package:find_room/pages/user_profile/update_user_info/update_user_info_b
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_page.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
+import 'package:find_room/shared_pref_util.dart';
 import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
@@ -116,8 +119,24 @@ class MyApp extends StatelessWidget {
       return MaterialPageRoute(
         builder: (context) {
           print('[onGenerateRoute] /see_all builder');
-          return SeeAllPage(
-            routerSettings.arguments as SeeAllQuery,
+
+          final injector = Injector.of(context);
+          final interactor = SeeAllInteractor(
+            injector.roomRepository,
+            injector.priceFormat,
+            injector.debug,
+          );
+          final seeAllQuery = routerSettings.arguments as SeeAllQuery;
+
+          return BlocProvider<SeeAllBloc>(
+            child: SeeAllPage(seeAllQuery),
+            blocSupplier: () {
+              return SeeAllBloc(
+                interactor,
+                SharedPrefUtil.instance,
+                seeAllQuery,
+              )..load();
+            },
           );
         },
         settings: routerSettings,

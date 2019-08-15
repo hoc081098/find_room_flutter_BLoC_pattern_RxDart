@@ -8,12 +8,14 @@ class Injector extends InheritedWidget {
   final FirebaseUserRepository userRepository;
   final FirestoreRoomRepository roomRepository;
   final NumberFormat priceFormat;
+  final bool debug;
 
   Injector({
     Key key,
     @required this.userRepository,
     @required this.roomRepository,
     @required this.priceFormat,
+    @required this.debug,
     @required Widget child,
   }) : super(key: key, child: child);
 

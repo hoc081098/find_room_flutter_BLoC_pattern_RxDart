@@ -1,16 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:meta/meta.dart';
+import 'package:tuple/tuple.dart';
 
 abstract class FirestoreRoomRepository {
-  Stream<List<RoomEntity>> newestRooms({
+  Stream<Tuple2<List<RoomEntity>, DocumentSnapshot>> newestRooms({
     @required Province selectedProvince,
     @required int limit,
+    DocumentSnapshot after,
   });
 
-  Stream<List<RoomEntity>> mostViewedRooms({
+  Stream<Tuple2<List<RoomEntity>, DocumentSnapshot>> mostViewedRooms({
     @required Province selectedProvince,
     @required int limit,
+    DocumentSnapshot after,
   });
 
   Future<Map<String, String>> addOrRemoveSavedRoom({

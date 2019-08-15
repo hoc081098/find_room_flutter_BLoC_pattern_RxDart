@@ -59,8 +59,12 @@ Future<void> main() async {
   );
   final localeBloc = LocaleBloc(sharedPrefUtil);
 
+  // change debug/release mode
+  const debug = true;
+
   runApp(
     Injector(
+      debug: debug,
       userRepository: userRepository,
       roomRepository: roomRepository,
       priceFormat: priceFormat,

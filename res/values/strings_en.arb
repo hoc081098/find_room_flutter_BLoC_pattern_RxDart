@@ -15,6 +15,7 @@
   "no": "No",
   "exit": "Exit",
   "settings": "Settings",
+  "see_all_": "See all: $title",
   "see_all": "See all",
   "add_to_saved": "Add to saved",
   "remove_from_saved": "Remove from saved",
@@ -106,5 +107,5 @@
   "last_updated": "Last updated",
   "posted_rooms_": "Posted rooms:",
   "created_date": "Created: $date",
-  "last_updated_date": "Last updated: $date"
+  "last_updated_date": "Updated: $date"
 }
