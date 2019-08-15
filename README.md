@@ -1,4 +1,13 @@
-# find_room
+# find_room_BLoC_RxDart
+
+## Feature
+- BLoC pattern
+- RxDart (Functional Reactive Stream)
+- Firebase + Firestore
+- Login with email, Facebook, Google account
+- Localization by using Flutter i18n plugin (Languages: Vietnamese, English)
+- Build pojo by using json_serializable
+- Hero animation
 
 A starter kit for beginner learns with Bloc pattern, RxDart, Firebase to architect a flutter project
 A Flutter project for learning. In progress...
@@ -48,15 +57,6 @@ samples, guidance on mobile development, and a full API reference.
 - Wave                 (https://pub.dartlang.org/packages/wave)
 - Google sign in       (https://pub.dartlang.org/packages/google_sign_in)
 
-## Feature
-- Bloc Pattern
-- Login with email, facebook, Google account
-- See saved room
-- Loading Network Image
-- Localization by using Flutter i18n plugin
-- Build pojo by using json_serializable
-- Hero animation
-- Show empty View when the list view is empty
 
 ## Install
 
