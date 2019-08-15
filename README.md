@@ -1,4 +1,6 @@
-# find_room_BLoC_RxDart
+# find_room_BLoC_RxDart ![alt text](https://avatars3.githubusercontent.com/u/6407041?s=32&v=4)
+
+## A deep dive into RxDart, BLoC pattern ![alt text](https://avatars3.githubusercontent.com/u/6407041?s=32&v=4)
 
 ## Feature
 - BLoC pattern
@@ -15,7 +17,6 @@ A Flutter project for learning. In progress...
 Support languages **Vietnamese**, **English**, you can refer to **Rxdart** usage, **BLoC** pattern 😁
 Star, fork if it is helful, issues and pull requests are always welcome
 
-## A deep dive into RxDart, BLoC pattern
 
 ## Screenshots
 
