@@ -26,7 +26,6 @@ import 'package:find_room/pages/user_profile/update_user_info/update_user_info_b
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_page.dart';
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
-import 'package:find_room/shared_pref_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rxdart/rxdart.dart';
@@ -133,7 +132,7 @@ class MyApp extends StatelessWidget {
             blocSupplier: () {
               return SeeAllBloc(
                 interactor,
-                SharedPrefUtil.instance,
+                injector.localDataSource,
                 seeAllQuery,
               )..load();
             },

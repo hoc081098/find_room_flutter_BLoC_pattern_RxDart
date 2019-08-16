@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/pages/home/see_all/see_all_interactor.dart';
 import 'package:find_room/pages/home/see_all/see_all_state.dart';
-import 'package:find_room/shared_pref_util.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
@@ -40,11 +40,11 @@ class SeeAllBloc implements BaseBloc {
 
   factory SeeAllBloc(
     SeeAllInteractor seeAllInteractor,
-    SharedPrefUtil _sharedPref,
+    LocalDataSource localData,
     SeeAllQuery seeAllQuery,
   ) {
     assert(seeAllInteractor != null, 'peopleInteractor cannot be null');
-    assert(_sharedPref != null, '_sharedPref cannot be null');
+    assert(localData != null, 'localData cannot be null');
     assert(seeAllQuery != null, 'seeAllQuery cannot be null');
 
     /// Stream controllers
@@ -77,7 +77,7 @@ class SeeAllBloc implements BaseBloc {
     /// Transform actions stream to state stream
     state$ = publishValueSeededDistinct(
       allActions$.withLatestFrom(
-        _sharedPref.selectedProvince$,
+        localData.selectedProvince$,
         (tuple, province) {
           return Tuple5<SeeAllListState, bool, Completer<void>, Province,
               SeeAllQuery>.fromList([

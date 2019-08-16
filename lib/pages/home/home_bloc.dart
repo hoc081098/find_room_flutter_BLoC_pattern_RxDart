@@ -5,6 +5,7 @@ import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository.dart';
+import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/banner_entity.dart';
@@ -12,7 +13,6 @@ import 'package:find_room/models/province.dart';
 import 'package:find_room/models/province_entity.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/home/home_state.dart';
-import 'package:find_room/shared_pref_util.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
@@ -61,7 +61,7 @@ class HomeBloc implements BaseBloc {
     @required FirestoreRoomRepository roomRepository,
     @required FirestoreBannerRepository bannerRepository,
     @required ProvinceDistrictWardRepository provinceDistrictWardRepository,
-    @required SharedPrefUtil sharedPrefUtil,
+    @required LocalDataSource localData,
     @required NumberFormat priceFormat,
   }) {
     ///Assert
@@ -70,7 +70,7 @@ class HomeBloc implements BaseBloc {
     assert(bannerRepository != null, 'bannerRepository cannot be null');
     assert(provinceDistrictWardRepository != null,
         'provinceDistrictWardRepository cannot be null');
-    assert(sharedPrefUtil != null, 'sharedPrefUtil cannot be null');
+    assert(localData != null, 'localData cannot be null');
     assert(priceFormat != null, 'priceFormat cannot be null');
 
     ///Controller
@@ -85,14 +85,14 @@ class HomeBloc implements BaseBloc {
         _getBanners(bannerRepository);
 
     final Observable<List<RoomItem>> mostViewedRooms$ = _getMostViewedRooms(
-      sharedPrefUtil,
+      localData,
       roomRepository,
       authBloc,
       priceFormat,
     );
 
     final Observable<List<RoomItem>> newestRooms$ = _getNewestRooms(
-      sharedPrefUtil,
+      localData,
       roomRepository,
       authBloc,
       priceFormat,
@@ -100,7 +100,7 @@ class HomeBloc implements BaseBloc {
 
     final ValueConnectableObservable<Tuple2<Province, List<Province>>>
         selectedProvinceAndAllProvinces$ = _getSelectedProvinceAndAllProvinces(
-      sharedPrefUtil,
+      localData,
       provinceDistrictWardRepository,
     );
 
@@ -112,8 +112,7 @@ class HomeBloc implements BaseBloc {
           roomRepository,
           [newestRoomsController, mostViewedRoomsController],
         ),
-        _getMessageChangeProvince(
-            changeProvinceController.stream, sharedPrefUtil),
+        _getMessageChangeProvince(changeProvinceController.stream, localData),
       ],
     ).publish();
 
@@ -150,11 +149,10 @@ class HomeBloc implements BaseBloc {
 
   static Observable<ChangeSelectedProvinceMessage> _getMessageChangeProvince(
     Observable<Province> changeProvince$,
-    SharedPrefUtil sharedPrefUtil,
+    LocalDataSource localData,
   ) {
     return changeProvince$.distinct().switchMap((province) {
-      return Observable.fromFuture(
-              sharedPrefUtil.saveSelectedProvince(province))
+      return Observable.fromFuture(localData.saveSelectedProvince(province))
           .map((result) => result
               ? ChangeSelectedProvinceMessageSuccess(province.name)
               : ChangeSelectedProvinceMessageError(province.name))
@@ -165,12 +163,12 @@ class HomeBloc implements BaseBloc {
 
   static ValueConnectableObservable<Tuple2<Province, List<Province>>>
       _getSelectedProvinceAndAllProvinces(
-    SharedPrefUtil sharedPrefUtil,
+    LocalDataSource localData,
     ProvinceDistrictWardRepository provinceDistrictWardRepository,
   ) {
-    var seedValue = sharedPrefUtil.selectedProvince$.value;
+    var seedValue = localData.selectedProvince$.value;
 
-    return sharedPrefUtil.selectedProvince$
+    return localData.selectedProvince$
         .switchMap((province) {
           final convert = (List<ProvinceEntity> provinceEntities) {
             return provinceEntities.map((entity) {
@@ -242,12 +240,12 @@ class HomeBloc implements BaseBloc {
   }
 
   static Observable<List<RoomItem>> _getNewestRooms(
-    SharedPrefUtil sharedPrefUtil,
+    LocalDataSource localData,
     FirestoreRoomRepository roomRepository,
     AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
-    return sharedPrefUtil.selectedProvince$.switchMap((province) {
+    return localData.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
           roomRepository
               .newestRooms(
@@ -267,12 +265,12 @@ class HomeBloc implements BaseBloc {
   }
 
   static Observable<List<RoomItem>> _getMostViewedRooms(
-    SharedPrefUtil sharedPrefUtil,
+    LocalDataSource localData,
     FirestoreRoomRepository roomRepository,
     AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
-    return sharedPrefUtil.selectedProvince$.switchMap((province) {
+    return localData.selectedProvince$.switchMap((province) {
       return Observable.combineLatest2(
           roomRepository
               .mostViewedRooms(

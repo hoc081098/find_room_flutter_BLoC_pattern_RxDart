@@ -1,8 +1,9 @@
+import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/models/province.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPrefUtil {
+class SharedPrefUtil implements LocalDataSource {
   static const _kSelectedProvinceId = 'com.hoc.findroom.selected_province_id';
   static const _kSelectedProvinceName =
       'com.hoc.findroom.selected_province_name';
@@ -17,9 +18,10 @@ class SharedPrefUtil {
 
   final _selectedProvinceController = BehaviorSubject<Province>();
   final _selectedLanguageCodeController = BehaviorSubject<String>();
+  final Future<SharedPreferences> _prefsFuture;
 
-  SharedPrefUtil._() {
-    SharedPreferences.getInstance().then((preferences) {
+  SharedPrefUtil(this._prefsFuture) {
+    _prefsFuture.then((preferences) {
       _loadSelectedProvince(preferences);
       _loadSelectedLanguageCode(preferences);
     });
@@ -41,16 +43,17 @@ class SharedPrefUtil {
     print('[DEBUG] selectedLanguageCode=$selectedLanguageCode');
   }
 
-  static final SharedPrefUtil instance = SharedPrefUtil._();
-
+  @override
   ValueObservable<Province> get selectedProvince$ =>
       _selectedProvinceController.stream;
 
+  @override
   ValueObservable<String> get selectedLanguageCode$ =>
       _selectedLanguageCodeController.stream;
 
+  @override
   Future<bool> saveSelectedProvince(Province province) async {
-    final preferences = await SharedPreferences.getInstance();
+    final preferences = await _prefsFuture;
     final list = await Future.wait([
       preferences.setString(_kSelectedProvinceId, province.id),
       preferences.setString(_kSelectedProvinceName, province.name),
@@ -65,8 +68,9 @@ class SharedPrefUtil {
     return result;
   }
 
+  @override
   Future<bool> saveSelectedLanguageCode(String languageCode) async {
-    final preferences = await SharedPreferences.getInstance();
+    final preferences = await _prefsFuture;
     final result =
         await preferences.setString(_kSelectedLanguageCode, languageCode);
     if (result) {

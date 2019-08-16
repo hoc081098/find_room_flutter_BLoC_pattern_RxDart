@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/shared_pref_util.dart';
+import 'package:find_room/data/local/local_data_source.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
@@ -44,20 +44,20 @@ class LocaleBloc implements BaseBloc {
     this.changeLocaleResult$,
   );
 
-  factory LocaleBloc(SharedPrefUtil sharePrefUtil) {
-    assert(sharePrefUtil != null, 'sharePrefUtil cannot be null');
+  factory LocaleBloc(LocalDataSource localData) {
+    assert(localData != null, 'localData cannot be null');
     final changeLocaleController = PublishSubject<Locale>(sync: true);
 
     final changeLocaleResult$ =
         changeLocaleController.distinct().switchMap((locale) {
       return Observable.defer(() => Stream.fromFuture(
-                sharePrefUtil.saveSelectedLanguageCode(locale.languageCode),
+                localData.saveSelectedLanguageCode(locale.languageCode),
               ))
           .map((result) => Tuple2(result, null))
           .onErrorReturnWith((e) => Tuple2(false, e));
     }).publish();
 
-    final selectedLanguageCode$ = sharePrefUtil.selectedLanguageCode$;
+    final selectedLanguageCode$ = localData.selectedLanguageCode$;
     final selectedLanguageCode = selectedLanguageCode$.value;
     toLocale(String code) => Locale(code, '');
 

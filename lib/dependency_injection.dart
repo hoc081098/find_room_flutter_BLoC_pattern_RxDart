@@ -1,3 +1,4 @@
+import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ class Injector extends InheritedWidget {
   final FirestoreRoomRepository roomRepository;
   final NumberFormat priceFormat;
   final bool debug;
+  final LocalDataSource localDataSource;
 
   Injector({
     Key key,
@@ -16,6 +18,7 @@ class Injector extends InheritedWidget {
     @required this.roomRepository,
     @required this.priceFormat,
     @required this.debug,
+    @required this.localDataSource,
     @required Widget child,
   }) : super(key: key, child: child);
 
@@ -27,5 +30,6 @@ class Injector extends InheritedWidget {
       userRepository != oldWidget.userRepository &&
       roomRepository != oldWidget.roomRepository &&
       priceFormat != oldWidget.priceFormat &&
-      debug != oldWidget.debug;
+      debug != oldWidget.debug &&
+      localDataSource != oldWidget.localDataSource;
 }
