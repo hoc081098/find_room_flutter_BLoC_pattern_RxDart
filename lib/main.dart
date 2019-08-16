@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';
@@ -9,7 +10,6 @@ import 'package:find_room/data/user/firebase_user_repository_imp.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/shared_pref_util.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -48,10 +48,10 @@ Future<void> main() async {
   );
   final sharedPrefUtil = SharedPrefUtil.instance;
 
-  final userBloc = UserBloc(userRepository);
+  final authBloc = AuthBloc(userRepository);
   final homeBloc = HomeBloc(
     sharedPrefUtil: sharedPrefUtil,
-    userBloc: userBloc,
+    authBloc: authBloc,
     roomRepository: roomRepository,
     bannerRepository: bannerRepository,
     provinceDistrictWardRepository: provinceDistrictWardRepository,
@@ -68,8 +68,8 @@ Future<void> main() async {
       userRepository: userRepository,
       roomRepository: roomRepository,
       priceFormat: priceFormat,
-      child: BlocProvider<UserBloc>(
-        blocSupplier: () => userBloc,
+      child: BlocProvider<AuthBloc>(
+        blocSupplier: () => authBloc,
         child: BlocProvider<HomeBloc>(
           blocSupplier: () => homeBloc,
           child: BlocProvider<LocaleBloc>(

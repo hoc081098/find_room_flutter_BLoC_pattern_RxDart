@@ -2,20 +2,20 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:find_room/auth_bloc/user_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_bloc.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UpdateUserInfoPage extends StatefulWidget {
-  final UserBloc userBloc;
+  final AuthBloc authBloc;
 
-  const UpdateUserInfoPage({Key key, @required this.userBloc})
+  const UpdateUserInfoPage({Key key, @required this.authBloc})
       : super(key: key);
 
   @override
@@ -41,7 +41,7 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
     _focusNodePhoneNumber = FocusNode();
     _focusNodeAddress = FocusNode();
 
-    final currentUser = widget.userBloc.currentUser();
+    final currentUser = widget.authBloc.currentUser();
     assert(currentUser != null);
 
     _fullNameController = TextEditingController(text: currentUser.fullName);
@@ -109,7 +109,6 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     final bloc = BlocProvider.of<UpdateUserInfoBloc>(context);
     final paddingTop = MediaQuery.of(context).padding.top;
     final width = MediaQuery.of(context).size.width;
@@ -469,7 +468,7 @@ class _Avatar extends StatelessWidget {
             }
 
             final avatar =
-                BlocProvider.of<UserBloc>(context).currentUser()?.avatar;
+                BlocProvider.of<AuthBloc>(context).currentUser()?.avatar;
             if (avatar != null && avatar.isNotEmpty) {
               return CircleAvatar(
                 radius: 48,

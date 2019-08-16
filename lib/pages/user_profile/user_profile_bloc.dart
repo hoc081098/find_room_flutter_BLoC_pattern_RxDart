@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/models/user_entity.dart';
 import 'package:find_room/pages/user_profile/user_profile_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
@@ -28,7 +28,7 @@ class UserProfileBloc implements BaseBloc {
   void dispose() => _dispose();
 
   factory UserProfileBloc({
-    @required final UserBloc userBloc,
+    @required final AuthBloc authBloc,
     @required final FirebaseUserRepository userRepo,
     @required final FirestoreRoomRepository roomsRepo,
     @required final String uid,
@@ -53,7 +53,7 @@ class UserProfileBloc implements BaseBloc {
 
     final Observable<UserProfileState> userProfile$ = Observable.combineLatest3(
       userRepo.getUserBy(uid: uid),
-      userBloc.loginState$,
+      authBloc.loginState$,
       rooms$,
       (
         UserEntity entity,

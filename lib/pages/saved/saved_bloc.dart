@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
@@ -41,11 +41,11 @@ class SavedBloc implements BaseBloc {
   );
 
   factory SavedBloc({
-    @required UserBloc userBloc,
+    @required AuthBloc authBloc,
     @required FirestoreRoomRepository roomRepository,
     @required NumberFormat priceFormat,
   }) {
-    assert(userBloc != null, 'userBloc cannot be null');
+    assert(authBloc != null, 'authBloc cannot be null');
     assert(roomRepository != null, 'roomRepository cannot be null');
     assert(priceFormat != null, 'priceFormat cannot be null');
 
@@ -53,13 +53,13 @@ class SavedBloc implements BaseBloc {
 
     final removeMessage$ = _getRemovedMessage(
       removeFromSaved,
-      userBloc,
+      authBloc,
       roomRepository,
     );
     final savedListState$ = Observable.combineLatest2<SavedListState,
         RemovedSaveRoomMessage, SavedListState>(
       _getSavedList(
-        userBloc,
+        authBloc,
         roomRepository,
         priceFormat,
       ),
@@ -155,11 +155,11 @@ class SavedBloc implements BaseBloc {
   }
 
   static Observable<SavedListState> _getSavedList(
-    UserBloc userBloc,
+    AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
   ) {
-    return userBloc.loginState$.switchMap((loginState) {
+    return authBloc.loginState$.switchMap((loginState) {
       return _toState(
         loginState,
         roomRepository,
@@ -170,11 +170,11 @@ class SavedBloc implements BaseBloc {
 
   static ConnectableObservable<RemovedSaveRoomMessage> _getRemovedMessage(
     Observable<String> removeFromSaved,
-    UserBloc userBloc,
+    AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
   ) {
     return removeFromSaved.flatMap((roomId) {
-      var loginState = userBloc.loginState$.value;
+      var loginState = authBloc.loginState$.value;
       if (loginState is Unauthenticated) {
         return Observable.just(RemovedSaveRoomMessageError(NotLoginError()));
       }

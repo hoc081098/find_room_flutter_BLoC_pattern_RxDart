@@ -1,6 +1,8 @@
 ﻿import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository.dart';
@@ -11,8 +13,6 @@ import 'package:find_room/models/province_entity.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/home/home_state.dart';
 import 'package:find_room/shared_pref_util.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
@@ -57,7 +57,7 @@ class HomeBloc implements BaseBloc {
   }) : this._dispose = dispose;
 
   factory HomeBloc({
-    @required UserBloc userBloc,
+    @required AuthBloc authBloc,
     @required FirestoreRoomRepository roomRepository,
     @required FirestoreBannerRepository bannerRepository,
     @required ProvinceDistrictWardRepository provinceDistrictWardRepository,
@@ -65,7 +65,7 @@ class HomeBloc implements BaseBloc {
     @required NumberFormat priceFormat,
   }) {
     ///Assert
-    assert(userBloc != null, 'userBloc cannot be null');
+    assert(authBloc != null, 'authBloc cannot be null');
     assert(roomRepository != null, 'roomRepository cannot be null');
     assert(bannerRepository != null, 'bannerRepository cannot be null');
     assert(provinceDistrictWardRepository != null,
@@ -87,14 +87,14 @@ class HomeBloc implements BaseBloc {
     final Observable<List<RoomItem>> mostViewedRooms$ = _getMostViewedRooms(
       sharedPrefUtil,
       roomRepository,
-      userBloc,
+      authBloc,
       priceFormat,
     );
 
     final Observable<List<RoomItem>> newestRooms$ = _getNewestRooms(
       sharedPrefUtil,
       roomRepository,
-      userBloc,
+      authBloc,
       priceFormat,
     );
 
@@ -108,7 +108,7 @@ class HomeBloc implements BaseBloc {
       <Stream<HomeMessage>>[
         _getMessageAddOrRemoveSavedRoom(
           addOrRemoveSavedController,
-          userBloc,
+          authBloc,
           roomRepository,
           [newestRoomsController, mostViewedRoomsController],
         ),
@@ -222,14 +222,14 @@ class HomeBloc implements BaseBloc {
 
   static Observable<AddOrRemovedSavedMessage> _getMessageAddOrRemoveSavedRoom(
     Observable<String> addOrRemoveSaved$,
-    UserBloc userBloc,
+    AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
     List<BehaviorSubject<List<RoomItem>>> subjects,
   ) {
     return addOrRemoveSaved$
         .throttleTime(const Duration(milliseconds: 500))
         .withLatestFrom(
-          userBloc.loginState$,
+          authBloc.loginState$,
           (roomId, LoginState userLoginState) => Tuple2(roomId, userLoginState),
         )
         .flatMap(
@@ -244,7 +244,7 @@ class HomeBloc implements BaseBloc {
   static Observable<List<RoomItem>> _getNewestRooms(
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
-    UserBloc userBloc,
+    AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
@@ -255,7 +255,7 @@ class HomeBloc implements BaseBloc {
                 limit: _kLimitRoom,
               )
               .map((tuple) => tuple.item1),
-          userBloc.loginState$,
+          authBloc.loginState$,
           (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(
                 entities,
@@ -269,7 +269,7 @@ class HomeBloc implements BaseBloc {
   static Observable<List<RoomItem>> _getMostViewedRooms(
     SharedPrefUtil sharedPrefUtil,
     FirestoreRoomRepository roomRepository,
-    UserBloc userBloc,
+    AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
     return sharedPrefUtil.selectedProvince$.switchMap((province) {
@@ -280,7 +280,7 @@ class HomeBloc implements BaseBloc {
                 limit: _kLimitRoom,
               )
               .map((tuple) => tuple.item1),
-          userBloc.loginState$,
+          authBloc.loginState$,
           (List<RoomEntity> entities, LoginState loginState) =>
               HomeBloc._toRoomItems(
                 entities,

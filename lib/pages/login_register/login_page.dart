@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:find_room/app/app.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/login_register/email_login_bloc.dart';
 import 'package:find_room/pages/login_register/facebook_sign_in_bloc.dart';
 import 'package:find_room/pages/login_register/google_sign_in_bloc.dart';
 import 'package:find_room/pages/login_register/login_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:wave/config.dart';
@@ -17,12 +17,12 @@ import 'package:wave/wave.dart';
 class LoginPage extends StatefulWidget {
   final FirebaseUserRepository userRepository;
 
-  final UserBloc userBloc;
+  final AuthBloc authBloc;
 
   const LoginPage({
     Key key,
     @required this.userRepository,
-    @required this.userBloc,
+    @required this.authBloc,
   }) : super(key: key);
 
   @override
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         _emailLoginBloc.message$,
         _googleSignInBloc.message$,
         _facebookLoginBloc.message$,
-        widget.userBloc.loginState$
+        widget.authBloc.loginState$
             .where((state) => state is LoggedInUser)
             .map((_) => const LoginMessageSuccess()),
       ]).listen(_showLoginMessage),

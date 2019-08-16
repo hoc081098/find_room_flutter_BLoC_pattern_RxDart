@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:find_room/auth_bloc/user_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/user_profile/change_password/change_password_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
@@ -44,15 +44,15 @@ class ChangePasswordBloc implements BaseBloc {
   factory ChangePasswordBloc({
     @required String uid,
     @required FirebaseUserRepository userRepo,
-    @required UserBloc userBloc,
+    @required AuthBloc authBloc,
   }) {
     ///
     /// Asserts
     ///
     assert(uid != null, 'uid cannot be null');
     assert(userRepo != null, 'userRepo cannot be null');
-    assert(userBloc != null, 'userBloc cannot be null');
-    final currentUser = userBloc.currentUser();
+    assert(authBloc != null, 'authBloc cannot be null');
+    final currentUser = authBloc.currentUser();
     assert(currentUser?.uid == uid, 'User is not logged in or invalid user id');
 
     ///

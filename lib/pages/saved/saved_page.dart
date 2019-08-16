@@ -4,22 +4,22 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class SavedPage extends StatefulWidget {
-  final UserBloc userBloc;
+  final AuthBloc authBloc;
   final SavedBloc Function() initSavedBloc;
 
   const SavedPage({
     Key key,
-    @required this.userBloc,
+    @required this.authBloc,
     @required this.initSavedBloc,
   }) : super(key: key);
 
@@ -36,7 +36,7 @@ class _SavedPageState extends State<SavedPage> {
 
     _savedBloc = widget.initSavedBloc();
     _subscriptions = [
-      widget.userBloc.loginState$
+      widget.authBloc.loginState$
           .where((state) => state is Unauthenticated)
           .listen((_) => Navigator.popUntil(context, ModalRoute.withName('/'))),
       _savedBloc.removeMessage$.listen(_showMessageResult),

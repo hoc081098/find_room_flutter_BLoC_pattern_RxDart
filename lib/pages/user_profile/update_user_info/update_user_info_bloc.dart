@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:path/path.dart' as path;
+import 'package:rxdart/rxdart.dart';
 
 // ignore_for_file: close_sinks
 
@@ -59,7 +59,7 @@ class UpdateUserInfoBloc implements BaseBloc {
   factory UpdateUserInfoBloc({
     @required String uid,
     @required FirebaseUserRepository userRepo,
-    @required UserBloc userBloc,
+    @required AuthBloc authBloc,
   }) {
     print('[UPDATE_USER_INFO_BLOC] { init }');
 
@@ -68,8 +68,8 @@ class UpdateUserInfoBloc implements BaseBloc {
     ///
     assert(uid != null, 'uid cannot be null');
     assert(userRepo != null, 'userRepo cannot be null');
-    assert(userBloc != null, 'userBloc cannot be null');
-    final currentUser = userBloc.currentUser();
+    assert(authBloc != null, 'authBloc cannot be null');
+    final currentUser = authBloc.currentUser();
     assert(currentUser?.uid == uid, 'User is not logged in or invalid user id');
 
     ///

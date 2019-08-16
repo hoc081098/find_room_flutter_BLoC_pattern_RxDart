@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:find_room/app/app_locale_bloc.dart';
+import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
@@ -25,8 +27,6 @@ import 'package:find_room/pages/user_profile/update_user_info/update_user_info_p
 import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:find_room/shared_pref_util.dart';
-import 'package:find_room/user_bloc/user_bloc.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rxdart/rxdart.dart';
@@ -57,12 +57,12 @@ class MyApp extends StatelessWidget {
       return SavedPage(
         initSavedBloc: () {
           return SavedBloc(
-            userBloc: BlocProvider.of<UserBloc>(context),
+            authBloc: BlocProvider.of<AuthBloc>(context),
             roomRepository: Injector.of(context).roomRepository,
             priceFormat: Injector.of(context).priceFormat,
           );
         },
-        userBloc: BlocProvider.of<UserBloc>(context),
+        authBloc: BlocProvider.of<AuthBloc>(context),
       );
     },
     '/room_detail': (context) {
@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
     },
     '/login': (context) {
       return LoginPage(
-        userBloc: BlocProvider.of<UserBloc>(context),
+        authBloc: BlocProvider.of<AuthBloc>(context),
         userRepository: Injector.of(context).userRepository,
       );
     },
@@ -104,7 +104,7 @@ class MyApp extends StatelessWidget {
                 priceFormat: injector.priceFormat,
                 roomsRepo: injector.roomRepository,
                 uid: routerSettings.arguments as String,
-                userBloc: BlocProvider.of<UserBloc>(context),
+                authBloc: BlocProvider.of<AuthBloc>(context),
                 userRepo: injector.userRepository,
               );
             },
@@ -149,16 +149,16 @@ class MyApp extends StatelessWidget {
           print('[onGenerateRoute] /update_user_info builder');
 
           final userRepo = Injector.of(context).userRepository;
-          final userBloc = BlocProvider.of<UserBloc>(context);
+          final authBloc = BlocProvider.of<AuthBloc>(context);
 
           return BlocProvider<UpdateUserInfoBloc>(
             child: UpdateUserInfoPage(
-              userBloc: userBloc,
+              authBloc: authBloc,
             ),
             blocSupplier: () {
               return UpdateUserInfoBloc(
                 uid: routerSettings.arguments as String,
-                userBloc: userBloc,
+                authBloc: authBloc,
                 userRepo: userRepo,
               );
             },
@@ -174,14 +174,14 @@ class MyApp extends StatelessWidget {
           print('[onGenerateRoute] /change_password builder');
 
           final userRepo = Injector.of(context).userRepository;
-          final userBloc = BlocProvider.of<UserBloc>(context);
+          final authBloc = BlocProvider.of<AuthBloc>(context);
 
           return BlocProvider<ChangePasswordBloc>(
             child: const ChangePasswordPage(),
             blocSupplier: () {
               return ChangePasswordBloc(
                 uid: routerSettings.arguments as String,
-                userBloc: userBloc,
+                authBloc: authBloc,
                 userRepo: userRepo,
               );
             },
@@ -233,7 +233,7 @@ class MyApp extends StatelessWidget {
               ),
               body: BodyChild(
                 child: child,
-                userBloc: BlocProvider.of<UserBloc>(context),
+                authBloc: BlocProvider.of<AuthBloc>(context),
               ),
             );
           },
@@ -248,11 +248,11 @@ class MyApp extends StatelessWidget {
 
 class BodyChild extends StatefulWidget {
   final Widget child;
-  final UserBloc userBloc;
+  final AuthBloc authBloc;
 
   const BodyChild({
     @required this.child,
-    @required this.userBloc,
+    @required this.authBloc,
     Key key,
   }) : super(key: key);
 
@@ -268,7 +268,7 @@ class _BodyChildState extends State<BodyChild> {
     super.initState();
     print('[DEBUG] _BodyChildState initState');
 
-    _subscription = widget.userBloc.message$.listen((message) {
+    _subscription = widget.authBloc.message$.listen((message) {
       var s = S.of(context);
       if (message is UserLogoutMessage) {
         if (message is UserLogoutMessageSuccess) {
@@ -345,8 +345,8 @@ class DrawerUserHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final ValueObservable<LoginState> loginState$ = authBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
@@ -409,8 +409,8 @@ class DrawerSavedListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-    final ValueObservable<LoginState> loginState$ = userBloc.loginState$;
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final ValueObservable<LoginState> loginState$ = authBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
@@ -456,12 +456,12 @@ class DrawerLoginLogoutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
+    final authBloc = BlocProvider.of<AuthBloc>(context);
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
-      stream: userBloc.loginState$,
-      initialData: userBloc.loginState$.value,
+      stream: authBloc.loginState$,
+      initialData: authBloc.loginState$.value,
       builder: (context, snapshot) {
         final loginState = snapshot.data;
 
@@ -506,7 +506,7 @@ class DrawerLoginLogoutTile extends StatelessWidget {
               );
 
               if (signOut ?? false) {
-                userBloc.signOut.add(null);
+                authBloc.signOut.add(null);
               }
             },
             leading: const Icon(Icons.exit_to_app),
@@ -529,12 +529,12 @@ class DrawerUserProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
+    final authBloc = BlocProvider.of<AuthBloc>(context);
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
-      stream: userBloc.loginState$,
-      initialData: userBloc.loginState$.value,
+      stream: authBloc.loginState$,
+      initialData: authBloc.loginState$.value,
       builder: (context, snapshot) {
         final loginState = snapshot.data;
 

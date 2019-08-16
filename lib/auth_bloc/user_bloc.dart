@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/models/user_entity.dart';
-import 'package:find_room/user_bloc/user_login_state.dart';
 import 'package:rxdart/rxdart.dart';
 
-class UserBloc implements BaseBloc {
+class AuthBloc implements BaseBloc {
   ///
   /// Sinks
   ///
@@ -26,7 +26,7 @@ class UserBloc implements BaseBloc {
   ///Cleanup
   final void Function() _dispose;
 
-  factory UserBloc(FirebaseUserRepository userRepository) {
+  factory AuthBloc(FirebaseUserRepository userRepository) {
     final signOutController = PublishSubject<void>(sync: true);
 
     final user$ = Observable(userRepository.user())
@@ -46,7 +46,7 @@ class UserBloc implements BaseBloc {
       signOutMessage$.connect(),
     ];
 
-    return UserBloc._(
+    return AuthBloc._(
       () {
         signOutController.close();
         subscriptions.forEach((subscription) => subscription.cancel());
@@ -63,7 +63,7 @@ class UserBloc implements BaseBloc {
     );
   }
 
-  UserBloc._(
+  AuthBloc._(
     this._dispose,
     this.loginState$,
     this.signOut,
