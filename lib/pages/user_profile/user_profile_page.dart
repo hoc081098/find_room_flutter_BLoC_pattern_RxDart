@@ -410,130 +410,125 @@ class _PostedRoomItem extends StatelessWidget {
     final currentLocale =
         BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
-    return Dismissible(
-      child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/room_detail',
-          );
-        },
-        child: Container(
-          constraints: BoxConstraints.expand(height: 96.0 * factor),
-          margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Stack(
-            children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/room_detail',
+        );
+      },
+      child: Container(
+        constraints: BoxConstraints.expand(height: 96.0 * factor),
+        margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                constraints: BoxConstraints.expand(
+                  height: 96 * factorContent,
+                ),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
+                ),
                 child: Container(
-                  constraints: BoxConstraints.expand(
-                    height: 96 * factorContent,
+                  margin: const EdgeInsets.only(right: 64.0 * factor),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Text(
+                        item.title,
+                        maxLines: 2,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.title.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      Text(
+                        '${item.districtName} - ${item.address}',
+                        maxLines: 2,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.ellipsis,
+                        style: subTitle14,
+                      ),
+                      Text(
+                        item.price,
+                        maxLines: 1,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.subtitle.copyWith(
+                              fontSize: 15,
+                              color: Theme.of(context).accentColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      Text(
+                        S.of(context).created_date(
+                            DateFormat.yMMMd(currentLocale)
+                                .add_Hm()
+                                .format(item.createdTime)),
+                        maxLines: 1,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.ellipsis,
+                        style: subTitle12,
+                      ),
+                      Text(
+                        S.of(context).last_updated_date(
+                            DateFormat.yMMMd(currentLocale)
+                                .add_Hm()
+                                .format(item.createdTime)),
+                        maxLines: 1,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.ellipsis,
+                        style: subTitle12,
+                      ),
+                    ],
                   ),
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black38,
+                      blurRadius: 10,
+                      offset: Offset(4, 4),
+                    )
+                  ],
+                ),
+                child: Hero(
+                  tag: item.id,
+                  child: ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(3, 3),
-                      ),
-                    ],
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 64.0 * factor),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Text(
-                          item.title,
-                          maxLines: 2,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.title.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        Text(
-                          '${item.districtName} - ${item.address}',
-                          maxLines: 2,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          style: subTitle14,
-                        ),
-                        Text(
-                          item.price,
-                          maxLines: 1,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.subtitle.copyWith(
-                                fontSize: 15,
-                                color: Theme.of(context).accentColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        Text(
-                          S.of(context).created_date(
-                              DateFormat.yMMMd(currentLocale)
-                                  .add_Hm()
-                                  .format(item.createdTime)),
-                          maxLines: 1,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          style: subTitle12,
-                        ),
-                        Text(
-                          S.of(context).last_updated_date(
-                              DateFormat.yMMMd(currentLocale)
-                                  .add_Hm()
-                                  .format(item.createdTime)),
-                          maxLines: 1,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          style: subTitle12,
-                        ),
-                      ],
+                    child: FadeInImage.assetNetwork(
+                      image: item.image ?? '',
+                      width: 64.0 * factor,
+                      height: 96.0 * factor,
+                      fit: BoxFit.cover,
+                      placeholder: 'assets/images/home_appbar_image.jpg',
                     ),
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black38,
-                        blurRadius: 10,
-                        offset: Offset(4, 4),
-                      )
-                    ],
-                  ),
-                  child: Hero(
-                    tag: item.id,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                      child: FadeInImage.assetNetwork(
-                        image: item.image,
-                        width: 64.0 * factor,
-                        height: 96.0 * factor,
-                        fit: BoxFit.cover,
-                        placeholder: 'assets/images/home_appbar_image.jpg',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      direction: DismissDirection.horizontal,
-      onDismissed: (_) {},
-      key: ValueKey(item.id),
     );
   }
 }

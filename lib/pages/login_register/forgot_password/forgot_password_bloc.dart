@@ -82,10 +82,10 @@ class ForgotPasswordBloc implements BaseBloc {
           .doOnEach((error) => print('error=$error'))
           .exhaustMap(
             (email) => performSendEmail(
-                  email,
-                  userRepo,
-                  isLoadingSubject,
-                ),
+              email,
+              userRepo,
+              isLoadingSubject,
+            ),
           ),
     ]).publish();
 

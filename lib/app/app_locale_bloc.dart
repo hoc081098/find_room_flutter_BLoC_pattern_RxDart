@@ -63,7 +63,8 @@ class LocaleBloc implements BaseBloc {
 
     final locale$ = publishValueSeededDistinct(
       selectedLanguageCode$.map(toLocale),
-      seedValue: selectedLanguageCode == null ? null : toLocale(selectedLanguageCode),
+      seedValue:
+          selectedLanguageCode == null ? null : toLocale(selectedLanguageCode),
     );
 
     final subscriptions = [

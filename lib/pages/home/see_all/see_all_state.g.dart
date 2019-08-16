@@ -112,35 +112,51 @@ class SeeAllRoomItemBuilder
   _$SeeAllRoomItem _$v;
 
   String _id;
+
   String get id => _$this._id;
+
   set id(String id) => _$this._id = id;
 
   String _title;
+
   String get title => _$this._title;
+
   set title(String title) => _$this._title = title;
 
   String _price;
+
   String get price => _$this._price;
+
   set price(String price) => _$this._price = price;
 
   String _address;
+
   String get address => _$this._address;
+
   set address(String address) => _$this._address = address;
 
   String _districtName;
+
   String get districtName => _$this._districtName;
+
   set districtName(String districtName) => _$this._districtName = districtName;
 
   String _image;
+
   String get image => _$this._image;
+
   set image(String image) => _$this._image = image;
 
   DateTime _createdTime;
+
   DateTime get createdTime => _$this._createdTime;
+
   set createdTime(DateTime createdTime) => _$this._createdTime = createdTime;
 
   DateTime _updatedTime;
+
   DateTime get updatedTime => _$this._updatedTime;
+
   set updatedTime(DateTime updatedTime) => _$this._updatedTime = updatedTime;
 
   SeeAllRoomItemBuilder();
@@ -269,24 +285,34 @@ class SeeAllListStateBuilder
   _$SeeAllListState _$v;
 
   ListBuilder<SeeAllRoomItem> _rooms;
+
   ListBuilder<SeeAllRoomItem> get rooms =>
       _$this._rooms ??= new ListBuilder<SeeAllRoomItem>();
+
   set rooms(ListBuilder<SeeAllRoomItem> rooms) => _$this._rooms = rooms;
 
   bool _isLoading;
+
   bool get isLoading => _$this._isLoading;
+
   set isLoading(bool isLoading) => _$this._isLoading = isLoading;
 
   bool _getAll;
+
   bool get getAll => _$this._getAll;
+
   set getAll(bool getAll) => _$this._getAll = getAll;
 
   SeeAllError _error;
+
   SeeAllError get error => _$this._error;
+
   set error(SeeAllError error) => _$this._error = error;
 
   DocumentSnapshot _lastDocumentSnapshot;
+
   DocumentSnapshot get lastDocumentSnapshot => _$this._lastDocumentSnapshot;
+
   set lastDocumentSnapshot(DocumentSnapshot lastDocumentSnapshot) =>
       _$this._lastDocumentSnapshot = lastDocumentSnapshot;
 

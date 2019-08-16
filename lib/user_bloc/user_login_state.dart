@@ -31,8 +31,8 @@ class LoggedInUser implements LoginState {
   @override
   String toString() =>
       'LoggedInUser{uid: $uid, email: $email, phone: $phone, fullName: $fullName,'
-          ' address: $address, avatar: $avatar, isActive: $isActive, createdAt: $createdAt,'
-          ' updatedAt: $updatedAt}';
+      ' address: $address, avatar: $avatar, isActive: $isActive, createdAt: $createdAt,'
+      ' updatedAt: $updatedAt}';
 
   @override
   bool operator ==(Object other) =>

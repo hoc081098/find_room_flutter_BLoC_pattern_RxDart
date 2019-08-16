@@ -249,7 +249,8 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
     final themeData = Theme.of(context);
     final s = S.of(context);
     final item = widget.roomItem;
-    final currentLocale = BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
+    final currentLocale =
+        BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
     var background = Container(
       child: Padding(

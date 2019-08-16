@@ -73,6 +73,7 @@ class _ChangeSuccess {
 
 class _ChangeFailure {
   final ChangePasswordError error;
+
   const _ChangeFailure(this.error);
 }
 

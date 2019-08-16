@@ -168,8 +168,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
           return AlertDialog(
             title: Text(S.of(context).exit_update_password),
-            content: Text(
-                S.of(context).processing_update_passwordare_you_sure_you_want_to_exit),
+            content: Text(S
+                .of(context)
+                .processing_update_passwordare_you_sure_you_want_to_exit),
             actions: <Widget>[
               FlatButton(
                 child: Text(s.no),
@@ -215,7 +216,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           (_) => S.of(context).requires_recent_login,
           (_) => S.of(context).operation_not_allowed,
         );
-        _showSnackBar(S.of(context).change_password_not_successfully_error_messagetext(messageText));
+        _showSnackBar(S
+            .of(context)
+            .change_password_not_successfully_error_messagetext(messageText));
       },
       (_) {
         _showSnackBar(S.of(context).invalid_password);

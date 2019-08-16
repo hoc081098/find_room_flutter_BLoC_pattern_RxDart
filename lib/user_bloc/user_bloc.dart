@@ -17,6 +17,7 @@ class UserBloc implements BaseBloc {
   ///
   final ValueObservable<LoginState> loginState$;
   final Stream<UserMessage> message$;
+
   ///
   /// Return current user [LoggedInUser] if logged in, otherwise return null
   ///
