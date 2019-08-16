@@ -72,11 +72,13 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
     print('[UPDATE_USER_INFO_PAGE] message=$message');
 
     message.fold(
-      onInvalidInformation: () => _showSnackBar(S.of(context).invalid_information),
+      onInvalidInformation: () =>
+          _showSnackBar(S.of(context).invalid_information),
       onUpdateFailure: (UpdateUserInfoError error) {
         final errorText = error.fold(
           onNetworkError: () => S.of(context).network_error,
-          onOperationNotAllowedError: () => S.of(context).operation_not_allowed_error,
+          onOperationNotAllowedError: () =>
+              S.of(context).operation_not_allowed_error,
           onTooManyRequestsError: () => S.of(context).too_many_requests_error,
           onUnknown: () => S.of(context).uknown_error,
           onUserDisable: () => S.of(context).user_disabled_error,
@@ -245,8 +247,9 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
 
           return AlertDialog(
             title: Text(S.of(context).exit_update_user_info),
-            content:
-                Text(S.of(context).processing_update_infoare_you_sure_you_want_to_exit),
+            content: Text(S
+                .of(context)
+                .processing_update_infoare_you_sure_you_want_to_exit),
             actions: <Widget>[
               FlatButton(
                 child: Text(s.no),

@@ -306,7 +306,7 @@ class _SeeAllRoomItemState extends State<_SeeAllRoomItem>
                     child: FadeInImage.assetNetwork(
                       width: 64.0 * 1.6,
                       height: 96.0 * 1.6,
-                      image: item.image,
+                      image: item.image ?? '',
                       fit: BoxFit.cover,
                       placeholder: 'assets/images/home_appbar_image.jpg',
                     ),

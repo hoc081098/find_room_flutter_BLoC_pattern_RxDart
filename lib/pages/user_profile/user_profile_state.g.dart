@@ -66,18 +66,24 @@ class UserProfileStateBuilder
   _$UserProfileState _$v;
 
   UserProfileBuilder _profile;
+
   UserProfileBuilder get profile =>
       _$this._profile ??= new UserProfileBuilder();
+
   set profile(UserProfileBuilder profile) => _$this._profile = profile;
 
   bool _isCurrentUser;
+
   bool get isCurrentUser => _$this._isCurrentUser;
+
   set isCurrentUser(bool isCurrentUser) =>
       _$this._isCurrentUser = isCurrentUser;
 
   ListBuilder<UserProfileRoomItem> _postedRooms;
+
   ListBuilder<UserProfileRoomItem> get postedRooms =>
       _$this._postedRooms ??= new ListBuilder<UserProfileRoomItem>();
+
   set postedRooms(ListBuilder<UserProfileRoomItem> postedRooms) =>
       _$this._postedRooms = postedRooms;
 
@@ -242,39 +248,57 @@ class UserProfileBuilder implements Builder<UserProfile, UserProfileBuilder> {
   _$UserProfile _$v;
 
   String _uid;
+
   String get uid => _$this._uid;
+
   set uid(String uid) => _$this._uid = uid;
 
   String _avatar;
+
   String get avatar => _$this._avatar;
+
   set avatar(String avatar) => _$this._avatar = avatar;
 
   String _fullName;
+
   String get fullName => _$this._fullName;
+
   set fullName(String fullName) => _$this._fullName = fullName;
 
   String _email;
+
   String get email => _$this._email;
+
   set email(String email) => _$this._email = email;
 
   String _phone;
+
   String get phone => _$this._phone;
+
   set phone(String phone) => _$this._phone = phone;
 
   String _address;
+
   String get address => _$this._address;
+
   set address(String address) => _$this._address = address;
 
   bool _isActive;
+
   bool get isActive => _$this._isActive;
+
   set isActive(bool isActive) => _$this._isActive = isActive;
 
   DateTime _createdAt;
+
   DateTime get createdAt => _$this._createdAt;
+
   set createdAt(DateTime createdAt) => _$this._createdAt = createdAt;
 
   DateTime _updatedAt;
+
   DateTime get updatedAt => _$this._updatedAt;
+
   set updatedAt(DateTime updatedAt) => _$this._updatedAt = updatedAt;
 
   UserProfileBuilder();
@@ -437,35 +461,51 @@ class UserProfileRoomItemBuilder
   _$UserProfileRoomItem _$v;
 
   String _id;
+
   String get id => _$this._id;
+
   set id(String id) => _$this._id = id;
 
   String _title;
+
   String get title => _$this._title;
+
   set title(String title) => _$this._title = title;
 
   String _price;
+
   String get price => _$this._price;
+
   set price(String price) => _$this._price = price;
 
   String _address;
+
   String get address => _$this._address;
+
   set address(String address) => _$this._address = address;
 
   String _districtName;
+
   String get districtName => _$this._districtName;
+
   set districtName(String districtName) => _$this._districtName = districtName;
 
   String _image;
+
   String get image => _$this._image;
+
   set image(String image) => _$this._image = image;
 
   DateTime _createdTime;
+
   DateTime get createdTime => _$this._createdTime;
+
   set createdTime(DateTime createdTime) => _$this._createdTime = createdTime;
 
   DateTime _updatedTime;
+
   DateTime get updatedTime => _$this._updatedTime;
+
   set updatedTime(DateTime updatedTime) => _$this._updatedTime = updatedTime;
 
   UserProfileRoomItemBuilder();

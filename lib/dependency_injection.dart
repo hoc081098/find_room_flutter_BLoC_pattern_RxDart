@@ -26,5 +26,6 @@ class Injector extends InheritedWidget {
   bool updateShouldNotify(Injector oldWidget) =>
       userRepository != oldWidget.userRepository &&
       roomRepository != oldWidget.roomRepository &&
-      priceFormat != oldWidget.priceFormat;
+      priceFormat != oldWidget.priceFormat &&
+      debug != oldWidget.debug;
 }

@@ -9,7 +9,7 @@ abstract class SavedMessage {
   const SavedMessage();
 }
 
-abstract class RemovedSaveRoomMessage implements SavedMessage{
+abstract class RemovedSaveRoomMessage implements SavedMessage {
   const RemovedSaveRoomMessage();
 }
 

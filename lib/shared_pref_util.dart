@@ -35,7 +35,8 @@ class SharedPrefUtil {
   }
 
   void _loadSelectedLanguageCode(SharedPreferences preferences) {
-    final selectedLanguageCode = preferences.getString(_kSelectedLanguageCode) ?? _kEnglishCode;
+    final selectedLanguageCode =
+        preferences.getString(_kSelectedLanguageCode) ?? _kEnglishCode;
     _selectedLanguageCodeController.add(selectedLanguageCode);
     print('[DEBUG] selectedLanguageCode=$selectedLanguageCode');
   }

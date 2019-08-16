@@ -43,7 +43,7 @@ class UserProfileBloc implements BaseBloc {
           ..title = r.title
           ..address = r.address
           ..districtName = r.districtName
-          ..image = r.images.first
+          ..image = r.images.isEmpty ? null : r.images.first
           ..price = priceFormat.format(r.price)
           ..createdTime = r.createdAt.toDate()
           ..updatedTime = r.updatedAt.toDate()),

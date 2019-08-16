@@ -516,7 +516,7 @@ class _PostedRoomItem extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                     child: FadeInImage.assetNetwork(
-                      image: item.image,
+                      image: item.image ?? '',
                       width: 64.0 * factor,
                       height: 96.0 * factor,
                       fit: BoxFit.cover,

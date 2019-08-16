@@ -156,15 +156,15 @@ class RegisterBloc implements BaseBloc {
         .where((isValid) => isValid)
         .exhaustMap(
           (_) => performRegister(
-                userRepository,
-                fullNameSubject.value,
-                emailSubject.value,
-                passwordSubject.value,
-                phoneSubject.value,
-                addressSubject.value,
-                avatar$.value,
-                isLoadingSubject,
-              ),
+            userRepository,
+            fullNameSubject.value,
+            emailSubject.value,
+            passwordSubject.value,
+            phoneSubject.value,
+            addressSubject.value,
+            avatar$.value,
+            isLoadingSubject,
+          ),
         )
         .publish();
 
