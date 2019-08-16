@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:find_room/app/app.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/generated/i18n.dart';

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';

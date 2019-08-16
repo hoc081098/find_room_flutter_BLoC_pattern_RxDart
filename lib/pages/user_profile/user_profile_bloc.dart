@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';

@@ -1,7 +1,7 @@
 ﻿import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository.dart';

@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';

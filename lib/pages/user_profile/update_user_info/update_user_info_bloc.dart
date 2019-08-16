@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
-import 'package:find_room/auth_bloc/user_bloc.dart';
+import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
