@@ -6,6 +6,7 @@ import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/pages/detail/room_detail_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
 import 'package:find_room/pages/home/home_page.dart';
@@ -63,9 +64,6 @@ class MyApp extends StatelessWidget {
         },
         authBloc: BlocProvider.of<AuthBloc>(context),
       );
-    },
-    '/room_detail': (context) {
-      return RoomDetailPage();
     },
     '/login': (context) {
       return LoginPage(
@@ -182,6 +180,32 @@ class MyApp extends StatelessWidget {
                 uid: routerSettings.arguments as String,
                 authBloc: authBloc,
                 userRepo: userRepo,
+              );
+            },
+          );
+        },
+        settings: routerSettings,
+      );
+    }
+
+    if (routerSettings.name == '/room_detail') {
+      return MaterialPageRoute(
+        builder: (context) {
+          print('[onGenerateRoute] /room_detail/${routerSettings.arguments}');
+
+          final roomId = routerSettings.arguments as String;
+          final authBloc = BlocProvider.of<AuthBloc>(context);
+          final roomRepository = Injector.of(context).roomRepository;
+
+          return BlocProvider<RoomDetailBloc>(
+            child: RoomDetailPage(
+              id: roomId,
+            ),
+            blocSupplier: () {
+              return RoomDetailBloc(
+                roomRepository: roomRepository,
+                authBloc: authBloc,
+                roomId: roomId,
               );
             },
           );

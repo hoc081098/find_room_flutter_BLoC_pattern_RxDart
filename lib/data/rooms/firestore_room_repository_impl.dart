@@ -164,4 +164,15 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
     return query.snapshots().map(_toEntities).map((tuple) => tuple.item1);
   }
+
+  @override
+  Stream<RoomEntity> findBy({String roomId}) {
+    if (roomId == null) {
+      return Stream.error('roomId must be not null');
+    }
+    return _firestore
+        .document('motelrooms/$roomId')
+        .snapshots()
+        .map((snapshot) => RoomEntity.fromDocumentSnapshot(snapshot));
+  }
 }

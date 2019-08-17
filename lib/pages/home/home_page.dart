@@ -542,6 +542,7 @@ class HomeNewestRoomsListItem extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     '/room_detail',
+                    arguments: item.id,
                   );
                 },
               ),
@@ -809,6 +810,7 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
           Navigator.pushNamed(
             context,
             '/room_detail',
+            arguments: item.id,
           );
         },
         child: Container(
