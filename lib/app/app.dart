@@ -193,11 +193,21 @@ class MyApp extends StatelessWidget {
         builder: (context) {
           print('[onGenerateRoute] /room_detail/${routerSettings.arguments}');
 
+          final roomId = routerSettings.arguments as String;
+          final authBloc = BlocProvider.of<AuthBloc>(context);
+          final roomRepository = Injector.of(context).roomRepository;
+
           return BlocProvider<RoomDetailBloc>(
             child: RoomDetailPage(
-              id: routerSettings.arguments as String,
+              id: roomId,
             ),
-            blocSupplier: () => RoomDetailBloc(),
+            blocSupplier: () {
+              return RoomDetailBloc(
+                roomRepository: roomRepository,
+                authBloc: authBloc,
+                roomId: roomId,
+              );
+            },
           );
         },
         settings: routerSettings,
