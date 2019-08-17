@@ -291,6 +291,7 @@ class _SeeAllRoomItemState extends State<_SeeAllRoomItem>
               Navigator.pushNamed(
                 context,
                 '/room_detail',
+                arguments: item.id,
               );
             },
             child: Row(

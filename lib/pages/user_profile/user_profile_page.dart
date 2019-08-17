@@ -415,6 +415,7 @@ class _PostedRoomItem extends StatelessWidget {
         Navigator.pushNamed(
           context,
           '/room_detail',
+          arguments: item.id,
         );
       },
       child: Container(
