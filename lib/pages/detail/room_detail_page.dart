@@ -65,24 +65,32 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Theme.of(context).accentColor,
-        type: BottomNavigationBarType.shifting,
-        onTap: bloc.changeIndex,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.details),
-            title: Text('Detail'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.comment),
-            title: Text('Comments'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Related'),
-          )
-        ],
+      bottomNavigationBar: StreamBuilder<int>(
+        stream: bloc.selectedIndex$,
+        initialData: bloc.selectedIndex$.value,
+        builder: (context, snapshot) {
+          return BottomNavigationBar(
+            selectedItemColor: Theme.of(context).accentColor,
+            type: BottomNavigationBarType.shifting,
+            onTap: bloc.changeIndex,
+            unselectedItemColor: Theme.of(context).textTheme.title.color,
+            currentIndex: snapshot.data,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.details),
+                title: Text('Detail'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.comment),
+                title: Text('Comments'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                title: Text('Related'),
+              )
+            ],
+          );
+        }
       ),
     );
   }
