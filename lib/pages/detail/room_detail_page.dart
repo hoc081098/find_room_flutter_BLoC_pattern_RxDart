@@ -81,11 +81,13 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                   return IconButton(
                     icon: Icon(Icons.bookmark),
                     onPressed: bloc.addOrRemoveSaved,
+                    tooltip: 'Remove from saved',
                   );
                 case BookmarkIconState.showNotSaved:
                   return IconButton(
                     icon: Icon(Icons.bookmark_border),
                     onPressed: bloc.addOrRemoveSaved,
+                    tooltip: 'Add to saved',
                   );
                 case BookmarkIconState.loading:
                   return Center(
@@ -99,6 +101,13 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
               return null;
             },
           ),
+          IconButton(
+            icon: Icon(Icons.share),
+            tooltip: 'Share room',
+            onPressed: () {
+              // TODO: Share room
+            },
+          )
         ],
       ),
       body: StreamBuilder<int>(

@@ -65,12 +65,13 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
     final GoogleSignInAuthentication googleAuth =
         await googleAccount.authentication;
-    final FirebaseUser firebaseUser = await _firebaseAuth.signInWithCredential(
+    final FirebaseUser firebaseUser = (await _firebaseAuth.signInWithCredential(
       GoogleAuthProvider.getCredential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       ),
-    );
+    ))
+        .user;
 
     await _updateUserData(firebaseUser);
   }
@@ -96,9 +97,10 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     final token = result?.accessToken?.token;
     if (token != null) {
       final FirebaseUser firebaseUser =
-          await _firebaseAuth.signInWithCredential(
+          (await _firebaseAuth.signInWithCredential(
         FacebookAuthProvider.getCredential(accessToken: token),
-      );
+      ))
+              .user;
       await _updateUserData(firebaseUser);
     }
     return result;
@@ -124,10 +126,11 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
         'address=$address, phoneNumber=$phoneNumber');
 
     // create firebase auth user and update displayName
-    var firebaseUser = await _firebaseAuth.createUserWithEmailAndPassword(
+    var firebaseUser = (await _firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
-    );
+    ))
+        .user;
     await firebaseUser.updateProfile(UserUpdateInfo()..displayName = fullName);
     firebaseUser = await _firebaseAuth.currentUser();
 

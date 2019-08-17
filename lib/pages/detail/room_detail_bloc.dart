@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:disposebag/disposebag.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
+// ignore_for_file: close_sinks
+
 class RoomDetailBloc implements BaseBloc {
   final ValueObservable<BookmarkIconState> bookmarkIconState$;
   final ValueObservable<int> selectedIndex$;
@@ -18,10 +21,10 @@ class RoomDetailBloc implements BaseBloc {
   final void Function(int) changeIndex;
   final void Function() addOrRemoveSaved;
 
-  final void Function() _dispose;
+  final DisposeBag _bag;
 
   RoomDetailBloc._(
-    this._dispose, {
+    this._bag, {
     @required this.selectedIndex$,
     @required this.changeIndex,
     @required this.bookmarkIconState$,
@@ -30,7 +33,7 @@ class RoomDetailBloc implements BaseBloc {
   });
 
   @override
-  void dispose() => _dispose();
+  void dispose() => _bag.dispose().then((_) => print('[DETAIL_BLOC] Disposed'));
 
   factory RoomDetailBloc({
     @required final String roomId,
@@ -65,7 +68,7 @@ class RoomDetailBloc implements BaseBloc {
         )
         .publish();
 
-    final subscriptions = [
+    final bag = DisposeBag([
       // connect
       selectedIndex$.connect(),
       message$.connect(),
@@ -84,18 +87,14 @@ class RoomDetailBloc implements BaseBloc {
           bookmarkIconStateS.add(state);
         }
       }),
-    ];
-    final controllers = <StreamController>[
+      // controllers
       selectedIndexS,
       addOrRemoveSavedS,
       bookmarkIconStateS,
-    ];
+    ]);
 
     return RoomDetailBloc._(
-      () async {
-        await Future.wait(subscriptions.map((s) => s.cancel()));
-        await Future.wait(controllers.map((c) => c.close()));
-      },
+      bag,
       selectedIndex$: selectedIndex$,
       changeIndex: selectedIndexS.add,
       bookmarkIconState$: bookmarkIconStateS.stream,
