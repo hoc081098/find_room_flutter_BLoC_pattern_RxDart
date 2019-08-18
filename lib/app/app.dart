@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
@@ -386,7 +387,7 @@ class DrawerUserHeader extends StatelessWidget {
                         child: Icon(Icons.image),
                       )
                     : CircleAvatar(
-                        backgroundImage: NetworkImage(loginState.avatar),
+                        backgroundImage: CachedNetworkImageProvider(loginState.avatar),
                         backgroundColor: Colors.white,
                       ),
             accountEmail: Text(loginState.email),

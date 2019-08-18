@@ -30,7 +30,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
     print('Detail { init ${widget.id} }');
 
     _pages = <Widget>[
-      const RoomDetailTabPage(),
+       RoomDetailTabPage(id: widget.id),
       const CommentsTabPages(),
       const RelatedRoomsTabPage(),
     ];

@@ -1,36 +1,66 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:find_room/app/app_locale_bloc.dart';
+import 'package:find_room/bloc/bloc_provider.dart';
+import 'package:find_room/dependency_injection.dart';
+import 'package:find_room/models/room_entity.dart';
+import 'package:find_room/models/user_entity.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:intl/intl.dart';
 
 class RoomDetailTabPage extends StatefulWidget {
-  const RoomDetailTabPage({Key key}) : super(key: key);
+  final String id;
+
+  const RoomDetailTabPage({Key key, this.id}) : super(key: key);
 
   @override
   _RoomDetailTabPageState createState() => _RoomDetailTabPageState();
 }
 
 class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
+  RoomEntity _room;
+  UserEntity _user;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Firestore.instance
+        .document('motelrooms/${widget.id}')
+        .get()
+        .then((snapshot) {
+      _room = RoomEntity.fromDocumentSnapshot(snapshot);
+      _room.user.get().then((snapshot1) {
+        _user = UserEntity.fromDocumentSnapshot(snapshot1);
+        setState(() {});
+      });
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_room == null) return Center(child: CircularProgressIndicator());
+
     final height = MediaQuery.of(context).size.height;
     final themeData = Theme.of(context);
-    final items = <String>[
-      'https://nhatrodanang.com/mp-up/2017/08/20994171_1587446847965947_277045196745289657_n.jpg',
-      'https://file1.batdongsan.com.vn/guestthumb745x510.20131121035314961.jpg',
-      'https://1023259.v1.pressablecdn.com/wp-content/uploads/2019/06/tro-da-nang-anh-1.jpg',
-    ];
+    final locale =
+        BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: <Widget>[
         SliverAppBar(
           pinned: false,
+          backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           expandedHeight: height * 0.35,
           flexibleSpace: FlexibleSpaceBar(
             background: Swiper(
               itemBuilder: (BuildContext context, int index) {
-                if (items.isEmpty) {
+                if (_room.images.isEmpty) {
                   return Container(
                     constraints: BoxConstraints.expand(),
                     color: Colors.white,
@@ -58,17 +88,24 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
                     Positioned.fill(
                       child: InkWell(
                         child: CachedNetworkImage(
-                          imageUrl: items[index],
+                          imageUrl: _room.images[index],
                           fit: BoxFit.cover,
                           placeholder: (context, url) {
-                            return Center(
-                              child: CircularProgressIndicator(),
+                            return Container(
+                              color: Colors.white,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             );
                           },
                           errorWidget: (context, url, error) {
-                            return Center(
-                              child: new Icon(
-                                Icons.image,
+                            return Container(
+                              color: Colors.white,
+                              child: Center(
+                                child: new Icon(
+                                  Icons.image,
+                                  color: Theme.of(context).accentColor,
+                                ),
                               ),
                             );
                           },
@@ -114,7 +151,7 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
                   ],
                 );
               },
-              itemCount: items.isEmpty ? 1 : items.length,
+              itemCount: _room.images.isEmpty ? 1 : _room.images.length,
               pagination: SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                   size: 8.0,
@@ -135,8 +172,132 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
           ),
         ),
         SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsets.only(top: 4),
+            child: Card(
+              elevation: 1.5,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Icon(Icons.category),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Expanded(
+                          child: Text(
+                            _room.categoryName,
+                            style: Theme.of(context).textTheme.title.copyWith(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'SF-Pro-Display',
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Icon(Icons.title),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Expanded(
+                          child: Text(
+                            _room.title,
+                            style: Theme.of(context).textTheme.title.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                Text(
+                                  'Available',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .title
+                                      .copyWith(
+                                        color: Theme.of(context).accentColor,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _room.available ? 'Yes' : 'No',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .title
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                Text(
+                                  'View count',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .title
+                                      .copyWith(
+                                        color: Theme.of(context).accentColor,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  NumberFormat.decimalPattern(locale)
+                                      .format(_room.countView),
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .title
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                  maxLines: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
           child: Card(
-            elevation: 2,
+            elevation: 1.5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
@@ -147,7 +308,9 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
                       child: Column(
                         children: <Widget>[
                           Text(
-                            '800,000 VND',
+                            Injector.of(context)
+                                .priceFormat
+                                .format(_room.price),
                             style: Theme.of(context).textTheme.subhead.copyWith(
                                   color: Theme.of(context).accentColor,
                                   fontSize: 20,
@@ -156,7 +319,7 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '54 Nguyễn Lương Bằng, Phường Hòa Khánh, Quận Liên Chiểu, Thành phố Đà Nẵng 54',
+                            _room.address,
                             style: Theme.of(context).textTheme.subtitle,
                           ),
                         ],
@@ -178,37 +341,211 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
                     const SizedBox(width: 8),
                     Icon(Icons.date_range),
                     const SizedBox(width: 4),
-                    Text(
-                      'Posted date: 28/08/2018',
-                      style: Theme.of(context)
-                          .textTheme
-                          .title
-                          .copyWith(fontSize: 15),
-                    ),
                     Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Icon(Icons.dashboard),
-                          const SizedBox(width: 4),
-                          Text(
-                            '25m2',
-                            style: Theme.of(context)
-                                .textTheme
-                                .title
-                                .copyWith(fontSize: 15),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
+                      child: Text(
+                        'Posted at: ${DateFormat.yMd(locale).add_Hms().format(_room.createdAt.toDate())}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .title
+                            .copyWith(fontSize: 15),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: <Widget>[
+                    const SizedBox(width: 8),
+                    Icon(Icons.update),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'Updated at: ${DateFormat.yMd(locale).add_Hms().format(_room.updatedAt.toDate())}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .title
+                            .copyWith(fontSize: 15),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: <Widget>[
+                    const SizedBox(width: 8),
+                    Icon(Icons.dashboard),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${_room.size}m2',
+                        style: Theme.of(context)
+                            .textTheme
+                            .title
+                            .copyWith(fontSize: 15),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                   ],
                 ),
                 const SizedBox(height: 8),
               ],
             ),
           ),
+        ),
+        SliverToBoxAdapter(
+          child: Card(
+            elevation: 1.5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    'Posted by',
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.title.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'SF-Pro-Display',
+                        ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircleAvatar(
+                          backgroundImage:
+                              CachedNetworkImageProvider(_user?.avatar ?? ''),
+                          backgroundColor: Colors.white,
+                          radius: 40,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.person,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _user?.fullName ?? 'Loading...',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .title
+                                        .copyWith(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.email,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _user?.email ?? 'Loading...',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .title
+                                        .copyWith(
+                                          fontSize: 14,
+                                        ),
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 20),
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.phone,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _user?.phone ?? 'Loading...',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .title
+                                        .copyWith(
+                                          fontSize: 14,
+                                        ),
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton.icon(
+                        onPressed: () {
+                          //TODO: Call
+                        },
+                        icon: Icon(Icons.call),
+                        label: Text('Call'),
+                      ),
+                      FlatButton.icon(
+                        onPressed: () {
+                          //TODO: Sms
+                        },
+                        icon: Icon(Icons.sms),
+                        label: Text('Send sms'),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: ExpansionTile(
+            title: Text('Description'),
+            children: <Widget>[
+              Container(
+                child: Text(
+                  _room.description * 10,
+                  style: Theme.of(context).textTheme.subtitle,
+                ),
+                padding: const EdgeInsets.all(8),
+                width: double.infinity,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(height: height * 0.1),
         )
       ],
     );
