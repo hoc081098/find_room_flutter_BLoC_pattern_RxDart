@@ -28,4 +28,9 @@ abstract class FirestoreRoomRepository {
   Stream<List<RoomEntity>> postedList({@required String uid});
 
   Stream<RoomEntity> findBy({@required String roomId});
+
+  Future<void> increaseViewCount(
+    String roomId, {
+    Duration timeout: const Duration(seconds: 10),
+  });
 }

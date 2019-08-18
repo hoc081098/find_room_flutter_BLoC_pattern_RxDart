@@ -8,8 +8,13 @@ part of 'province_entity.dart';
 
 ProvinceEntity _$ProvinceEntityFromJson(Map<String, dynamic> json) {
   return ProvinceEntity(
-      name: json['name'] as String, documentID: json['documentID'] as String);
+    name: json['name'] as String,
+    documentID: json['documentID'] as String,
+  );
 }
 
 Map<String, dynamic> _$ProvinceEntityToJson(ProvinceEntity instance) =>
-    <String, dynamic>{'name': instance.name, 'documentID': instance.documentID};
+    <String, dynamic>{
+      'name': instance.name,
+      'documentID': instance.documentID,
+    };

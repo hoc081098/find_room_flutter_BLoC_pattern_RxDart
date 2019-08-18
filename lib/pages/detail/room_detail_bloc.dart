@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:disposebag/disposebag.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
@@ -43,6 +44,15 @@ class RoomDetailBloc implements BaseBloc {
     assert(roomId != null, 'roomId cannot be null');
     assert(roomRepository != null, 'roomRepository cannot be null');
     assert(authBloc != null, 'authBloc cannot be null');
+
+
+    roomRepository.increaseViewCount(roomId).then((_) {
+      print('>>>> increase success');
+      Firestore.instance
+          .document('motelrooms/$roomId')
+          .get()
+          .then((snapshot) => print(snapshot.data['count_view']));
+    }).catchError((e) => print('>>> increase error=$e'));
 
     final selectedIndexS = PublishSubject<int>();
     final addOrRemoveSavedS = PublishSubject<void>();

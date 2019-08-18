@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/detail/comments/comments_tab_page.dart';
+import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_page.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_page.dart';
 import 'package:find_room/pages/detail/room_detail_bloc.dart';
@@ -10,10 +11,12 @@ import 'package:find_room/pages/detail/room_detail_state.dart';
 import 'package:flutter/material.dart';
 
 class RoomDetailPage extends StatefulWidget {
-  final String id;
+  final RoomDetailTabBloc Function() roomDetailTabBlocSupplier;
 
-  const RoomDetailPage({Key key, @required this.id})
-      : assert(id != null),
+  const RoomDetailPage({
+    Key key,
+    @required this.roomDetailTabBlocSupplier,
+  })  : assert(roomDetailTabBlocSupplier != null),
         super(key: key);
 
   _RoomDetailPageState createState() => _RoomDetailPageState();
@@ -27,10 +30,13 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   @override
   void initState() {
     super.initState();
-    print('Detail { init ${widget.id} }');
+    print('Detail { init }');
 
     _pages = <Widget>[
-       RoomDetailTabPage(id: widget.id),
+      BlocProvider<RoomDetailTabBloc>(
+        child: const RoomDetailTabPage(),
+        blocSupplier: widget.roomDetailTabBlocSupplier,
+      ),
       const CommentsTabPages(),
       const RelatedRoomsTabPage(),
     ];
@@ -39,7 +45,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print('Detail { changeDeps ${widget.id} }');
+    print('Detail { changeDeps }');
 
     _subcriptions ??= BlocProvider.of<RoomDetailBloc>(context)
         .message$
@@ -50,16 +56,6 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   void dispose() {
     _subcriptions.cancel();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(RoomDetailPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('Detail { updateWidget ${oldWidget.id} -> ${widget.id} }');
-
-    if (widget.id != oldWidget.id) {
-      // TODO: Id changed
-    }
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
@@ -196,15 +197,24 @@ class MyApp extends StatelessWidget {
 
           final roomId = routerSettings.arguments as String;
           final authBloc = BlocProvider.of<AuthBloc>(context);
-          final roomRepository = Injector.of(context).roomRepository;
+          final injector = Injector.of(context);
+          final localeBloc = BlocProvider.of<LocaleBloc>(context);
 
           return BlocProvider<RoomDetailBloc>(
             child: RoomDetailPage(
-              id: roomId,
+              roomDetailTabBlocSupplier: () {
+                return RoomDetailTabBloc(
+                  injector.roomRepository,
+                  injector.userRepository,
+                  injector.priceFormat,
+                  roomId,
+                  localeBloc,
+                );
+              },
             ),
             blocSupplier: () {
               return RoomDetailBloc(
-                roomRepository: roomRepository,
+                roomRepository: injector.roomRepository,
                 authBloc: authBloc,
                 roomId: roomId,
               );
@@ -387,7 +397,8 @@ class DrawerUserHeader extends StatelessWidget {
                         child: Icon(Icons.image),
                       )
                     : CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(loginState.avatar),
+                        backgroundImage:
+                            CachedNetworkImageProvider(loginState.avatar),
                         backgroundColor: Colors.white,
                       ),
             accountEmail: Text(loginState.email),

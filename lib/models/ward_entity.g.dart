@@ -8,8 +8,13 @@ part of 'ward_entity.dart';
 
 WardEntity _$WardEntityFromJson(Map<String, dynamic> json) {
   return WardEntity(
-      name: json['name'] as String, documentID: json['documentID'] as String);
+    name: json['name'] as String,
+    documentID: json['documentID'] as String,
+  );
 }
 
 Map<String, dynamic> _$WardEntityToJson(WardEntity instance) =>
-    <String, dynamic>{'name': instance.name, 'documentID': instance.documentID};
+    <String, dynamic>{
+      'name': instance.name,
+      'documentID': instance.documentID,
+    };

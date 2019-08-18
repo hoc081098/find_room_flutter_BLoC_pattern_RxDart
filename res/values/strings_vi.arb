@@ -107,5 +107,6 @@
   "last_updated": "Cập nhật",
   "posted_rooms_": "Phòng đã đăng:",
   "created_date": "Tạo: $date",
-  "last_updated_date": "Cập nhật: $date"
+  "last_updated_date": "Cập nhật: $date",
+  "loading": "Loading..."
 }

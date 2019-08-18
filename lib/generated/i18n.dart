@@ -67,6 +67,7 @@ class S implements WidgetsLocalizations {
   String get invalid_phone_number => "Invalid phone number";
   String get joined_date => "Joined date";
   String get last_updated => "Last updated";
+  String get loading => "Loading...";
   String get login_now => "Login now";
   String get login_success => "Login successfully";
   String get login_title => "Login";
@@ -172,6 +173,8 @@ class vi extends S {
   String get requires_recent_login => "Yêu cầu đăng nhập gần đây";
   @override
   String get active => "Hoạt động";
+  @override
+  String get loading => "Loading...";
   @override
   String get login_success => "Đăng nhập thành công";
   @override
