@@ -41,7 +41,7 @@ abstract class RoomDetailState
 
   bool get available;
 
-  BuiltList<String> get utilities;
+  BuiltList<Utility> get utilities;
 
   String get categoryName;
 
@@ -73,4 +73,19 @@ abstract class UserState implements Built<UserState, UserStateBuilder> {
   UserState._();
 
   factory UserState([updates(UserStateBuilder b)]) = _$UserState;
+}
+
+class Utility extends EnumClass {
+  static const Utility wifi = _$wifi;
+  static const Utility private_wc = _$private_wc;
+  static const Utility bed = _$bed;
+  static const Utility easy = _$easy;
+  static const Utility parking = _$parking;
+  static const Utility without_owner = _$without_owner;
+
+  const Utility._(String name) : super(name);
+
+  static BuiltSet<Utility> get values => _$values;
+
+  static Utility valueOf(String name) => _$valueOf(name);
 }

@@ -66,6 +66,21 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       appBar: AppBar(
         title: Text(S.of(context).detail_title),
         actions: <Widget>[
+          StreamBuilder<bool>(
+            stream: bloc.isCreatedByCurrentUser$,
+            initialData: bloc.isCreatedByCurrentUser$.value,
+            builder: (context, snapshot) {
+              if (snapshot.data) {
+                return IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    // TODO: To edit room page
+                  },
+                );
+              }
+              return Container(width: 0, height: 0);
+            },
+          ),
           StreamBuilder<BookmarkIconState>(
             stream: bloc.bookmarkIconState$,
             initialData: bloc.bookmarkIconState$.value,
@@ -119,31 +134,32 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         },
       ),
       bottomNavigationBar: StreamBuilder<int>(
-          stream: bloc.selectedIndex$,
-          initialData: bloc.selectedIndex$.value,
-          builder: (context, snapshot) {
-            return BottomNavigationBar(
-              selectedItemColor: Theme.of(context).accentColor,
-              type: BottomNavigationBarType.shifting,
-              onTap: bloc.changeIndex,
-              unselectedItemColor: Theme.of(context).textTheme.title.color,
-              currentIndex: snapshot.data,
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.details),
-                  title: Text('Detail'),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.comment),
-                  title: Text('Comments'),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  title: Text('Related'),
-                )
-              ],
-            );
-          }),
+        stream: bloc.selectedIndex$,
+        initialData: bloc.selectedIndex$.value,
+        builder: (context, snapshot) {
+          return BottomNavigationBar(
+            selectedItemColor: Theme.of(context).accentColor,
+            type: BottomNavigationBarType.shifting,
+            onTap: bloc.changeIndex,
+            unselectedItemColor: Theme.of(context).textTheme.title.color,
+            currentIndex: snapshot.data,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.details),
+                title: Text('Detail'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.comment),
+                title: Text('Comments'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                title: Text('Related'),
+              )
+            ],
+          );
+        },
+      ),
     );
   }
 

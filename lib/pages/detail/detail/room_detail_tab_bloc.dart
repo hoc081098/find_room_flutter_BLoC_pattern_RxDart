@@ -1,6 +1,5 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:charcode/charcode.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:disposebag/disposebag.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
@@ -115,7 +114,11 @@ class RoomDetailTabBloc implements BaseBloc {
             ..images = ListBuilder<String>(room.images ?? <String>[])
             ..phone = room.phone
             ..available = room.available
-            ..utilities = ListBuilder<String>(room.utilities ?? <String>[])
+            ..utilities = ListBuilder<Utility>(
+              (room.utilities ?? []).map(
+                (s) => Utility.valueOf(s),
+              ),
+            )
             ..createdAt = room.createdAt != null
                 ? DateFormat.yMd(currentLangCode)
                     .add_Hms()

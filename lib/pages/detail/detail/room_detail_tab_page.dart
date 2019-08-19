@@ -16,6 +16,18 @@ class RoomDetailTabPage extends StatefulWidget {
 
 class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
   @override
+  void initState() {
+    super.initState();
+    print('DetailTab { init }');
+  }
+
+  @override
+  void dispose() {
+    print('DetailTab { dispose }');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final bloc = BlocProvider.of<RoomDetailTabBloc>(context);
@@ -95,157 +107,166 @@ class _ThirdCard extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Card(
         elevation: 1.5,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                'Posted by',
-                textAlign: TextAlign.start,
-                style: titleTextTheme.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'SF-Pro-Display',
+        child: InkWell(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/user_profile',
+              arguments: user.id,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  'Posted by',
+                  textAlign: TextAlign.start,
+                  style: titleTextTheme.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'SF-Pro-Display',
+                  ),
+                  maxLines: 2,
                 ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: user?.avatar ?? '',
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) {
-                          return Center(
-                            child: new CircularProgressIndicator(
-                              strokeWidth: 2.0,
-                            ),
-                          );
-                        },
-                        errorWidget: (context, url, error) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black12,
-                            ),
-                            width: 80,
-                            height: 80,
-                            child: Center(
-                              child: Icon(
-                                Icons.image,
-                                color: Theme.of(context).accentColor,
-                                size: 32,
+                const SizedBox(height: 8),
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: user?.avatar ?? '',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) {
+                            return Center(
+                              child: new CircularProgressIndicator(
+                                strokeWidth: 2.0,
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black12,
+                              ),
+                              width: 80,
+                              height: 80,
+                              child: Center(
+                                child: Icon(
+                                  Icons.image,
+                                  color: Theme.of(context).accentColor,
+                                  size: 32,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.person,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                user != null
-                                    ? user.fullName
-                                    : S.of(context).loading,
-                                textAlign: TextAlign.start,
-                                style: titleTextTheme.copyWith(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 2,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.person,
+                                size: 18,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.email,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                user != null
-                                    ? user.email
-                                    : S.of(context).loading,
-                                textAlign: TextAlign.start,
-                                style: titleTextTheme.copyWith(
-                                  fontSize: 14,
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  user != null
+                                      ? user.fullName
+                                      : S.of(context).loading,
+                                  textAlign: TextAlign.start,
+                                  style: titleTextTheme.copyWith(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 2,
                                 ),
-                                maxLines: 2,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 20),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.phone,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                user == null
-                                    ? S.of(context).loading
-                                    : user.phoneNumber ??
-                                        'Have not phone number',
-                                textAlign: TextAlign.start,
-                                style: titleTextTheme.copyWith(
-                                  fontSize: 14,
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.email,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  user != null
+                                      ? user.email
+                                      : S.of(context).loading,
+                                  textAlign: TextAlign.start,
+                                  style: titleTextTheme.copyWith(
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 2,
                                 ),
-                                maxLines: 2,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(width: 20),
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.phone,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  user == null
+                                      ? S.of(context).loading
+                                      : user.phoneNumber ??
+                                          'Have not phone number',
+                                  textAlign: TextAlign.start,
+                                  style: titleTextTheme.copyWith(
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    FlatButton.icon(
+                      onPressed: () {
+                        //TODO: Call
+                      },
+                      icon: Icon(Icons.call),
+                      label: Text('Call'),
                     ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  FlatButton.icon(
-                    onPressed: () {
-                      //TODO: Call
-                    },
-                    icon: Icon(Icons.call),
-                    label: Text('Call'),
-                  ),
-                  FlatButton.icon(
-                    onPressed: () {
-                      //TODO: Sms
-                    },
-                    icon: Icon(Icons.sms),
-                    label: Text('Send sms'),
-                  ),
-                ],
-              )
-            ],
+                    FlatButton.icon(
+                      onPressed: () {
+                        //TODO: Sms
+                      },
+                      icon: Icon(Icons.sms),
+                      label: Text('Send sms'),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -622,5 +643,18 @@ class _TopImageSlider extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _UtilityWidget extends StatelessWidget {
+  final Utility utility;
+
+  const _UtilityWidget({Key key, this.utility}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    switch(utility.name) {
+
+    }
   }
 }
