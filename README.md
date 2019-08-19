@@ -20,15 +20,13 @@ Star, fork if it is helful, issues and pull requests are always welcome
 
 ## Screenshots
 
-|  |  |   |
-| :---:                              | :---:                             | :---:                              |
-| <img height="480px" src="art/Screenshot_01.png"> | <img height="480px" src="art/Screenshot_02.png"> | <img height="480px" src="art/Screenshot_03.png"> |
-| <img height="480px" src="art/Screenshot_04.png"> | <img height="480px" src="art/Screenshot_05.png"> | <img height="480px" src="art/Screenshot_06.png"> |
-| <img height="480px" src="art/Screenshot_07.png"> | <img height="480px" src="art/Screenshot_08.png"> | <img height="480px" src="art/Screenshot_09.png"> |
-| <img height="480px" src="art/Screenshot_10.png"> | <img height="480px" src="art/Screenshot_11.png"> | <img height="480px" src="art/Screenshot_12.png"> |
-| <img height="480px" src="art/Screenshot_13.png"> | <img height="480px" src="art/Screenshot_14.png"> | <img height="480px" src="art/Screenshot_15.png"> |
-| <img height="480px" src="art/Screenshot_16.png"> | <img height="480px" src="art/Screenshot_17.png"> | <img height="480px" src="art/Screenshot_18.png"> |
-| <img height="480px" src="art/Screenshot_19.png"> | <img height="480px" src="art/Screenshot_20.png"> |  |
+|  |  |   | |
+| :---:                              | :---:                             | :---:                              | :---:     |
+|![](art/Screenshot_01.png) |![](art/Screenshot_02.png) | ![](art/Screenshot_03.png)|![](art/Screenshot_04.png) |
+|![](art/Screenshot_05.png) |![](art/Screenshot_06.png) | ![](art/Screenshot_07.png)|![](art/Screenshot_08.png) |
+|![](art/Screenshot_09.png) |![](art/Screenshot_10.png) | ![](art/Screenshot_11.png)|![](art/Screenshot_12.png) |
+|![](art/Screenshot_13.png) |![](art/Screenshot_14.png) | ![](art/Screenshot_15.png)|![](art/Screenshot_16.png) |
+|![](art/Screenshot_17.png) |![](art/Screenshot_18.png) | ![](art/Screenshot_19.png)|![](art/Screenshot_20.png) |
 
 ## Getting Started
 
