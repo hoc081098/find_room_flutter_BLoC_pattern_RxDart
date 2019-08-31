@@ -1,3 +1,4 @@
+import 'package:built_collection/src/list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
@@ -6,6 +7,8 @@ import 'package:find_room/pages/detail/detail/room_detail_tab_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RoomDetailTabPage extends StatefulWidget {
   const RoomDetailTabPage({Key key}) : super(key: key);
@@ -50,6 +53,7 @@ class _RoomDetailTabPageState extends State<RoomDetailTabPage> {
             _FirstCard(room: room),
             _SecondCard(room: room),
             _ThirdCard(user: user),
+            _AmenitiesCard(room: room),
             _DescriptionWidget(room: room),
             SliverToBoxAdapter(
               child: SizedBox(
@@ -74,19 +78,22 @@ class _DescriptionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child: ExpansionTile(
-        title: Text('Description'),
-        children: <Widget>[
-          Container(
-            child: Text(
-              room == null ? S.of(context).loading : room.description,
-              style: Theme.of(context).textTheme.subtitle,
+      child: Card(
+        elevation: 1.5,
+        child: ExpansionTile(
+          title: Text('Description'),
+          children: <Widget>[
+            Container(
+              child: Text(
+                room == null ? S.of(context).loading : room.description,
+                style: Theme.of(context).textTheme.subtitle,
+              ),
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
             ),
-            padding: const EdgeInsets.all(8),
-            width: double.infinity,
-          ),
-          const SizedBox(height: 8),
-        ],
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -109,6 +116,9 @@ class _ThirdCard extends StatelessWidget {
         elevation: 1.5,
         child: InkWell(
           onTap: () {
+            if (user == null) {
+              return;
+            }
             Navigator.pushNamed(
               context,
               '/user_profile',
@@ -127,6 +137,7 @@ class _ThirdCard extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'SF-Pro-Display',
+                    color: Theme.of(context).accentColor,
                   ),
                   maxLines: 2,
                 ),
@@ -187,22 +198,22 @@ class _ThirdCard extends StatelessWidget {
                                       : S.of(context).loading,
                                   textAlign: TextAlign.start,
                                   style: titleTextTheme.copyWith(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                   maxLines: 2,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 8),
                           Row(
                             children: <Widget>[
                               Icon(
                                 Icons.email,
                                 size: 18,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   user != null
@@ -217,7 +228,7 @@ class _ThirdCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(height: 8),
                           Row(
                             children: <Widget>[
                               Icon(
@@ -250,15 +261,41 @@ class _ThirdCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     FlatButton.icon(
-                      onPressed: () {
-                        //TODO: Call
+                      onPressed: () async {
+                        if (user == null) {
+                          return;
+                        }
+                        final url = 'tel:${user.phoneNumber}';
+                        if (await canLaunch(url)) {
+                          await launch(url);
+                        } else {
+                          Scaffold.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Cannot launch call'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
                       icon: Icon(Icons.call),
                       label: Text('Call'),
                     ),
                     FlatButton.icon(
-                      onPressed: () {
-                        //TODO: Sms
+                      onPressed: () async {
+                        if (user == null) {
+                          return;
+                        }
+                        final url = 'sms:${user.phoneNumber}';
+                        if (await canLaunch(url)) {
+                          await launch(url);
+                        } else {
+                          Scaffold.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Cannot launch sms'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
                       icon: Icon(Icons.sms),
                       label: Text('Send sms'),
@@ -646,6 +683,58 @@ class _TopImageSlider extends StatelessWidget {
   }
 }
 
+class _AmenitiesCard extends StatelessWidget {
+  final RoomDetailState room;
+
+  const _AmenitiesCard({Key key, this.room}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Card(
+        elevation: 1.5,
+        child: ExpansionTile(
+          title: Text('Amenities'),
+          children: <Widget>[
+            room == null
+                ? const CircularProgressIndicator()
+                : _amenitiesList(room.utilities),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _amenitiesList(BuiltList<Utility> utilities) {
+    print('## ${utilities.length}');
+    const numberItemsPerRow = 4;
+
+    final numberOfRows = (utilities.length / numberItemsPerRow).ceil();
+    final widgetRows = List.generate(numberOfRows, (row) {
+      final items = [
+        for (var j = 0; j < numberItemsPerRow; j++)
+          if (row * numberItemsPerRow + j < utilities.length)
+            _UtilityWidget(
+              utility: utilities[row * numberItemsPerRow + j],
+            )
+          else
+            _UtilityWidget()
+      ];
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items,
+      );
+    });
+
+    return Column(
+      children: widgetRows,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+}
+
 class _UtilityWidget extends StatelessWidget {
   final Utility utility;
 
@@ -653,8 +742,60 @@ class _UtilityWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch(utility.name) {
+    IconData icon;
+    String title;
 
+    switch (utility?.name) {
+      case 'wifi':
+        icon = Icons.wifi;
+        title = 'Wifi';
+        break;
+      case 'private_wc':
+        icon = Icons.wc;
+        title = 'Private WC';
+        break;
+      case 'bed':
+        icon = FontAwesomeIcons.bed;
+        title = 'Bed';
+        break;
+      case 'easy':
+        icon = FontAwesomeIcons.goodreads;
+        title = 'Easy';
+        break;
+      case 'parking':
+        icon = Icons.local_parking;
+        title = 'Parking';
+        break;
+      case 'without_owner':
+        icon = Icons.iso;
+        title = 'Without owner';
+        break;
+    }
+
+    final width = (MediaQuery.of(context).size.width - 3 * 8) / 4;
+    if (icon != null && title != null) {
+      return Container(
+        padding: const EdgeInsets.all(4),
+        width: width,
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Icon(icon),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        width: width,
+      );
     }
   }
 }
