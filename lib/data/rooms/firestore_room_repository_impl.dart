@@ -168,7 +168,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   @override
   Stream<RoomEntity> findBy({String roomId}) {
     if (roomId == null) {
-      return Stream.error('roomId must be not null');
+      return Observable.error('roomId must be not null');
     }
     return _firestore
         .document('motelrooms/$roomId')
