@@ -81,6 +81,7 @@ class _DescriptionWidget extends StatelessWidget {
       child: Card(
         elevation: 1.5,
         child: ExpansionTile(
+          initiallyExpanded: true,
           title: Text('Description'),
           children: <Widget>[
             Container(
@@ -694,6 +695,7 @@ class _AmenitiesCard extends StatelessWidget {
       child: Card(
         elevation: 1.5,
         child: ExpansionTile(
+          initiallyExpanded: true,
           title: Text('Amenities'),
           children: <Widget>[
             room == null
