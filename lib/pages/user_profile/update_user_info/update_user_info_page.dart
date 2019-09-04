@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
@@ -472,7 +473,7 @@ class _Avatar extends StatelessWidget {
             if (avatar != null && avatar.isNotEmpty) {
               return CircleAvatar(
                 radius: 48,
-                backgroundImage: NetworkImage(avatar),
+                backgroundImage: CachedNetworkImageProvider(avatar),
                 backgroundColor: Colors.white.withOpacity(0.9),
               );
             }

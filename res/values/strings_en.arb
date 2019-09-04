@@ -107,5 +107,6 @@
   "last_updated": "Last updated",
   "posted_rooms_": "Posted rooms:",
   "created_date": "Created: $date",
-  "last_updated_date": "Updated: $date"
+  "last_updated_date": "Updated: $date",
+  "loading": "Loading..."
 }

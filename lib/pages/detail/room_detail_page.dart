@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/detail/comments/comments_tab_page.dart';
+import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_page.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_page.dart';
 import 'package:find_room/pages/detail/room_detail_bloc.dart';
@@ -10,10 +11,12 @@ import 'package:find_room/pages/detail/room_detail_state.dart';
 import 'package:flutter/material.dart';
 
 class RoomDetailPage extends StatefulWidget {
-  final String id;
+  final RoomDetailTabBloc Function() roomDetailTabBlocSupplier;
 
-  const RoomDetailPage({Key key, @required this.id})
-      : assert(id != null),
+  const RoomDetailPage({
+    Key key,
+    @required this.roomDetailTabBlocSupplier,
+  })  : assert(roomDetailTabBlocSupplier != null),
         super(key: key);
 
   _RoomDetailPageState createState() => _RoomDetailPageState();
@@ -27,10 +30,13 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   @override
   void initState() {
     super.initState();
-    print('Detail { init ${widget.id} }');
+    print('Detail { init }');
 
     _pages = <Widget>[
-      const RoomDetailTabPage(),
+      BlocProvider<RoomDetailTabBloc>(
+        child: const RoomDetailTabPage(),
+        blocSupplier: widget.roomDetailTabBlocSupplier,
+      ),
       const CommentsTabPages(),
       const RelatedRoomsTabPage(),
     ];
@@ -39,7 +45,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print('Detail { changeDeps ${widget.id} }');
+    print('Detail { changeDeps }');
 
     _subcriptions ??= BlocProvider.of<RoomDetailBloc>(context)
         .message$
@@ -53,16 +59,6 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
   }
 
   @override
-  void didUpdateWidget(RoomDetailPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('Detail { updateWidget ${oldWidget.id} -> ${widget.id} }');
-
-    if (widget.id != oldWidget.id) {
-      // TODO: Id changed
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<RoomDetailBloc>(context);
 
@@ -70,6 +66,21 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       appBar: AppBar(
         title: Text(S.of(context).detail_title),
         actions: <Widget>[
+          StreamBuilder<bool>(
+            stream: bloc.isCreatedByCurrentUser$,
+            initialData: bloc.isCreatedByCurrentUser$.value,
+            builder: (context, snapshot) {
+              if (snapshot.data) {
+                return IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    // TODO: To edit room page
+                  },
+                );
+              }
+              return Container(width: 0, height: 0);
+            },
+          ),
           StreamBuilder<BookmarkIconState>(
             stream: bloc.bookmarkIconState$,
             initialData: bloc.bookmarkIconState$.value,
@@ -104,9 +115,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
           IconButton(
             icon: Icon(Icons.share),
             tooltip: 'Share room',
-            onPressed: () {
-              // TODO: Share room
-            },
+            onPressed: bloc.shareRoom,
           )
         ],
       ),
@@ -123,31 +132,32 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         },
       ),
       bottomNavigationBar: StreamBuilder<int>(
-          stream: bloc.selectedIndex$,
-          initialData: bloc.selectedIndex$.value,
-          builder: (context, snapshot) {
-            return BottomNavigationBar(
-              selectedItemColor: Theme.of(context).accentColor,
-              type: BottomNavigationBarType.shifting,
-              onTap: bloc.changeIndex,
-              unselectedItemColor: Theme.of(context).textTheme.title.color,
-              currentIndex: snapshot.data,
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.details),
-                  title: Text('Detail'),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.comment),
-                  title: Text('Comments'),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  title: Text('Related'),
-                )
-              ],
-            );
-          }),
+        stream: bloc.selectedIndex$,
+        initialData: bloc.selectedIndex$.value,
+        builder: (context, snapshot) {
+          return BottomNavigationBar(
+            selectedItemColor: Theme.of(context).accentColor,
+            type: BottomNavigationBarType.shifting,
+            onTap: bloc.changeIndex,
+            unselectedItemColor: Theme.of(context).textTheme.title.color,
+            currentIndex: snapshot.data,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.details),
+                title: Text('Detail'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.comment),
+                title: Text('Comments'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                title: Text('Related'),
+              )
+            ],
+          );
+        },
+      ),
     );
   }
 

@@ -8,8 +8,13 @@ part of 'district_entity.dart';
 
 DistrictEntity _$DistrictEntityFromJson(Map<String, dynamic> json) {
   return DistrictEntity(
-      name: json['name'] as String, documentID: json['documentID'] as String);
+    name: json['name'] as String,
+    documentID: json['documentID'] as String,
+  );
 }
 
 Map<String, dynamic> _$DistrictEntityToJson(DistrictEntity instance) =>
-    <String, dynamic>{'name': instance.name, 'documentID': instance.documentID};
+    <String, dynamic>{
+      'name': instance.name,
+      'documentID': instance.documentID,
+    };

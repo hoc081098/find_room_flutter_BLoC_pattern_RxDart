@@ -175,4 +175,25 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .snapshots()
         .map((snapshot) => RoomEntity.fromDocumentSnapshot(snapshot));
   }
+
+  @override
+  Future<void> increaseViewCount(
+    String roomId, {
+    Duration timeout = const Duration(seconds: 10),
+  }) {
+    if (roomId == null) {
+      return Future.error("Room id must be not null");
+    }
+
+    final TransactionHandler transactionHandler = (transaction) async {
+      final roomRef = _firestore.document('motelrooms/$roomId');
+      await transaction.update(
+        roomRef,
+        {'count_view': FieldValue.increment(1)},
+      );
+      return <String, dynamic>{};
+    };
+
+    return _firestore.runTransaction(transactionHandler, timeout: timeout);
+  }
 }

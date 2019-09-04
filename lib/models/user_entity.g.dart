@@ -8,19 +8,16 @@ part of 'user_entity.dart';
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) {
   return UserEntity(
-      documentID: json['documentID'] as String,
-      email: json['email'] as String,
-      phone: json['phone'] as String,
-      fullName: json['full_name'] as String,
-      address: json['address'] as String,
-      avatar: json['avatar'] as String,
-      isActive: json['is_active'] as bool,
-      createdAt: json['created_at'] == null
-          ? null
-          : timestampFromJson(json['created_at'] as Timestamp),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : timestampFromJson(json['updated_at'] as Timestamp));
+    documentID: json['documentID'] as String,
+    email: json['email'] as String,
+    phone: json['phone'] as String,
+    fullName: json['full_name'] as String,
+    address: json['address'] as String,
+    avatar: json['avatar'] as String,
+    isActive: json['is_active'] as bool,
+    createdAt: timestampFromJson(json['created_at'] as Timestamp),
+    updatedAt: timestampFromJson(json['updated_at'] as Timestamp),
+  );
 }
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
@@ -32,10 +29,6 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'address': instance.address,
       'avatar': instance.avatar,
       'is_active': instance.isActive,
-      'created_at': instance.createdAt == null
-          ? null
-          : timestampToJson(instance.createdAt),
-      'updated_at': instance.updatedAt == null
-          ? null
-          : timestampToJson(instance.updatedAt)
+      'created_at': timestampToJson(instance.createdAt),
+      'updated_at': timestampToJson(instance.updatedAt),
     };

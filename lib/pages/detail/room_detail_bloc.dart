@@ -1,14 +1,18 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:disposebag/disposebag.dart';
 import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
+import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/detail/room_detail_state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:share/share.dart';
 import 'package:tuple/tuple.dart';
 
 // ignore_for_file: close_sinks
@@ -17,9 +21,11 @@ class RoomDetailBloc implements BaseBloc {
   final ValueObservable<BookmarkIconState> bookmarkIconState$;
   final ValueObservable<int> selectedIndex$;
   final Stream<RoomDetailMessage> message$;
+  final ValueObservable<bool> isCreatedByCurrentUser$;
 
   final void Function(int) changeIndex;
   final void Function() addOrRemoveSaved;
+  final void Function() shareRoom;
 
   final DisposeBag _bag;
 
@@ -30,6 +36,8 @@ class RoomDetailBloc implements BaseBloc {
     @required this.bookmarkIconState$,
     @required this.message$,
     @required this.addOrRemoveSaved,
+    @required this.isCreatedByCurrentUser$,
+    @required this.shareRoom,
   });
 
   @override
@@ -39,18 +47,45 @@ class RoomDetailBloc implements BaseBloc {
     @required final String roomId,
     @required final FirestoreRoomRepository roomRepository,
     @required final AuthBloc authBloc,
+    @required final NumberFormat priceFormat,
   }) {
     assert(roomId != null, 'roomId cannot be null');
     assert(roomRepository != null, 'roomRepository cannot be null');
     assert(authBloc != null, 'authBloc cannot be null');
+    _increaseViewCount(roomRepository, roomId);
 
+    ///
+    /// Subject
+    ///
     final selectedIndexS = PublishSubject<int>();
     final addOrRemoveSavedS = PublishSubject<void>();
     final bookmarkIconStateS =
         BehaviorSubject.seeded(BookmarkIconState.loading);
+    final shareRoomS = PublishSubject<void>();
+
+    ///
+    /// Shared streams
+    ///
+    final room$ = roomRepository.findBy(roomId: roomId);
+
+    final currentUid$ = authBloc.loginState$
+        .map((state) => state is LoggedInUser ? state.uid : null);
+
+    ///
+    /// Combined stream from shared stream
+    ///
 
     final selectedIndex$ =
         publishValueSeededDistinct(selectedIndexS, seedValue: 0);
+
+    final isCreatedByCurrentUser$ = publishValueSeededDistinct(
+      Observable.combineLatest2(
+        room$.map((room) => room.user.documentID),
+        currentUid$,
+        (createdUid, currentUid) => createdUid == currentUid$,
+      ),
+      seedValue: false,
+    );
 
     final message$ = addOrRemoveSavedS
         .throttleTime(const Duration(milliseconds: 600))
@@ -68,25 +103,43 @@ class RoomDetailBloc implements BaseBloc {
         )
         .publish();
 
+    ///
+    /// Dispose bag
+    ///
     final bag = DisposeBag([
       // connect
       selectedIndex$.connect(),
       message$.connect(),
+      isCreatedByCurrentUser$.connect(),
       // listen
       message$.listen((message) => print('[DETAIL_BLOC] message=$message')),
       selectedIndex$
           .listen((index) => print('[DETAIL_BLOC] selectedIndex=$index')),
       bookmarkIconStateS.stream.listen(
           (iconState) => print('[DETAIL_BLOC] bookmarkIconState=$iconState')),
+      isCreatedByCurrentUser$
+          .listen((b) => print('[DETAIL_BLOC] isCreatedByCurrentUser=$b')),
       _getBookMarkIconState$(
-        roomRepository,
-        roomId,
-        authBloc,
+        room$.map((r) => r.userIdsSaved),
+        currentUid$,
       ).listen((state) {
         if (state != bookmarkIconStateS.value) {
           bookmarkIconStateS.add(state);
         }
       }),
+      shareRoomS
+          .withLatestFrom(room$, (_, RoomEntity room) => room)
+          .exhaustMap(
+            (room) => Observable.defer(
+              () => Stream.fromFuture(
+                Share.share(
+                    'Title: ${room.title}\n• Price: ${priceFormat.format(room.price)}\n•'
+                    ' Address: ${room.districtName} - ${room.address}'
+                    '\n• Description: ${room.description}\n• Image: ${room.images[0]}'),
+              ),
+            ),
+          )
+          .listen(null),
       // controllers
       selectedIndexS,
       addOrRemoveSavedS,
@@ -100,19 +153,32 @@ class RoomDetailBloc implements BaseBloc {
       bookmarkIconState$: bookmarkIconStateS.stream,
       message$: message$,
       addOrRemoveSaved: () => addOrRemoveSavedS.add(null),
+      isCreatedByCurrentUser$: isCreatedByCurrentUser$,
+      shareRoom: () => shareRoomS.add(null),
     );
   }
 
-  static Stream<BookmarkIconState> _getBookMarkIconState$(
+  static void _increaseViewCount(
     FirestoreRoomRepository roomRepository,
     String roomId,
-    AuthBloc authBloc,
+  ) {
+    roomRepository.increaseViewCount(roomId).then((_) {
+      print('>>>> increase success');
+      Firestore.instance
+          .document('motelrooms/$roomId')
+          .get()
+          .then((snapshot) => print(snapshot.data['count_view']));
+    }).catchError((e) => print('>>> increase error=$e'));
+  }
+
+  static Stream<BookmarkIconState> _getBookMarkIconState$(
+    Stream<Map<String, Timestamp>> room$,
+    Stream<String> currentUid$,
   ) {
     return Observable.combineLatest2(
-      roomRepository.findBy(roomId: roomId).map((r) => r.userIdsSaved),
-      authBloc.loginState$
-          .map((state) => state is LoggedInUser ? state.uid : null),
-      (Map userIdsSaved, String uid) {
+      room$,
+      currentUid$,
+      (Map<String, Timestamp> userIdsSaved, String uid) {
         // not logged in
         if (uid == null) {
           return BookmarkIconState.hide;
