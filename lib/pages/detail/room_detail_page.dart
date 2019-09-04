@@ -115,9 +115,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
           IconButton(
             icon: Icon(Icons.share),
             tooltip: 'Share room',
-            onPressed: () {
-              // TODO: Share room
-            },
+            onPressed: bloc.shareRoom,
           )
         ],
       ),

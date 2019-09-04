@@ -7,9 +7,12 @@ import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
+import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/detail/room_detail_state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:share/share.dart';
 import 'package:tuple/tuple.dart';
 
 // ignore_for_file: close_sinks
@@ -22,6 +25,7 @@ class RoomDetailBloc implements BaseBloc {
 
   final void Function(int) changeIndex;
   final void Function() addOrRemoveSaved;
+  final void Function() shareRoom;
 
   final DisposeBag _bag;
 
@@ -33,6 +37,7 @@ class RoomDetailBloc implements BaseBloc {
     @required this.message$,
     @required this.addOrRemoveSaved,
     @required this.isCreatedByCurrentUser$,
+    @required this.shareRoom,
   });
 
   @override
@@ -42,6 +47,7 @@ class RoomDetailBloc implements BaseBloc {
     @required final String roomId,
     @required final FirestoreRoomRepository roomRepository,
     @required final AuthBloc authBloc,
+    @required final NumberFormat priceFormat,
   }) {
     assert(roomId != null, 'roomId cannot be null');
     assert(roomRepository != null, 'roomRepository cannot be null');
@@ -55,6 +61,7 @@ class RoomDetailBloc implements BaseBloc {
     final addOrRemoveSavedS = PublishSubject<void>();
     final bookmarkIconStateS =
         BehaviorSubject.seeded(BookmarkIconState.loading);
+    final shareRoomS = PublishSubject<void>();
 
     ///
     /// Shared streams
@@ -120,6 +127,19 @@ class RoomDetailBloc implements BaseBloc {
           bookmarkIconStateS.add(state);
         }
       }),
+      shareRoomS
+          .withLatestFrom(room$, (_, RoomEntity room) => room)
+          .exhaustMap(
+            (room) => Observable.defer(
+              () => Stream.fromFuture(
+                Share.share(
+                    'Title: ${room.title}\n• Price: ${priceFormat.format(room.price)}\n•'
+                    ' Address: ${room.districtName} - ${room.address}'
+                    '\n• Description: ${room.description}\n• Image: ${room.images[0]}'),
+              ),
+            ),
+          )
+          .listen(null),
       // controllers
       selectedIndexS,
       addOrRemoveSavedS,
@@ -134,6 +154,7 @@ class RoomDetailBloc implements BaseBloc {
       message$: message$,
       addOrRemoveSaved: () => addOrRemoveSavedS.add(null),
       isCreatedByCurrentUser$: isCreatedByCurrentUser$,
+      shareRoom: () => shareRoomS.add(null),
     );
   }
 

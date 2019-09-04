@@ -217,6 +217,7 @@ class MyApp extends StatelessWidget {
                 roomRepository: injector.roomRepository,
                 authBloc: authBloc,
                 roomId: roomId,
+                priceFormat: injector.priceFormat,
               );
             },
           );
