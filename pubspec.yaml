@@ -36,7 +36,7 @@ dependencies:
   cached_network_image: ^1.1.1
   wave: ^0.0.8
   google_sign_in: ^4.0.7
-  flutter_facebook_login: ^3.0.0
+  flutter_facebook_login: ^2.0.1
   path: ^1.6.2
   built_value: ^6.7.1
   sealed_unions: ^3.0.2+2
