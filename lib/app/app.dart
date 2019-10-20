@@ -7,6 +7,7 @@ import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/pages/detail/comments/comments_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
@@ -209,6 +210,11 @@ class MyApp extends StatelessWidget {
                   injector.priceFormat,
                   roomId,
                   localeBloc,
+                );
+              },
+              commentsTabBlocSupplier: () {
+                return CommentsTabBloc(
+                  injector.roomCommentsRepository,
                 );
               },
             ),

@@ -6,6 +6,7 @@ import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/banners/firestore_banner_repository_impl.dart';
 import 'package:find_room/data/local/shared_pref_util.dart';
 import 'package:find_room/data/province_district_ward/province_district_ward_repository_impl.dart';
+import 'package:find_room/data/room_comments/room_comments_repository_impl.dart';
 import 'package:find_room/data/rooms/firestore_room_repository_impl.dart';
 import 'package:find_room/data/user/firebase_user_repository_imp.dart';
 import 'package:find_room/dependency_injection.dart';
@@ -47,6 +48,7 @@ Future<void> main() async {
   final provinceDistrictWardRepository = ProvinceDistrictWardRepositoryImpl(
     firestore,
   );
+  final roomCommentsRepository = RoomCommentsRepositoryImpl(firestore);
   final localDataSource = SharedPrefUtil(SharedPreferences.getInstance());
 
   final authBloc = AuthBloc(userRepository);
@@ -70,6 +72,7 @@ Future<void> main() async {
       roomRepository: roomRepository,
       priceFormat: priceFormat,
       localDataSource: localDataSource,
+      roomCommentsRepository: roomCommentsRepository,
       child: BlocProvider<AuthBloc>(
         blocSupplier: () => authBloc,
         child: BlocProvider<HomeBloc>(

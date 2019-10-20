@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/pages/detail/comments/comments_tab_bloc.dart';
 import 'package:find_room/pages/detail/comments/comments_tab_page.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_page.dart';
@@ -12,10 +13,12 @@ import 'package:flutter/material.dart';
 
 class RoomDetailPage extends StatefulWidget {
   final RoomDetailTabBloc Function() roomDetailTabBlocSupplier;
+  final CommentsTabBloc Function() commentsTabBlocSupplier;
 
   const RoomDetailPage({
     Key key,
     @required this.roomDetailTabBlocSupplier,
+    @required this.commentsTabBlocSupplier,
   })  : assert(roomDetailTabBlocSupplier != null),
         super(key: key);
 
@@ -37,7 +40,10 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         child: const RoomDetailTabPage(),
         blocSupplier: widget.roomDetailTabBlocSupplier,
       ),
-      const CommentsTabPages(),
+      BlocProvider<CommentsTabBloc>(
+        child: const CommentsTabPages(),
+        blocSupplier: widget.commentsTabBlocSupplier,
+      ),
       const RelatedRoomsTabPage(),
     ];
   }

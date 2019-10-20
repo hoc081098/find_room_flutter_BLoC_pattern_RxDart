@@ -1,4 +1,5 @@
 import 'package:find_room/data/local/local_data_source.dart';
+import 'package:find_room/data/room_comments/room_comments_repository.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:flutter/widgets.dart';
@@ -8,6 +9,7 @@ import 'package:meta/meta.dart';
 class Injector extends InheritedWidget {
   final FirebaseUserRepository userRepository;
   final FirestoreRoomRepository roomRepository;
+  final RoomCommentsRepository roomCommentsRepository;
   final NumberFormat priceFormat;
   final bool debug;
   final LocalDataSource localDataSource;
@@ -20,16 +22,33 @@ class Injector extends InheritedWidget {
     @required this.debug,
     @required this.localDataSource,
     @required Widget child,
+    @required this.roomCommentsRepository,
   }) : super(key: key, child: child);
 
   static Injector of(BuildContext context) =>
       context.inheritFromWidgetOfExactType(Injector);
 
   @override
-  bool updateShouldNotify(Injector oldWidget) =>
-      userRepository != oldWidget.userRepository &&
-      roomRepository != oldWidget.roomRepository &&
-      priceFormat != oldWidget.priceFormat &&
-      debug != oldWidget.debug &&
-      localDataSource != oldWidget.localDataSource;
+  bool updateShouldNotify(Injector oldWidget) => this != oldWidget;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Injector &&
+          runtimeType == other.runtimeType &&
+          userRepository == other.userRepository &&
+          roomRepository == other.roomRepository &&
+          roomCommentsRepository == other.roomCommentsRepository &&
+          priceFormat == other.priceFormat &&
+          debug == other.debug &&
+          localDataSource == other.localDataSource;
+
+  @override
+  int get hashCode =>
+      userRepository.hashCode ^
+      roomRepository.hashCode ^
+      roomCommentsRepository.hashCode ^
+      priceFormat.hashCode ^
+      debug.hashCode ^
+      localDataSource.hashCode;
 }
