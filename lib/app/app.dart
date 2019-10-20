@@ -32,6 +32,7 @@ import 'package:find_room/pages/user_profile/user_profile_bloc.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MyApp extends StatelessWidget {
@@ -201,6 +202,9 @@ class MyApp extends StatelessWidget {
           final injector = Injector.of(context);
           final localeBloc = BlocProvider.of<LocaleBloc>(context);
 
+          final dateFormatter =
+              DateFormat.yMd(localeBloc.locale$.value.languageCode).add_Hms();
+
           return BlocProvider<RoomDetailBloc>(
             blocSupplier: () {
               return RoomDetailBloc(
@@ -225,6 +229,8 @@ class MyApp extends StatelessWidget {
                   return CommentsTabBloc(
                     commentsRepository: injector.roomCommentsRepository,
                     roomId: roomId,
+                    dateFormatter: dateFormatter,
+                    authBloc: authBloc,
                   )..getComments();
                 },
                 child: RoomDetailPage(),

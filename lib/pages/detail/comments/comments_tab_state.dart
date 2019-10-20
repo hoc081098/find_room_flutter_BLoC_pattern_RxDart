@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:find_room/models/room_comment_entity.dart';
+import 'package:intl/intl.dart';
 
 part 'comments_tab_state.g.dart';
 
@@ -77,6 +78,8 @@ abstract class CommentItem implements Built<CommentItem, CommentItemBuilder> {
 
   String get roomId;
 
+  bool get isCurrentUser;
+
   String get userId;
 
   String get userAvatar;
@@ -84,26 +87,35 @@ abstract class CommentItem implements Built<CommentItem, CommentItemBuilder> {
   String get userName;
 
   @nullable
-  DateTime get createdAt;
+  String get createdAt;
 
   @nullable
-  DateTime get updatedAt;
+  String get updatedAt;
 
   CommentItem._();
 
   factory CommentItem([updates(CommentItemBuilder b)]) = _$CommentItem;
 
-  factory CommentItem.fromEntity(RoomCommentEntity entity) {
+  factory CommentItem.fromEntity(
+    RoomCommentEntity entity,
+    DateFormat dateFormat,
+    String currentUserId,
+  ) {
     return CommentItem(
       (b) => b
         ..id = entity.id
         ..content = entity.content
         ..roomId = entity.roomId
+        ..isCurrentUser = entity.userId == currentUserId
         ..userId = entity.userId
         ..userName = entity.userName
         ..userAvatar = entity.userAvatar
-        ..createdAt = entity.createdAt?.toDate()
-        ..updatedAt = entity.updatedAt?.toDate(),
+        ..createdAt = entity.createdAt == null
+            ? null
+            : dateFormat.format(entity.createdAt.toDate())
+        ..updatedAt = entity.updatedAt == null
+            ? null
+            : dateFormat.format(entity.updatedAt.toDate()),
     );
   }
 }

@@ -135,15 +135,17 @@ class _$CommentItem extends CommentItem {
   @override
   final String roomId;
   @override
+  final bool isCurrentUser;
+  @override
   final String userId;
   @override
   final String userAvatar;
   @override
   final String userName;
   @override
-  final DateTime createdAt;
+  final String createdAt;
   @override
-  final DateTime updatedAt;
+  final String updatedAt;
 
   factory _$CommentItem([void Function(CommentItemBuilder) updates]) =>
       (new CommentItemBuilder()..update(updates)).build();
@@ -152,6 +154,7 @@ class _$CommentItem extends CommentItem {
       {this.id,
       this.content,
       this.roomId,
+      this.isCurrentUser,
       this.userId,
       this.userAvatar,
       this.userName,
@@ -166,6 +169,9 @@ class _$CommentItem extends CommentItem {
     }
     if (roomId == null) {
       throw new BuiltValueNullFieldError('CommentItem', 'roomId');
+    }
+    if (isCurrentUser == null) {
+      throw new BuiltValueNullFieldError('CommentItem', 'isCurrentUser');
     }
     if (userId == null) {
       throw new BuiltValueNullFieldError('CommentItem', 'userId');
@@ -192,6 +198,7 @@ class _$CommentItem extends CommentItem {
         id == other.id &&
         content == other.content &&
         roomId == other.roomId &&
+        isCurrentUser == other.isCurrentUser &&
         userId == other.userId &&
         userAvatar == other.userAvatar &&
         userName == other.userName &&
@@ -206,8 +213,10 @@ class _$CommentItem extends CommentItem {
             $jc(
                 $jc(
                     $jc(
-                        $jc($jc($jc(0, id.hashCode), content.hashCode),
-                            roomId.hashCode),
+                        $jc(
+                            $jc($jc($jc(0, id.hashCode), content.hashCode),
+                                roomId.hashCode),
+                            isCurrentUser.hashCode),
                         userId.hashCode),
                     userAvatar.hashCode),
                 userName.hashCode),
@@ -221,6 +230,7 @@ class _$CommentItem extends CommentItem {
           ..add('id', id)
           ..add('content', content)
           ..add('roomId', roomId)
+          ..add('isCurrentUser', isCurrentUser)
           ..add('userId', userId)
           ..add('userAvatar', userAvatar)
           ..add('userName', userName)
@@ -245,6 +255,11 @@ class CommentItemBuilder implements Builder<CommentItem, CommentItemBuilder> {
   String get roomId => _$this._roomId;
   set roomId(String roomId) => _$this._roomId = roomId;
 
+  bool _isCurrentUser;
+  bool get isCurrentUser => _$this._isCurrentUser;
+  set isCurrentUser(bool isCurrentUser) =>
+      _$this._isCurrentUser = isCurrentUser;
+
   String _userId;
   String get userId => _$this._userId;
   set userId(String userId) => _$this._userId = userId;
@@ -257,13 +272,13 @@ class CommentItemBuilder implements Builder<CommentItem, CommentItemBuilder> {
   String get userName => _$this._userName;
   set userName(String userName) => _$this._userName = userName;
 
-  DateTime _createdAt;
-  DateTime get createdAt => _$this._createdAt;
-  set createdAt(DateTime createdAt) => _$this._createdAt = createdAt;
+  String _createdAt;
+  String get createdAt => _$this._createdAt;
+  set createdAt(String createdAt) => _$this._createdAt = createdAt;
 
-  DateTime _updatedAt;
-  DateTime get updatedAt => _$this._updatedAt;
-  set updatedAt(DateTime updatedAt) => _$this._updatedAt = updatedAt;
+  String _updatedAt;
+  String get updatedAt => _$this._updatedAt;
+  set updatedAt(String updatedAt) => _$this._updatedAt = updatedAt;
 
   CommentItemBuilder();
 
@@ -272,6 +287,7 @@ class CommentItemBuilder implements Builder<CommentItem, CommentItemBuilder> {
       _id = _$v.id;
       _content = _$v.content;
       _roomId = _$v.roomId;
+      _isCurrentUser = _$v.isCurrentUser;
       _userId = _$v.userId;
       _userAvatar = _$v.userAvatar;
       _userName = _$v.userName;
@@ -302,6 +318,7 @@ class CommentItemBuilder implements Builder<CommentItem, CommentItemBuilder> {
             id: id,
             content: content,
             roomId: roomId,
+            isCurrentUser: isCurrentUser,
             userId: userId,
             userAvatar: userAvatar,
             userName: userName,
