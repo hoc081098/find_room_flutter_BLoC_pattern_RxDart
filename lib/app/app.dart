@@ -202,22 +202,6 @@ class MyApp extends StatelessWidget {
           final localeBloc = BlocProvider.of<LocaleBloc>(context);
 
           return BlocProvider<RoomDetailBloc>(
-            child: RoomDetailPage(
-              roomDetailTabBlocSupplier: () {
-                return RoomDetailTabBloc(
-                  injector.roomRepository,
-                  injector.userRepository,
-                  injector.priceFormat,
-                  roomId,
-                  localeBloc,
-                );
-              },
-              commentsTabBlocSupplier: () {
-                return CommentsTabBloc(
-                  injector.roomCommentsRepository,
-                );
-              },
-            ),
             blocSupplier: () {
               return RoomDetailBloc(
                 roomRepository: injector.roomRepository,
@@ -226,6 +210,26 @@ class MyApp extends StatelessWidget {
                 priceFormat: injector.priceFormat,
               );
             },
+            child: BlocProvider<RoomDetailTabBloc>(
+              blocSupplier: () {
+                return RoomDetailTabBloc(
+                  injector.roomRepository,
+                  injector.userRepository,
+                  injector.priceFormat,
+                  roomId,
+                  localeBloc,
+                );
+              },
+              child: BlocProvider<CommentsTabBloc>(
+                blocSupplier: () {
+                  return CommentsTabBloc(
+                    commentsRepository: injector.roomCommentsRepository,
+                    roomId: roomId,
+                  )..getComments();
+                },
+                child: RoomDetailPage(),
+              ),
+            ),
           );
         },
         settings: routerSettings,
