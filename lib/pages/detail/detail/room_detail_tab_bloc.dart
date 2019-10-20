@@ -7,6 +7,7 @@ import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/models/room_entity.dart';
+import 'package:find_room/models/user_entity.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -55,19 +56,9 @@ class RoomDetailTabBloc implements BaseBloc {
         );
       }),
       roomDetail$
-          .map((room) => room.user.documentID)
+          .map((room) => room?.user?.documentID)
           .switchMap((uid) => userRepository.getUserBy(uid: uid))
-          .map(
-            (user) => UserStateBuilder()
-              ..update(
-                (b) => b
-                  ..id = user.id
-                  ..avatar = user.avatar
-                  ..fullName = user.fullName
-                  ..email = user.email
-                  ..phoneNumber = user.phone,
-              ),
-          ),
+          .map(_toUserStateBuilder),
       (RoomDetailStateBuilder room, UserStateBuilder user) {
         return RoomDetailTabState(
           (b) => b
@@ -93,11 +84,30 @@ class RoomDetailTabBloc implements BaseBloc {
     );
   }
 
+  static UserStateBuilder _toUserStateBuilder(UserEntity user) {
+    if (user == null) {
+      return null;
+    }
+    return UserStateBuilder()
+      ..update(
+        (b) => b
+          ..id = user.id
+          ..avatar = user.avatar
+          ..fullName = user.fullName
+          ..email = user.email
+          ..phoneNumber = user.phone,
+      );
+  }
+
   static RoomDetailStateBuilder _toRoomStateBuilder(
     String currentLangCode,
     RoomEntity room,
     NumberFormat priceFormat,
   ) {
+    if (room == null) {
+      return null;
+    }
+
     final format = NumberFormat.decimalPattern(currentLangCode);
 
     return RoomDetailStateBuilder()
