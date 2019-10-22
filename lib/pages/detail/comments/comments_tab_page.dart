@@ -30,6 +30,12 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
       if (message is DeleteCommentFailure) {
         _showSnackBar('Delete comment failure: ${message.error}');
       }
+      if (message is UpdateCommentSuccess) {
+        _showSnackBar('Update success');
+      }
+      if (message is UpdateCommentFailure) {
+        _showSnackBar('Update comment failure: ${message.error}');
+      }
     }, onError: (e, s) => print('$e $s'));
   }
 
@@ -80,6 +86,7 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
               itemBuilder: (context, index) => CommentItemWidget(
                 comment: comments[index],
                 deleteCallback: showDeleteDialog,
+                editCallback: showEditDialog,
               ),
               separatorBuilder: (context, index) => const Divider(),
             ),
@@ -117,22 +124,76 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
       BlocProvider.of<CommentsTabBloc>(context).deleteComment(comment);
     }
   }
+
+  void showEditDialog(CommentItem comment) async {
+    final newContent = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String text = comment.content;
+
+        return AlertDialog(
+          title: Text('Edit comment'),
+          content: TextFormField(
+            autofocus: true,
+            initialValue: comment.content,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.done,
+            onChanged: (val) => text = val,
+            onFieldSubmitted: (val) => Navigator.of(context).pop(val),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(comment.content);
+              },
+            ),
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(text);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    print('### $newContent');
+    if (newContent == null) {
+      return;
+    }
+    if (comment.content != newContent) {
+      BlocProvider.of<CommentsTabBloc>(context)
+          .updateComment(comment, newContent);
+    }
+  }
 }
 
 class CommentItemWidget extends StatelessWidget {
   final CommentItem comment;
   final void Function(CommentItem comment) deleteCallback;
+  final void Function(CommentItem comment) editCallback;
 
   const CommentItemWidget({
     Key key,
     this.comment,
     this.deleteCallback,
+    this.editCallback,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
+      actions: <Widget>[
+        IconSlideAction(
+          caption: 'Edit',
+          color: Theme.of(context).primaryColor,
+          icon: Icons.edit,
+          onTap: () => editCallback(comment),
+        ),
+      ],
       secondaryActions: <Widget>[
         if (comment.isCurrentUser)
           IconSlideAction(
@@ -143,7 +204,7 @@ class CommentItemWidget extends StatelessWidget {
           ),
       ],
       child: Container(
-        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -173,17 +234,38 @@ class CommentItemWidget extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .title
-                        .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
-                  Text(
-                    comment.createdAt,
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle
-                        .copyWith(fontSize: 14),
+                  Row(
+                    children: <Widget>[
+                      if (comment.updatedAt != null)
+                        Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: Colors.black54,
+                        )
+                      else
+                        Icon(
+                          Icons.comment,
+                          size: 16,
+                          color: Colors.black54,
+                        ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          comment.updatedAt != null
+                              ? 'Edited: ${comment.updatedAt}'
+                              : comment.createdAt,
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle
+                              .copyWith(fontSize: 12),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  Text(comment.content),
+                  Text(comment.content ?? 'No content'),
                 ],
               ),
             ),

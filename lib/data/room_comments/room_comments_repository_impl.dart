@@ -31,4 +31,17 @@ class RoomCommentsRepositoryImpl implements RoomCommentsRepository {
     }
     return _firestore.document('comments/$id').delete();
   }
+
+  @override
+  Future<RoomCommentEntity> update({String content, String byId}) async {
+    await _firestore.document('comments/$byId').setData(
+      {
+        'content': content,
+        'updated_at': FieldValue.serverTimestamp(),
+      },
+      merge: true,
+    );
+    var documentSnapshot = await _firestore.document('comments/$byId').get();
+    return RoomCommentEntity.fromDocumentSnapshot(documentSnapshot);
+  }
 }

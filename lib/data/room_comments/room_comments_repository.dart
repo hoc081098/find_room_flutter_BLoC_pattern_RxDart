@@ -7,4 +7,6 @@ abstract class RoomCommentsRepository {
   Stream<BuiltList<RoomCommentEntity>> commentsFor({@required String roomId});
 
   Future<void> deleteCommentBy({@required String id});
+
+  Future<RoomCommentEntity> update({@required String content,@required String byId});
 }

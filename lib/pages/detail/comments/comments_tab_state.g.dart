@@ -164,9 +164,6 @@ class _$CommentItem extends CommentItem {
     if (id == null) {
       throw new BuiltValueNullFieldError('CommentItem', 'id');
     }
-    if (content == null) {
-      throw new BuiltValueNullFieldError('CommentItem', 'content');
-    }
     if (roomId == null) {
       throw new BuiltValueNullFieldError('CommentItem', 'roomId');
     }

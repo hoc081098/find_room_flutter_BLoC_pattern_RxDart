@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 
 part 'comments_tab_state.g.dart';
 
+///
+/// Message
+///
 abstract class CommentsTabMessage {}
 
 class DeleteCommentSuccess implements CommentsTabMessage {
@@ -20,6 +23,22 @@ class DeleteCommentFailure implements CommentsTabMessage {
   DeleteCommentFailure(this.comment, this.error);
 }
 
+class UpdateCommentSuccess implements CommentsTabMessage {
+  final CommentItem updated;
+
+  UpdateCommentSuccess(this.updated);
+}
+
+class UpdateCommentFailure implements CommentsTabMessage {
+  final CommentItem comment;
+  final error;
+
+  UpdateCommentFailure(this.comment, this.error);
+}
+
+///
+/// PartialChange
+///
 abstract class PartialChange {
   CommentsTabState reducer(CommentsTabState vs);
 }
@@ -64,6 +83,9 @@ class Error implements PartialChange {
   }
 }
 
+///
+/// View state
+///
 abstract class CommentsTabState
     implements Built<CommentsTabState, CommentsTabStateBuilder> {
   bool get isLoading;
@@ -89,6 +111,7 @@ abstract class CommentsTabState
 abstract class CommentItem implements Built<CommentItem, CommentItemBuilder> {
   String get id;
 
+  @nullable
   String get content;
 
   String get roomId;

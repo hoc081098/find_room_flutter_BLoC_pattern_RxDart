@@ -10,12 +10,14 @@ import 'package:find_room/pages/detail/comments/comments_tab_state.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tuple/tuple.dart';
 
 class CommentsTabBloc implements BaseBloc {
   static const _tag = '[COMMENTS_BLOC]';
 
   final void Function() getComments;
   final void Function(CommentItem) deleteComment;
+  final void Function(CommentItem, String) updateComment;
 
   final ValueObservable<CommentsTabState> state$;
   final Stream<CommentsTabMessage> message$;
@@ -25,6 +27,7 @@ class CommentsTabBloc implements BaseBloc {
   CommentsTabBloc._(
     this.getComments,
     this.deleteComment,
+    this.updateComment,
     this.state$,
     this.message$,
     this._disposeBag,
@@ -39,6 +42,7 @@ class CommentsTabBloc implements BaseBloc {
     // ignore_for_file: close_sinks
     final getCommentS = PublishSubject<void>();
     final deleteCommentS = PublishSubject<CommentItem>();
+    final updateCommentS = PublishSubject<Tuple2<CommentItem, String>>();
 
     final initialVS = CommentsTabState.initial();
 
@@ -54,20 +58,51 @@ class CommentsTabBloc implements BaseBloc {
     final stateDistinct$ =
         publishValueSeededDistinct(state$, seedValue: initialVS);
 
-    final message$ = deleteCommentS.flatMap((comment) async* {
-      try {
-        print('Start delete $comment');
-        await commentsRepository.deleteCommentBy(id: comment.id);
-        print('End delete $comment');
-        yield DeleteCommentSuccess(comment);
-      } catch (e) {
-        yield DeleteCommentFailure(comment, e);
-      }
-    }).publish();
+    final ConnectableObservable<CommentsTabMessage> message$ = Observable.merge(
+      [
+        deleteCommentS.groupBy((comment) => comment.id).flatMap((comment$) {
+          return comment$.exhaustMap(
+            (comment) async* {
+              try {
+                await commentsRepository.deleteCommentBy(id: comment.id);
+                yield DeleteCommentSuccess(comment);
+              } catch (e) {
+                yield DeleteCommentFailure(comment, e);
+              }
+            },
+          );
+        }),
+        updateCommentS.groupBy((tuple) => tuple.item1.id).flatMap((tuple$) {
+          return tuple$.switchMap(
+            (tuple) async* {
+              final comment = tuple.item1;
+              final content = tuple.item2;
+
+              try {
+                final updated = await commentsRepository.update(
+                  content: content,
+                  byId: comment.id,
+                );
+                yield UpdateCommentSuccess(
+                  CommentItem.fromEntity(
+                    updated,
+                    dateFormatter,
+                    authBloc.currentUser()?.uid,
+                  ),
+                );
+              } catch (e) {
+                yield UpdateCommentFailure(comment, e);
+              }
+            },
+          );
+        }),
+      ],
+    ).publish();
 
     return CommentsTabBloc._(
       () => getCommentS.add(null),
       deleteCommentS.add,
+      (comment, content) => updateCommentS.add(Tuple2(comment, content)),
       stateDistinct$,
       message$,
       DisposeBag(
@@ -75,7 +110,6 @@ class CommentsTabBloc implements BaseBloc {
           stateDistinct$.listen((state) => print(
               '$_tag ${state.isLoading} ${state.error} ${state.comments.length}')),
           stateDistinct$.connect(),
-//          message$.listen((message) => print('$_tag $message')),
           message$.connect(),
           getCommentS,
           deleteCommentS,
