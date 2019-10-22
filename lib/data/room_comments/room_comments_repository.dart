@@ -4,5 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class RoomCommentsRepository {
-  Observable<BuiltList<RoomCommentEntity>> commentsFor({@required String roomId});
+  Stream<BuiltList<RoomCommentEntity>> commentsFor({@required String roomId});
+
+  Future<void> deleteCommentBy({@required String id});
 }

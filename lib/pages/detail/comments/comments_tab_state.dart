@@ -5,6 +5,21 @@ import 'package:intl/intl.dart';
 
 part 'comments_tab_state.g.dart';
 
+abstract class CommentsTabMessage {}
+
+class DeleteCommentSuccess implements CommentsTabMessage {
+  final CommentItem comment;
+
+  DeleteCommentSuccess(this.comment);
+}
+
+class DeleteCommentFailure implements CommentsTabMessage {
+  final CommentItem comment;
+  final error;
+
+  DeleteCommentFailure(this.comment, this.error);
+}
+
 abstract class PartialChange {
   CommentsTabState reducer(CommentsTabState vs);
 }

@@ -15,14 +15,18 @@ class CommentsTabBloc implements BaseBloc {
   static const _tag = '[COMMENTS_BLOC]';
 
   final void Function() getComments;
+  final void Function(CommentItem) deleteComment;
 
   final ValueObservable<CommentsTabState> state$;
+  final Stream<CommentsTabMessage> message$;
 
   final DisposeBag _disposeBag;
 
   CommentsTabBloc._(
     this.getComments,
+    this.deleteComment,
     this.state$,
+    this.message$,
     this._disposeBag,
   );
 
@@ -32,7 +36,9 @@ class CommentsTabBloc implements BaseBloc {
     @required final DateFormat dateFormatter,
     @required final AuthBloc authBloc,
   }) {
+    // ignore_for_file: close_sinks
     final getCommentS = PublishSubject<void>();
+    final deleteCommentS = PublishSubject<CommentItem>();
 
     final initialVS = CommentsTabState.initial();
 
@@ -48,15 +54,33 @@ class CommentsTabBloc implements BaseBloc {
     final stateDistinct$ =
         publishValueSeededDistinct(state$, seedValue: initialVS);
 
+    final message$ = deleteCommentS.flatMap((comment) async* {
+      try {
+        print('Start delete $comment');
+        await commentsRepository.deleteCommentBy(id: comment.id);
+        print('End delete $comment');
+        yield DeleteCommentSuccess(comment);
+      } catch (e) {
+        yield DeleteCommentFailure(comment, e);
+      }
+    }).publish();
+
     return CommentsTabBloc._(
       () => getCommentS.add(null),
+      deleteCommentS.add,
       stateDistinct$,
-      DisposeBag([
-        stateDistinct$.listen((state) => print(
-            '$_tag ${state.isLoading} ${state.error} ${state.comments.length}')),
-        stateDistinct$.connect(),
-        getCommentS,
-      ]),
+      message$,
+      DisposeBag(
+        [
+          stateDistinct$.listen((state) => print(
+              '$_tag ${state.isLoading} ${state.error} ${state.comments.length}')),
+          stateDistinct$.connect(),
+//          message$.listen((message) => print('$_tag $message')),
+          message$.connect(),
+          getCommentS,
+          deleteCommentS,
+        ],
+      ),
     );
   }
 
