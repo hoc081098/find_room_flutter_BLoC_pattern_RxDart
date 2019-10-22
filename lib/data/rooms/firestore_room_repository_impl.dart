@@ -31,7 +31,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .where('province', isEqualTo: selectedProvinceRef)
         .where('approve', isEqualTo: true)
         .where('available', isEqualTo: true)
-        .orderBy('updated_at', descending: true);
+        .orderBy('count_view', descending: true);
 
     if (after != null) {
       query = query.startAfterDocument(after);
@@ -61,7 +61,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
         .where('province', isEqualTo: selectedProvinceRef)
         .where('approve', isEqualTo: true)
         .where('available', isEqualTo: true)
-        .orderBy('count_view', descending: true);
+        .orderBy('updated_at', descending: true);
 
     if (after != null) {
       query = query.startAfterDocument(after);
