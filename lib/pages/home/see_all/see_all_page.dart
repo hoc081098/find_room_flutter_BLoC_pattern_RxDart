@@ -102,70 +102,72 @@ class _SeeAllPageState extends State<SeeAllPage> {
               final error = data.error;
               final isLoading = data.isLoading;
 
-              return ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                controller: _scrollController,
-                itemBuilder: (context, index) {
-                  if (index < rooms.length) {
-                    return _SeeAllRoomItem(
-                      index: index,
-                      length: rooms.length,
-                      item: rooms[index],
-                      key: ObjectKey(rooms[index]),
-                    );
-                  }
+              return Scrollbar(
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  controller: _scrollController,
+                  itemBuilder: (context, index) {
+                    if (index < rooms.length) {
+                      return _SeeAllRoomItem(
+                        index: index,
+                        length: rooms.length,
+                        item: rooms[index],
+                        key: ObjectKey(rooms[index]),
+                      );
+                    }
 
-                  if (error != null) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ListTile(
-                            title: Text(
-                              'Error: $error',
-                              style: Theme.of(context).textTheme.subtitle,
-                            ),
-                            isThreeLine: false,
-                            leading: CircleAvatar(
-                              child: Icon(
-                                Icons.mood_bad,
-                                color: Colors.white,
+                    if (error != null) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(
+                                'Error: $error',
+                                style: Theme.of(context).textTheme.subtitle,
                               ),
-                              backgroundColor: Colors.redAccent,
+                              isThreeLine: false,
+                              leading: CircleAvatar(
+                                child: Icon(
+                                  Icons.mood_bad,
+                                  color: Colors.white,
+                                ),
+                                backgroundColor: Colors.redAccent,
+                              ),
                             ),
-                          ),
-                          FlatButton.icon(
-                            padding: const EdgeInsets.all(16),
-                            icon: Icon(Icons.refresh),
-                            label: Text('Retry'),
-                            onPressed: bloc.retry,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          )
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (isLoading) {
-                    return Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.0,
+                            FlatButton.icon(
+                              padding: const EdgeInsets.all(16),
+                              icon: Icon(Icons.refresh),
+                              label: Text('Retry'),
+                              onPressed: bloc.retry,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            )
+                          ],
                         ),
-                      ),
+                      );
+                    }
+
+                    if (isLoading) {
+                      return Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      );
+                    }
+                    return Container(
+                      width: 0,
+                      height: 0,
                     );
-                  }
-                  return Container(
-                    width: 0,
-                    height: 0,
-                  );
-                },
-                itemCount: rooms.length + 1,
+                  },
+                  itemCount: rooms.length + 1,
+                ),
               );
             },
           ),
