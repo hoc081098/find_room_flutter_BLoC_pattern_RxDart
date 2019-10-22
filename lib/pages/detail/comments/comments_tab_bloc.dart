@@ -60,42 +60,22 @@ class CommentsTabBloc implements BaseBloc {
 
     final ConnectableObservable<CommentsTabMessage> message$ = Observable.merge(
       [
-        deleteCommentS.groupBy((comment) => comment.id).flatMap((comment$) {
-          return comment$.exhaustMap(
-            (comment) async* {
-              try {
-                await commentsRepository.deleteCommentBy(id: comment.id);
-                yield DeleteCommentSuccess(comment);
-              } catch (e) {
-                yield DeleteCommentFailure(comment, e);
-              }
-            },
-          );
-        }),
-        updateCommentS.groupBy((tuple) => tuple.item1.id).flatMap((tuple$) {
-          return tuple$.switchMap(
-            (tuple) async* {
-              final comment = tuple.item1;
-              final content = tuple.item2;
-
-              try {
-                final updated = await commentsRepository.update(
-                  content: content,
-                  byId: comment.id,
-                );
-                yield UpdateCommentSuccess(
-                  CommentItem.fromEntity(
-                    updated,
-                    dateFormatter,
-                    authBloc.currentUser()?.uid,
-                  ),
-                );
-              } catch (e) {
-                yield UpdateCommentFailure(comment, e);
-              }
-            },
-          );
-        }),
+        deleteCommentS.groupBy((comment) => comment.id).flatMap(
+              (comment$) => _deleteComment(
+                comment$,
+                commentsRepository,
+              ),
+            ),
+        updateCommentS.groupBy((tuple) => tuple.item1.id).flatMap(
+          (tuple$) {
+            return _updateCommentContent(
+              tuple$,
+              commentsRepository,
+              dateFormatter,
+              authBloc,
+            );
+          },
+        ),
       ],
     ).publish();
 
@@ -120,21 +100,67 @@ class CommentsTabBloc implements BaseBloc {
 
   @override
   void dispose() => _disposeBag.dispose().then((_) => print('$_tag disposed'));
+}
 
-  static PartialChange _toDataChange(
-    BuiltList<RoomCommentEntity> entities,
-    LoginState loginState,
-    DateFormat dateFormatter,
-  ) {
-    final items = entities.map(
-      (entity) {
-        return CommentItem.fromEntity(
-          entity,
-          dateFormatter,
-          loginState is LoggedInUser ? loginState.uid : null,
+PartialChange _toDataChange(
+  BuiltList<RoomCommentEntity> entities,
+  LoginState loginState,
+  DateFormat dateFormatter,
+) {
+  final items = entities.map(
+    (entity) {
+      return CommentItem.fromEntity(
+        entity,
+        dateFormatter,
+        loginState is LoggedInUser ? loginState.uid : null,
+      );
+    },
+  ).toList();
+  return Data(items);
+}
+
+Stream<CommentsTabMessage> _updateCommentContent(
+  Observable<Tuple2<CommentItem, String>> tuple$,
+  RoomCommentsRepository commentsRepository,
+  DateFormat dateFormatter,
+  AuthBloc authBloc,
+) {
+  return tuple$.switchMap(
+    (tuple) async* {
+      final comment = tuple.item1;
+      final content = tuple.item2;
+
+      try {
+        final updated = await commentsRepository.update(
+          content: content,
+          byId: comment.id,
         );
-      },
-    ).toList();
-    return Data(items);
-  }
+        yield UpdateCommentSuccess(
+          CommentItem.fromEntity(
+            updated,
+            dateFormatter,
+            authBloc.currentUser()?.uid,
+          ),
+        );
+      } catch (e) {
+        yield UpdateCommentFailure(comment, e);
+      }
+    },
+  );
+}
+
+Stream<CommentsTabMessage> _deleteComment(
+  Observable<CommentItem> comment$,
+  RoomCommentsRepository commentsRepository,
+) {
+  return comment$.exhaustMap(
+    (comment) async* {
+      try {
+        await commentsRepository.deleteCommentBy(id: comment.id);
+        yield DeleteCommentSuccess(comment);
+      } catch (e) {
+        yield DeleteCommentFailure(comment, e);
+      }
+    },
+  );
 }
