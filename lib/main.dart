@@ -27,11 +27,6 @@ Future<void> main() async {
   final facebookLogin = FacebookLogin();
 
   ///
-  /// Setup firestore
-  ///
-  await firestore.settings(timestampsInSnapshotsEnabled: true);
-
-  ///
   /// Price formatter for Vietnam Dong(VND)
   ///
   final priceFormat = NumberFormat.currency(locale: 'vi_VN');

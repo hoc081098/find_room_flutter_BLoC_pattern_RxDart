@@ -18,11 +18,11 @@ class BlocProvider<T extends BaseBloc> extends StatefulWidget {
   _BlocProviderState<T> createState() => _BlocProviderState<T>();
 
   static T of<T extends BaseBloc>(BuildContext context) {
-    _BlocProviderInheritedWidget<T> provider =
-        context.inheritFromWidgetOfExactType(
-            _typeOf<_BlocProviderInheritedWidget<T>>());
+    _BlocProviderInheritedWidget<T> provider = context
+        .dependOnInheritedWidgetOfExactType<_BlocProviderInheritedWidget<T>>();
     if (provider == null) {
-      throw StateError('Cannot get provider');
+      throw StateError(
+          'Cannot get provider with type ${_typeOf<_BlocProviderInheritedWidget<T>>()}');
     }
     return provider.bloc;
   }

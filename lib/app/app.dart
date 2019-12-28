@@ -136,7 +136,7 @@ class MyApp extends StatelessWidget {
                 interactor,
                 injector.localDataSource,
                 seeAllQuery,
-              )..load();
+              )..load.call();
             },
           );
         },
@@ -231,7 +231,7 @@ class MyApp extends StatelessWidget {
                     roomId: roomId,
                     dateFormatter: dateFormatter,
                     authBloc: authBloc,
-                  )..getComments();
+                  )..getComments.call();
                 },
                 child: RoomDetailPage(),
               ),
@@ -616,13 +616,13 @@ class RootScaffold {
 
   static openDrawer(BuildContext context) {
     final ScaffoldState scaffoldState =
-        context.rootAncestorStateOfType(TypeMatcher<ScaffoldState>());
+        context.findRootAncestorStateOfType<ScaffoldState>();
     scaffoldState.openDrawer();
   }
 
   static ScaffoldState of(BuildContext context) {
     final ScaffoldState scaffoldState =
-        context.rootAncestorStateOfType(TypeMatcher<ScaffoldState>());
+        context.findRootAncestorStateOfType<ScaffoldState>();
     return scaffoldState;
   }
 }
@@ -631,7 +631,6 @@ class RootDrawer {
   RootDrawer._();
 
   static DrawerControllerState of(BuildContext context) {
-    return context.rootAncestorStateOfType(TypeMatcher<DrawerControllerState>())
-        as DrawerControllerState;
+    return context.findRootAncestorStateOfType<DrawerControllerState>();
   }
 }

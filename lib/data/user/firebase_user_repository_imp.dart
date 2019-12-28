@@ -92,8 +92,7 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
   @override
   Future<FacebookLoginResult> facebookSignIn() async {
-    final FacebookLoginResult result = await _facebookSignIn
-        .logInWithReadPermissions(['email']);
+    final FacebookLoginResult result = await _facebookSignIn.logIn(['email']);
     final token = result?.accessToken?.token;
     if (token != null) {
       final FirebaseUser firebaseUser =

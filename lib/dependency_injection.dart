@@ -26,7 +26,7 @@ class Injector extends InheritedWidget {
   }) : super(key: key, child: child);
 
   static Injector of(BuildContext context) =>
-      context.inheritFromWidgetOfExactType(Injector);
+      context.dependOnInheritedWidgetOfExactType<Injector>();
 
   @override
   bool updateShouldNotify(Injector oldWidget) => this != oldWidget;
