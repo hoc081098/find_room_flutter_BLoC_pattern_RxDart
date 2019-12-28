@@ -31,33 +31,36 @@ dependencies:
   google_sign_in: ^4.1.1
   flutter_facebook_login: ^3.0.0
 
+  # rxdart
   distinct_value_connectable_stream: ^1.0.3
   rxdart: ^0.23.1
   disposebag: ^1.0.0+1
 
-  image_picker: ^0.6.1+4
-  json_serializable: ^3.2.2 #flutter packages pub run build_runner build
-
-  shared_preferences: ^0.5.3+4
+  # widgets & plugin
   flutter_swiper: ^1.1.6
+  wave: ^0.0.8
+  flutter_slidable: ^0.5.4
+  font_awesome_flutter: ^8.5.0
+  share: ^0.6.3+5
+  url_launcher: ^5.4.1
+  image_picker: ^0.6.2+3
+  shared_preferences: ^0.5.6
+  cached_network_image: ^2.0.0-rc.1
+
+  # utils
   intl: ^0.16.0
   tuple: ^1.0.3
   collection: ^1.14.11
-  cached_network_image: ^1.1.1
-  wave: ^0.0.8
-  path: ^1.6.2
-  built_value: ^6.7.1
+  path: ^1.6.4
+  built_value: ^7.0.0
   sealed_unions: ^3.0.2+2
-  url_launcher: ^5.1.4
-  font_awesome_flutter: ^8.5.0
-  share: ^0.6.2+3
-  flutter_slidable: ^0.5.4
+  json_serializable: ^3.2.3 #flutter packages pub run build_runner build
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.1
-  built_value_generator: ^6.7.1
+  built_value_generator: ^7.0.0
 
 flutter:
   uses-material-design: true
