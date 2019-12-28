@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
     _facebookLoginBloc = FacebookLoginBloc(widget.userRepository);
 
     _subscriptions = [
-      Observable.merge([
+      Rx.merge([
         _emailLoginBloc.message$,
         _googleSignInBloc.message$,
         _facebookLoginBloc.message$,

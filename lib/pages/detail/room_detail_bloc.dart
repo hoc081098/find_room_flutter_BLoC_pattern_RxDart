@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:disposebag/disposebag.dart';
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
@@ -18,10 +18,10 @@ import 'package:tuple/tuple.dart';
 // ignore_for_file: close_sinks
 
 class RoomDetailBloc implements BaseBloc {
-  final ValueObservable<BookmarkIconState> bookmarkIconState$;
-  final ValueObservable<int> selectedIndex$;
+  final ValueStream<BookmarkIconState> bookmarkIconState$;
+  final ValueStream<int> selectedIndex$;
   final Stream<RoomDetailMessage> message$;
-  final ValueObservable<bool> isCreatedByCurrentUser$;
+  final ValueStream<bool> isCreatedByCurrentUser$;
 
   final void Function(int) changeIndex;
   final void Function() addOrRemoveSaved;
@@ -76,16 +76,13 @@ class RoomDetailBloc implements BaseBloc {
     ///
 
     final selectedIndex$ =
-        publishValueSeededDistinct(selectedIndexS, seedValue: 0);
+        selectedIndexS.publishValueSeededDistinct(seedValue: 0);
 
-    final isCreatedByCurrentUser$ = publishValueSeededDistinct(
-      Observable.combineLatest2(
-        room$.map((room) => room.user.documentID),
-        currentUid$,
-        (createdUid, currentUid) => createdUid == currentUid$,
-      ),
-      seedValue: false,
-    );
+    final isCreatedByCurrentUser$ = Rx.combineLatest2(
+      room$.map((room) => room.user.documentID),
+      currentUid$,
+      (createdUid, currentUid) => createdUid == currentUid$,
+    ).publishValueSeededDistinct(seedValue: false);
 
     final message$ = addOrRemoveSavedS
         .throttleTime(const Duration(milliseconds: 600))
@@ -130,7 +127,7 @@ class RoomDetailBloc implements BaseBloc {
       shareRoomS
           .withLatestFrom(room$, (_, RoomEntity room) => room)
           .exhaustMap(
-            (room) => Observable.defer(
+            (room) => Rx.defer(
               () => Stream.fromFuture(
                 Share.share(
                     'Title: ${room.title}\n• Price: ${priceFormat.format(room.price)}\n•'
@@ -175,7 +172,7 @@ class RoomDetailBloc implements BaseBloc {
     Stream<Map<String, Timestamp>> room$,
     Stream<String> currentUid$,
   ) {
-    return Observable.combineLatest2(
+    return Rx.combineLatest2(
       room$,
       currentUid$,
       (Map<String, Timestamp> userIdsSaved, String uid) {
@@ -204,7 +201,7 @@ class RoomDetailBloc implements BaseBloc {
     if (userId == null) {
       final error =
           const AddOrRemovedSavedErrorMessage(const UnauthenticatedError());
-      return Observable.just(error);
+      return Stream.value(error);
     }
 
     final getMessageFromResult = (Map<String, String> result) {
@@ -217,7 +214,7 @@ class RoomDetailBloc implements BaseBloc {
       return null;
     };
 
-    return Observable.defer(() => Observable.fromFuture(
+    return Rx.defer(() => Stream.fromFuture(
               roomRepository.addOrRemoveSavedRoom(
                 roomId: roomId,
                 userId: userId,

@@ -33,7 +33,7 @@ class EmailLoginBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<bool> isLoading$;
+  final ValueStream<bool> isLoading$;
   final Stream<LoginMessage> message$;
   final Stream<EmailError> emailError$;
   final Stream<PasswordError> passwordError$;
@@ -75,14 +75,14 @@ class EmailLoginBloc implements BaseBloc {
       return const PasswordAtLeast6Characters();
     });
 
-    final isValid$ = Observable.combineLatest3(
+    final isValid$ = Rx.combineLatest3(
         emailError$,
         passwordError$,
         isLoadingController.stream,
         (emailError, passwordError, isLoading) =>
             emailError == null && passwordError == null && !isLoading);
 
-    final emailAndPassword$ = Observable.combineLatest2(
+    final emailAndPassword$ = Rx.combineLatest2(
         emailController.stream,
         passwordController.stream,
         (String email, String password) => Tuple2(email, password));
@@ -146,7 +146,7 @@ class EmailLoginBloc implements BaseBloc {
   @override
   void dispose() => _dispose();
 
-  static Observable<LoginMessage> performLogin(
+  static Stream<LoginMessage> performLogin(
     String email,
     String password,
     FirebaseUserRepository userRepository,
@@ -164,7 +164,7 @@ class EmailLoginBloc implements BaseBloc {
       }
     }
 
-    return Observable(login())
+    return login()
         .map<LoginMessage>((_) => const LoginMessageSuccess())
         .onErrorReturnWith(_getLoginError);
   }

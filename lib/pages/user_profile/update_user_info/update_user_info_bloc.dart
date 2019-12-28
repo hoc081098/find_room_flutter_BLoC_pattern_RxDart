@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
@@ -21,8 +21,8 @@ class UpdateUserInfoBloc implements BaseBloc {
   final Stream<PhoneNumberError> phoneNumberError$;
   final Stream<AddressError> addressError$;
   final Stream<UpdateUserInfoMessage> message$;
-  final ValueObservable<bool> isLoading$;
-  final ValueObservable<File> avatar$;
+  final ValueStream<bool> isLoading$;
+  final ValueStream<File> avatar$;
 
   ///
   /// Input [Function]s
@@ -114,7 +114,7 @@ class UpdateUserInfoBloc implements BaseBloc {
     /// Combine error streams with submit stream
     ///
 
-    final isValid$ = Observable.combineLatest(
+    final isValid$ = Rx.combineLatest(
       [
         fullNameError$,
         addressError$,
@@ -135,12 +135,11 @@ class UpdateUserInfoBloc implements BaseBloc {
     /// Transform submit stream
     ///
 
-    final avatar$ = publishValueDistinct<File>(
-      avatarSubject,
+    final avatar$ = avatarSubject.publishValueDistinct(
       equals: (prev, next) => path.equals(prev?.path ?? '', next?.path ?? ''),
     );
 
-    final message$ = Observable.merge(
+    final message$ = Rx.merge(
       [
         validSubmit$
             .where((isValid) => !isValid)

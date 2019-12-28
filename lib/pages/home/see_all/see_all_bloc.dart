@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/models/province.dart';
@@ -20,7 +20,7 @@ class SeeAllBloc implements BaseBloc {
   final void Function() retry;
 
   /// Output [Stream]s
-  final ValueObservable<SeeAllListState> peopleList$;
+  final ValueStream<SeeAllListState> peopleList$;
   final Stream<SeeAllMessage> message$;
 
   /// Clean up: close controller, cancel subscription
@@ -54,10 +54,10 @@ class SeeAllBloc implements BaseBloc {
     final messageController = PublishSubject<SeeAllMessage>();
 
     /// State stream
-    DistinctValueConnectableObservable<SeeAllListState> state$;
+    DistinctValueConnectableStream<SeeAllListState> state$;
 
     /// All actions stream
-    final allActions$ = Observable.merge(
+    final allActions$ = Rx.merge(
       [
         loadController.stream
             .throttleTime(Duration(milliseconds: 600))
@@ -75,25 +75,25 @@ class SeeAllBloc implements BaseBloc {
     );
 
     /// Transform actions stream to state stream
-    state$ = publishValueSeededDistinct(
-      allActions$.withLatestFrom(
-        localData.selectedProvince$,
-        (tuple, province) {
-          return Tuple5<SeeAllListState, bool, Completer<void>, Province,
-              SeeAllQuery>.fromList([
-            ...tuple.toList(growable: false),
-            province,
-            seeAllQuery,
-          ]);
-        },
-      ).switchMap(
-        (tuple) => seeAllInteractor.fetchData(
-          tuple,
-          messageController,
-        ),
-      ),
-      seedValue: SeeAllListState.initial(),
-    );
+    state$ = allActions$
+        .withLatestFrom(
+          localData.selectedProvince$,
+          (tuple, province) {
+            return Tuple5<SeeAllListState, bool, Completer<void>, Province,
+                SeeAllQuery>.fromList([
+              ...tuple.toList(growable: false),
+              province,
+              seeAllQuery,
+            ]);
+          },
+        )
+        .switchMap(
+          (tuple) => seeAllInteractor.fetchData(
+            tuple,
+            messageController,
+          ),
+        )
+        .publishValueSeededDistinct(seedValue: SeeAllListState.initial());
 
     /// Keep subscriptions and controllers references to dispose later
     final subscriptions = <StreamSubscription>[

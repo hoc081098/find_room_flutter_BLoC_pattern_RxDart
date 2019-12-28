@@ -102,7 +102,8 @@ class RoomEntity implements FirebaseModel {
     this.documentID,
   });
 
-  factory RoomEntity.fromDocumentSnapshot(DocumentSnapshot doc) => _$RoomEntityFromJson(withId(doc));
+  factory RoomEntity.fromDocumentSnapshot(DocumentSnapshot doc) =>
+      _$RoomEntityFromJson(withId(doc));
 
   Map<String, dynamic> toJson() => _$RoomEntityToJson(this);
 

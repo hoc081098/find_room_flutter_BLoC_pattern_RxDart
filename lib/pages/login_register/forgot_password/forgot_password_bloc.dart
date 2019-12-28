@@ -23,7 +23,7 @@ class ForgotPasswordBloc implements BaseBloc {
   ///
   /// Output [Stream]s
   ///
-  final ValueObservable<bool> isLoading$;
+  final ValueStream<bool> isLoading$;
   final Stream<ForgotPasswordMessage> message$;
   final Stream<EmailError> emailError$;
 
@@ -66,7 +66,7 @@ class ForgotPasswordBloc implements BaseBloc {
         )
         .share();
 
-    final message$ = Observable<ForgotPasswordMessage>.merge([
+    final message$ = Rx.merge<ForgotPasswordMessage>([
       valid$
           .doOnData((valid) => print('valid1=$valid'))
           .where((valid) => !valid)

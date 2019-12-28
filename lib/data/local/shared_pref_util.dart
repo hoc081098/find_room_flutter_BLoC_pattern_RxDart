@@ -44,11 +44,11 @@ class SharedPrefUtil implements LocalDataSource {
   }
 
   @override
-  ValueObservable<Province> get selectedProvince$ =>
+  ValueStream<Province> get selectedProvince$ =>
       _selectedProvinceController.stream;
 
   @override
-  ValueObservable<String> get selectedLanguageCode$ =>
+  ValueStream<String> get selectedLanguageCode$ =>
       _selectedLanguageCodeController.stream;
 
   @override

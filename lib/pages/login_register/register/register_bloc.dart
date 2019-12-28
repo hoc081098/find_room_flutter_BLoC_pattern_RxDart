@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
 import 'package:find_room/pages/login_register/register/register_state.dart';
@@ -53,8 +53,8 @@ class RegisterBloc implements BaseBloc {
   ///
   /// Output [Stream]s
   ///
-  final ValueObservable<bool> isLoading$;
-  final ValueObservable<File> avatar$;
+  final ValueStream<bool> isLoading$;
+  final ValueStream<File> avatar$;
   final Stream<FullNameError> fullNameError$;
   final Stream<EmailError> emailError$;
   final Stream<PasswordError> passwordError$;
@@ -135,7 +135,7 @@ class RegisterBloc implements BaseBloc {
       return const InvalidPhone();
     }).share();
 
-    final allFieldAreValid$ = Observable.combineLatest(
+    final allFieldAreValid$ = Rx.combineLatest(
       [
         fullNameError$,
         emailError$,
@@ -146,8 +146,7 @@ class RegisterBloc implements BaseBloc {
       (allError) => allError.every((error) => error == null),
     );
 
-    final avatar$ = publishValueDistinct<File>(
-      avatarSubject,
+    final avatar$ = avatarSubject.publishValueDistinct(
       equals: (prev, next) => path.equals(prev?.path ?? '', next?.path ?? ''),
     );
 

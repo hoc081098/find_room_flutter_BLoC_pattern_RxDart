@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
@@ -15,7 +15,7 @@ import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UserProfileBloc implements BaseBloc {
-  final ValueObservable<UserProfileState> state$;
+  final ValueStream<UserProfileState> state$;
 
   final void Function() _dispose;
 
@@ -51,7 +51,7 @@ class UserProfileBloc implements BaseBloc {
       return BuiltList<UserProfileRoomItem>.of(items);
     });
 
-    final Observable<UserProfileState> userProfile$ = Observable.combineLatest3(
+    final Stream<UserProfileState> userProfile$ = Rx.combineLatest3(
       userRepo.getUserBy(uid: uid),
       authBloc.loginState$,
       rooms$,
@@ -85,8 +85,7 @@ class UserProfileBloc implements BaseBloc {
         });
       },
     );
-    final userProfileDistinct$ = publishValueSeededDistinct(
-      userProfile$,
+    final userProfileDistinct$ = userProfile$.publishValueSeededDistinct(
       seedValue: null, // loading state
     );
 

@@ -19,7 +19,7 @@ class FacebookLoginBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<bool> isLoading$;
+  final ValueStream<bool> isLoading$;
   final Stream<LoginMessage> message$;
 
   ///

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/province.dart';
 import 'package:find_room/models/room_entity.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
@@ -17,10 +16,10 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     DocumentSnapshot after,
   }) {
     if (selectedProvince == null) {
-      return Observable.error("Selected province id must be not null");
+      return Stream.error("Selected province id must be not null");
     }
     if (limit == null) {
-      return Observable.error("Limit must be not null");
+      return Stream.error("Limit must be not null");
     }
 
     final DocumentReference selectedProvinceRef =
@@ -47,10 +46,10 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     DocumentSnapshot after,
   }) {
     if (selectedProvince == null) {
-      return Observable.error("Selected province id must be not null");
+      return Stream.error("Selected province id must be not null");
     }
     if (limit == null) {
-      return Observable.error("Limit must be not null");
+      return Stream.error("Limit must be not null");
     }
 
     final DocumentReference selectedProvinceRef =
@@ -153,7 +152,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
     String uid,
   }) {
     if (uid == null) {
-      return Observable.error('uid must be not null');
+      return Stream.error('uid must be not null');
     }
 
     Query query = _firestore
@@ -168,7 +167,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   @override
   Stream<RoomEntity> findBy({String roomId}) {
     if (roomId == null) {
-      return Observable.error('roomId must be not null');
+      return Stream.error('roomId must be not null');
     }
     return _firestore
         .document('motelrooms/$roomId')

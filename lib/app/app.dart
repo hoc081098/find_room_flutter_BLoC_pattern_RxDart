@@ -397,7 +397,7 @@ class DrawerUserHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
-    final ValueObservable<LoginState> loginState$ = authBloc.loginState$;
+    final ValueStream<LoginState> loginState$ = authBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(
@@ -462,7 +462,7 @@ class DrawerSavedListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
-    final ValueObservable<LoginState> loginState$ = authBloc.loginState$;
+    final ValueStream<LoginState> loginState$ = authBloc.loginState$;
     final DrawerControllerState drawerControllerState = RootDrawer.of(context);
 
     return StreamBuilder<LoginState>(

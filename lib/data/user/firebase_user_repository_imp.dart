@@ -28,17 +28,16 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
 
   @override
   Stream<UserEntity> user() {
-    return Observable(_firebaseAuth.onAuthStateChanged)
+    return _firebaseAuth.onAuthStateChanged
         .switchMap((user) => _getUserByUid$(user?.uid));
   }
 
   Stream<UserEntity> _getUserByUid$(String uid) {
     if (uid == null) {
-      return Observable.just(null);
+      return Stream.value(null);
     }
-    return Observable(_firestore.document('users/$uid').snapshots()).map(
-        (snapshot) =>
-            snapshot.exists ? UserEntity.fromDocumentSnapshot(snapshot) : null);
+    return _firestore.document('users/$uid').snapshots().map((snapshot) =>
+        snapshot.exists ? UserEntity.fromDocumentSnapshot(snapshot) : null);
   }
 
   @override

@@ -33,10 +33,10 @@ class HomeBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<List<BannerItem>> banner$;
-  final ValueObservable<List<RoomItem>> newestRooms$;
-  final ValueObservable<List<RoomItem>> mostViewedRooms$;
-  final ValueObservable<Tuple2<Province, List<Province>>>
+  final ValueStream<List<BannerItem>> banner$;
+  final ValueStream<List<RoomItem>> newestRooms$;
+  final ValueStream<List<RoomItem>> mostViewedRooms$;
+  final ValueStream<Tuple2<Province, List<Province>>>
       selectedProvinceAndAllProvinces$;
   final Stream<HomeMessage> message$;
 
@@ -81,30 +81,30 @@ class HomeBloc implements BaseBloc {
         BehaviorSubject.seeded(_kMostViewedRoomsInitial);
 
     ///Streams
-    final ValueConnectableObservable<List<BannerItem>> banner$ =
+    final ValueConnectableStream<List<BannerItem>> banner$ =
         _getBanners(bannerRepository);
 
-    final Observable<List<RoomItem>> mostViewedRooms$ = _getMostViewedRooms(
+    final Stream<List<RoomItem>> mostViewedRooms$ = _getMostViewedRooms(
       localData,
       roomRepository,
       authBloc,
       priceFormat,
     );
 
-    final Observable<List<RoomItem>> newestRooms$ = _getNewestRooms(
+    final Stream<List<RoomItem>> newestRooms$ = _getNewestRooms(
       localData,
       roomRepository,
       authBloc,
       priceFormat,
     );
 
-    final ValueConnectableObservable<Tuple2<Province, List<Province>>>
+    final ValueConnectableStream<Tuple2<Province, List<Province>>>
         selectedProvinceAndAllProvinces$ = _getSelectedProvinceAndAllProvinces(
       localData,
       provinceDistrictWardRepository,
     );
 
-    final ConnectableObservable<HomeMessage> message$ = Observable.merge(
+    final ConnectableStream<HomeMessage> message$ = Rx.merge(
       <Stream<HomeMessage>>[
         _getMessageAddOrRemoveSavedRoom(
           addOrRemoveSavedController,
@@ -147,12 +147,12 @@ class HomeBloc implements BaseBloc {
     );
   }
 
-  static Observable<ChangeSelectedProvinceMessage> _getMessageChangeProvince(
-    Observable<Province> changeProvince$,
+  static Stream<ChangeSelectedProvinceMessage> _getMessageChangeProvince(
+    Stream<Province> changeProvince$,
     LocalDataSource localData,
   ) {
     return changeProvince$.distinct().switchMap((province) {
-      return Observable.fromFuture(localData.saveSelectedProvince(province))
+      return Stream.fromFuture(localData.saveSelectedProvince(province))
           .map((result) => result
               ? ChangeSelectedProvinceMessageSuccess(province.name)
               : ChangeSelectedProvinceMessageError(province.name))
@@ -161,7 +161,7 @@ class HomeBloc implements BaseBloc {
     });
   }
 
-  static ValueConnectableObservable<Tuple2<Province, List<Province>>>
+  static ValueConnectableStream<Tuple2<Province, List<Province>>>
       _getSelectedProvinceAndAllProvinces(
     LocalDataSource localData,
     ProvinceDistrictWardRepository provinceDistrictWardRepository,
@@ -179,7 +179,7 @@ class HomeBloc implements BaseBloc {
             }).toList();
           };
 
-          return Observable.fromFuture(
+          return Stream.fromFuture(
                   provinceDistrictWardRepository.getAllProvinces())
               .map(convert)
               .map((provinces) => Tuple2(province, provinces))
@@ -201,7 +201,7 @@ class HomeBloc implements BaseBloc {
         );
   }
 
-  static ValueConnectableObservable<List<BannerItem>> _getBanners(
+  static ValueConnectableStream<List<BannerItem>> _getBanners(
       FirestoreBannerRepository bannerRepository) {
     final convert = (List<BannerEntity> bannerEntities) {
       return bannerEntities.map(
@@ -213,13 +213,13 @@ class HomeBloc implements BaseBloc {
         },
       ).toList();
     };
-    return Observable.fromFuture(bannerRepository.banners())
+    return Stream.fromFuture(bannerRepository.banners())
         .map(convert)
         .publishValueSeeded(_kBannerSliderInitial);
   }
 
-  static Observable<AddOrRemovedSavedMessage> _getMessageAddOrRemoveSavedRoom(
-    Observable<String> addOrRemoveSaved$,
+  static Stream<AddOrRemovedSavedMessage> _getMessageAddOrRemoveSavedRoom(
+    Stream<String> addOrRemoveSaved$,
     AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
     List<BehaviorSubject<List<RoomItem>>> subjects,
@@ -239,14 +239,14 @@ class HomeBloc implements BaseBloc {
         );
   }
 
-  static Observable<List<RoomItem>> _getNewestRooms(
+  static Stream<List<RoomItem>> _getNewestRooms(
     LocalDataSource localData,
     FirestoreRoomRepository roomRepository,
     AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
     return localData.selectedProvince$.switchMap((province) {
-      return Observable.combineLatest2(
+      return Rx.combineLatest2(
           roomRepository
               .newestRooms(
                 selectedProvince: province,
@@ -264,14 +264,14 @@ class HomeBloc implements BaseBloc {
         (prev, next) => const ListEquality<RoomItem>().equals(prev, next));
   }
 
-  static Observable<List<RoomItem>> _getMostViewedRooms(
+  static Stream<List<RoomItem>> _getMostViewedRooms(
     LocalDataSource localData,
     FirestoreRoomRepository roomRepository,
     AuthBloc authBloc,
     NumberFormat priceFormat,
   ) {
     return localData.selectedProvince$.switchMap((province) {
-      return Observable.combineLatest2(
+      return Rx.combineLatest2(
           roomRepository
               .mostViewedRooms(
                 selectedProvince: province,
@@ -299,8 +299,7 @@ class HomeBloc implements BaseBloc {
 
     final userId = loginState is LoggedInUser ? loginState.uid : null;
     if (userId == null) {
-      return Observable.just(
-          const AddOrRemovedSavedMessageError(NotLoginError()));
+      return Stream.value(const AddOrRemovedSavedMessageError(NotLoginError()));
     }
 
     final getMessageFromResult = (Map<String, String> result) {
@@ -312,7 +311,7 @@ class HomeBloc implements BaseBloc {
       }
       return null;
     };
-    return Observable.fromFuture(
+    return Stream.fromFuture(
             roomRepository.addOrRemoveSavedRoom(roomId: roomId, userId: userId))
         .doOnData((result) =>
             _updateListRoomsAfterAddedOrRemovedSavedRoom(result, subjects))

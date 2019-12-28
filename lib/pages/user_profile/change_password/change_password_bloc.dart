@@ -16,7 +16,7 @@ class ChangePasswordBloc implements BaseBloc {
   ///
   final Stream<PasswordError> passwordError$;
   final Stream<ChangePasswordMessage> message$;
-  final ValueObservable<bool> isLoading$;
+  final ValueStream<bool> isLoading$;
 
   ///
   /// Inputs
@@ -99,11 +99,11 @@ class ChangePasswordBloc implements BaseBloc {
       return ChangePasswordError.unknownError(e);
     }
 
-    final message$ = Observable.merge(
+    final message$ = Rx.merge(
       [
         submit$.where((isValid) => isValid).exhaustMap(
           (_) {
-            return Observable.defer(() => Stream.fromFuture(
+            return Rx.defer(() => Stream.fromFuture(
                     userRepo.updatePassword(passwordSubject.value)))
                 .doOnListen(() => isLoadingSubject.add(true))
                 .map((_) => ChangePasswordMessage.changeSuccess())

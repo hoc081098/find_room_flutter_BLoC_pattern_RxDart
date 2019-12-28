@@ -7,5 +7,6 @@ abstract class RoomCommentsRepository {
 
   Future<void> deleteCommentBy({@required String id});
 
-  Future<RoomCommentEntity> update({@required String content,@required String byId});
+  Future<RoomCommentEntity> update(
+      {@required String content, @required String byId});
 }

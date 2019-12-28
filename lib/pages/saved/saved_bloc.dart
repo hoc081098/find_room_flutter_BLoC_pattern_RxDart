@@ -25,7 +25,7 @@ class SavedBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<SavedListState> savedListState$;
+  final ValueStream<SavedListState> savedListState$;
   final Stream<SavedMessage> removeMessage$;
 
   ///
@@ -56,7 +56,7 @@ class SavedBloc implements BaseBloc {
       authBloc,
       roomRepository,
     );
-    final savedListState$ = Observable.combineLatest2<SavedListState,
+    final savedListState$ = Rx.combineLatest2<SavedListState,
         RemovedSaveRoomMessage, SavedListState>(
       _getSavedList(
         authBloc,
@@ -92,13 +92,13 @@ class SavedBloc implements BaseBloc {
   @override
   void dispose() => _dispose();
 
-  static Observable<SavedListState> _toState(
+  static Stream<SavedListState> _toState(
     LoginState loginState,
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
   ) {
     if (loginState is Unauthenticated) {
-      return Observable.just(
+      return Stream.value(
         _kInitialSavedListState.copyWith(
           error: NotLoginError(),
           isLoading: false,
@@ -106,7 +106,8 @@ class SavedBloc implements BaseBloc {
       );
     }
     if (loginState is LoggedInUser) {
-      return Observable(roomRepository.savedList(uid: loginState.uid))
+      return roomRepository
+          .savedList(uid: loginState.uid)
           .map((entities) {
             return _entitiesToRoomItems(
               entities,
@@ -128,7 +129,7 @@ class SavedBloc implements BaseBloc {
             );
           });
     }
-    return Observable.just(
+    return Stream.value(
       _kInitialSavedListState.copyWith(
         error: "Don't know loginState=$loginState",
         isLoading: false,
@@ -154,7 +155,7 @@ class SavedBloc implements BaseBloc {
     }).toList();
   }
 
-  static Observable<SavedListState> _getSavedList(
+  static Stream<SavedListState> _getSavedList(
     AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
     NumberFormat priceFormat,
@@ -168,19 +169,19 @@ class SavedBloc implements BaseBloc {
     });
   }
 
-  static ConnectableObservable<RemovedSaveRoomMessage> _getRemovedMessage(
-    Observable<String> removeFromSaved,
+  static ConnectableStream<RemovedSaveRoomMessage> _getRemovedMessage(
+    Stream<String> removeFromSaved,
     AuthBloc authBloc,
     FirestoreRoomRepository roomRepository,
   ) {
     return removeFromSaved.flatMap((roomId) {
       var loginState = authBloc.loginState$.value;
       if (loginState is Unauthenticated) {
-        return Observable.just(RemovedSaveRoomMessageError(NotLoginError()));
+        return Stream.value(RemovedSaveRoomMessageError(NotLoginError()));
       }
 
       if (loginState is LoggedInUser) {
-        return Observable.fromFuture(roomRepository.addOrRemoveSavedRoom(
+        return Stream.fromFuture(roomRepository.addOrRemoveSavedRoom(
                 roomId: roomId,
                 userId: loginState.uid,
                 timeout: Duration(seconds: 5)))

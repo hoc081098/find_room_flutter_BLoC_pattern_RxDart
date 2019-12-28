@@ -1,6 +1,6 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:disposebag/disposebag.dart';
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
@@ -19,7 +19,7 @@ class CommentsTabBloc implements BaseBloc {
   final void Function(CommentItem) deleteComment;
   final void Function(CommentItem, String) updateComment;
 
-  final ValueObservable<CommentsTabState> state$;
+  final ValueStream<CommentsTabState> state$;
   final Stream<CommentsTabMessage> message$;
 
   final DisposeBag _disposeBag;
@@ -47,7 +47,7 @@ class CommentsTabBloc implements BaseBloc {
     final initialVS = CommentsTabState.initial();
 
     final state$ = getCommentS.exhaustMap((_) {
-      return Observable.combineLatest2(
+      return Rx.combineLatest2(
         commentsRepository.commentsFor(roomId: roomId),
         authBloc.loginState$,
         (entities, loginState) =>
@@ -56,9 +56,9 @@ class CommentsTabBloc implements BaseBloc {
     }).scan((state, change, _) => change.reducer(state), initialVS);
 
     final stateDistinct$ =
-        publishValueSeededDistinct(state$, seedValue: initialVS);
+        state$.publishValueSeededDistinct(seedValue: initialVS);
 
-    final ConnectableObservable<CommentsTabMessage> message$ = Observable.merge(
+    final ConnectableStream<CommentsTabMessage> message$ = Rx.merge(
       [
         deleteCommentS.groupBy((comment) => comment.id).flatMap(
               (comment$) => _deleteComment(
@@ -120,7 +120,7 @@ PartialChange _toDataChange(
 }
 
 Stream<CommentsTabMessage> _updateCommentContent(
-  Observable<Tuple2<CommentItem, String>> tuple$,
+  Stream<Tuple2<CommentItem, String>> tuple$,
   RoomCommentsRepository commentsRepository,
   DateFormat dateFormatter,
   AuthBloc authBloc,
@@ -150,7 +150,7 @@ Stream<CommentsTabMessage> _updateCommentContent(
 }
 
 Stream<CommentsTabMessage> _deleteComment(
-  Observable<CommentItem> comment$,
+  Stream<CommentItem> comment$,
   RoomCommentsRepository commentsRepository,
 ) {
   return comment$.exhaustMap(

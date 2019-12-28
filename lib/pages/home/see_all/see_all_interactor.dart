@@ -24,7 +24,7 @@ class SeeAllInteractor {
     this._debug,
   );
 
-  Observable<SeeAllListState> fetchData(
+  Stream<SeeAllListState> fetchData(
     Tuple5<SeeAllListState, bool, Completer<void>, Province, SeeAllQuery> tuple,
     Sink<SeeAllMessage> messageSink,
   ) {
@@ -36,7 +36,7 @@ class SeeAllInteractor {
     final seeAllQuery = tuple.item5;
 
     if (!refreshList && currentState.getAll) {
-      return Observable.just(currentState);
+      return Stream.value(currentState);
     }
 
     /// Get rooms from [_roomRepository]
@@ -111,7 +111,7 @@ class SeeAllInteractor {
     ///
     /// Return state [Stream]
     ///
-    return Observable.fromFuture(getRoomsFuture)
+    return Stream.fromFuture(getRoomsFuture)
         .map(toListState)
         .doOnData(addLoadAllMessageIfLoadedAll)
         .doOnError(addErrorMessage)
@@ -159,7 +159,7 @@ class SeeAllInteractor {
         );
         break;
     }
-    return Observable(stream)
+    return stream
         .map(_entitiesToItems)
         .delay(_debug ? const Duration(seconds: 3) : const Duration(seconds: 1))
         .first;

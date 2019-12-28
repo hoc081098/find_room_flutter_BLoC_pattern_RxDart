@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:charcode/charcode.dart';
 import 'package:disposebag/disposebag.dart';
-import 'package:distinct_value_connectable_observable/distinct_value_connectable_observable.dart';
+import 'package:distinct_value_connectable_stream/distinct_value_connectable_stream.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
@@ -17,7 +17,7 @@ import 'package:rxdart/rxdart.dart';
 class RoomDetailTabBloc implements BaseBloc {
   static const _tag = '[ROOM_DETAIL_TAB_BLOC]';
 
-  final ValueObservable<RoomDetailTabState> state$;
+  final ValueStream<RoomDetailTabState> state$;
 
   final DisposeBag _disposeBag;
 
@@ -43,11 +43,11 @@ class RoomDetailTabBloc implements BaseBloc {
     assert(roomId != null, 'roomId cannot be null');
     assert(localeBloc != null, 'localeBloc cannot be null');
 
-    final roomDetail$ = Observable(roomRepository.findBy(roomId: roomId));
+    final roomDetail$ = roomRepository.findBy(roomId: roomId);
 
     final currentLangCode = () => localeBloc.locale$.value.languageCode;
 
-    final state$ = Observable.combineLatest2(
+    final state$ = Rx.combineLatest2(
       roomDetail$.map((room) {
         return _toRoomStateBuilder(
           currentLangCode(),
@@ -68,7 +68,7 @@ class RoomDetailTabBloc implements BaseBloc {
       },
     );
 
-    final stateDistinct$ = publishValueSeededDistinct(state$,
+    final stateDistinct$ = state$.publishValueSeededDistinct(
         seedValue: RoomDetailTabState.initial());
 
     final disposeBag = DisposeBag(

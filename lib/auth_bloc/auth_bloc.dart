@@ -15,7 +15,7 @@ class AuthBloc implements BaseBloc {
   ///
   /// Streams
   ///
-  final ValueObservable<LoginState> loginState$;
+  final ValueStream<LoginState> loginState$;
   final Stream<UserMessage> message$;
 
   ///
@@ -29,13 +29,14 @@ class AuthBloc implements BaseBloc {
   factory AuthBloc(FirebaseUserRepository userRepository) {
     final signOutController = PublishSubject<void>(sync: true);
 
-    final user$ = Observable(userRepository.user())
+    final user$ = userRepository
+        .user()
         .map(_toLoginState)
         .distinct()
         .publishValueSeeded(const Unauthenticated());
 
     final signOutMessage$ = signOutController.exhaustMap((_) {
-      return Observable.fromFuture(userRepository.signOut())
+      return Stream.fromFuture(userRepository.signOut())
           .doOnError((e) => print('[DEBUG] logout error=$e'))
           .onErrorReturnWith((e) => UserLogoutMessageError(e))
           .map((_) => const UserLogoutMessageSuccess());
