@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _showMessage(HomeMessage message) {
     print('[DEBUG] home_message=$message');
-    var s = S.of(context);
+    final s = S.of(context);
 
     if (message is ChangeSelectedProvinceMessage) {
       if (message is ChangeSelectedProvinceMessageSuccess) {

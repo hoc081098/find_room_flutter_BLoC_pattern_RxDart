@@ -41,7 +41,7 @@ class RoomCommentsRepositoryImpl implements RoomCommentsRepository {
       },
       merge: true,
     );
-    var documentSnapshot = await _firestore.document('comments/$byId').get();
+    final documentSnapshot = await _firestore.document('comments/$byId').get();
     return RoomCommentEntity.fromDocumentSnapshot(documentSnapshot);
   }
 

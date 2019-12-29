@@ -110,7 +110,7 @@ class _ThirdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var titleTextTheme = Theme.of(context).textTheme.title;
+    final titleTextTheme = Theme.of(context).textTheme.title;
 
     return SliverToBoxAdapter(
       child: Card(
@@ -322,7 +322,7 @@ class _SecondCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textTheme = Theme.of(context).textTheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return SliverToBoxAdapter(
       child: Card(
@@ -425,7 +425,7 @@ class _FirstCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var titleTextTheme = Theme.of(context).textTheme.title;
+    final titleTextTheme = Theme.of(context).textTheme.title;
 
     return SliverToBoxAdapter(
       child: Container(

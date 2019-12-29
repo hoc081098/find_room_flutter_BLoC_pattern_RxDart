@@ -17,35 +17,69 @@ class CommentsTabPages extends StatefulWidget {
 class _CommentsTabPagesState extends State<CommentsTabPages> {
   StreamSubscription<CommentsTabMessage> _subscription;
   final focusNode = FocusNode();
+  final commentController = TextEditingController(text: '');
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _subscription ??=
-        BlocProvider.of<CommentsTabBloc>(context).message$.listen((message) {
-      print('Message $message');
-      if (message is DeleteCommentSuccess) {
-        _showSnackBar('Delete comment success');
-      }
-      if (message is DeleteCommentFailure) {
-        _showSnackBar('Delete comment failure: ${message.error}');
-      }
-      if (message is UpdateCommentSuccess) {
-        _showSnackBar('Update success');
-      }
-      if (message is UpdateCommentFailure) {
-        _showSnackBar('Update comment failure: ${message.error}');
-      }
-      if (message is MinLengthOfCommentIs3) {
-        _showSnackBar('Min length of comment is 3!');
-      }
-    }, onError: (e, s) => print('$e $s'));
+    if (_subscription == null) {
+      var bloc = BlocProvider.of<CommentsTabBloc>(context);
+      print(bloc);
+
+      commentController
+          .addListener(() => bloc.commentChanged(commentController.text));
+      _subscription = bloc.message$.listen(
+        (message) async {
+          print('Message $message');
+          if (message is DeleteCommentSuccess) {
+            _showSnackBar('Delete comment success');
+            return;
+          }
+          if (message is DeleteCommentFailure) {
+            _showSnackBar('Delete comment failure: ${message.error}');
+            return;
+          }
+          if (message is UpdateCommentSuccess) {
+            _showSnackBar('Update success');
+            return;
+          }
+          if (message is UpdateCommentFailure) {
+            _showSnackBar('Update comment failure: ${message.error}');
+            return;
+          }
+          if (message is MinLengthOfCommentIs3) {
+            _showSnackBar('Min length of comment is 3!');
+            return;
+          }
+          if (message is UnauthenticatedError) {
+            _showSnackBar('Unauthenticated. Please login!');
+            await Future.delayed(const Duration(seconds: 1, milliseconds: 500));
+            Navigator.popUntil(context, ModalRoute.withName('/'));
+            return;
+          }
+          if (message is AddCommentSuccess) {
+            _showSnackBar('Add comment succesfully');
+            commentController.clear();
+            return;
+          }
+          if (message is AddCommentFailure) {
+            _showSnackBar('Add comment failure');
+            print(message.error);
+            return;
+          }
+        },
+        onError: (e, s) => print('$e $s'),
+      );
+    }
   }
 
   @override
   void dispose() {
     _subscription.cancel();
+    commentController.clear();
+    commentController.dispose();
+    print('Dispose');
     super.dispose();
   }
 
@@ -71,7 +105,7 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
               stream: bloc.state$,
               initialData: bloc.state$.value,
               builder: (context, snapshot) {
-                var state = snapshot.data;
+                final state = snapshot.data;
 
                 if (state.isLoading) {
                   return Center(
@@ -85,7 +119,7 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
                   );
                 }
 
-                var comments = state.comments;
+                final comments = state.comments;
                 return Scrollbar(
                   child: ListView.separated(
                     physics: const BouncingScrollPhysics(),
@@ -118,6 +152,7 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
               children: <Widget>[
                 Expanded(
                   child: TextField(
+                    controller: commentController,
                     expands: false,
                     focusNode: focusNode,
                     decoration: InputDecoration(
@@ -129,7 +164,6 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
                       filled: true,
                     ),
                     onSubmitted: (_) => bloc.submitAddComment(),
-                    onChanged: bloc.commentChanged,
                     keyboardType: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
                     maxLines: null,

@@ -95,7 +95,7 @@ class _SavedPageState extends State<SavedPage> {
             stream: _savedBloc.savedListState$,
             initialData: _savedBloc.savedListState$.value,
             builder: (context, snapshot) {
-              var data = snapshot.data;
+              final data = snapshot.data;
               print('saved length=${data.roomItems.length}, data=$data');
 
               if (data.error != null) {
@@ -142,7 +142,7 @@ class _SavedPageState extends State<SavedPage> {
                 itemCount: data.roomItems.length,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
-                  var padding = _getItemPadding(data.roomItems.length, index);
+                  final padding = _getItemPadding(data.roomItems.length, index);
                   return SavedRoomListItem(
                     roomItem: data.roomItems[index],
                     margin: padding,
@@ -252,7 +252,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
     final currentLocale =
         BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
-    var background = Container(
+    final background = Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -282,7 +282,7 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
       ),
     );
 
-    var content = Container(
+    final content = Container(
       margin: widget.margin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),

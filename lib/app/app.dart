@@ -320,7 +320,7 @@ class _BodyChildState extends State<BodyChild> {
     print('[DEBUG] _BodyChildState initState');
 
     _subscription = widget.authBloc.message$.listen((message) {
-      var s = S.of(context);
+      final s = S.of(context);
       if (message is UserLogoutMessage) {
         if (message is UserLogoutMessageSuccess) {
           _showSnackBar(s.logout_success);

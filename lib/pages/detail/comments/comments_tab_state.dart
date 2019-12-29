@@ -40,6 +40,23 @@ class MinLengthOfCommentIs3 implements CommentsTabMessage {
   const MinLengthOfCommentIs3();
 }
 
+class UnauthenticatedError implements CommentsTabMessage {
+  const UnauthenticatedError();
+}
+
+class AddCommentSuccess implements CommentsTabMessage {
+  final String content;
+
+  const AddCommentSuccess(this.content);
+}
+
+class AddCommentFailure implements CommentsTabMessage {
+  final String content;
+  final error;
+
+  const AddCommentFailure(this.content, this.error);
+}
+
 ///
 /// PartialChange
 ///

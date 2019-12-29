@@ -49,6 +49,13 @@ class CommentsTabBloc implements BaseBloc {
     final updateCommentS = PublishSubject<Tuple2<CommentItem, String>>();
     final commentChangedS = PublishSubject<String>();
     final submitAddCommentS = PublishSubject<void>();
+    final controllers = [
+      getCommentS,
+      deleteCommentS,
+      updateCommentS,
+      commentChangedS,
+      submitAddCommentS
+    ];
 
     final initialVS = CommentsTabState.initial();
 
@@ -98,24 +105,8 @@ class CommentsTabBloc implements BaseBloc {
         comment$
             .where((tuple) => tuple.item2 == null)
             .map((tuple) => tuple.item1)
-            .exhaustMap((comment) async* {
-          var currentUser = authBloc.currentUser();
-          if (currentUser == null) {
-            throw 'Fucking...';
-          }
-          await commentsRepository.add(
-            commentEntity: RoomCommentEntity(
-              null,
-              comment,
-              roomId,
-              currentUser.uid,
-              currentUser.avatar,
-              currentUser.fullName,
-              null,
-              null,
-            ),
-          );
-        }),
+            .exhaustMap((content) =>
+                _addComment(content, authBloc, commentsRepository, roomId)),
       ],
     ).publish();
 
@@ -133,8 +124,8 @@ class CommentsTabBloc implements BaseBloc {
               '$_tag ${state.isLoading} ${state.error} ${state.comments.length}')),
           stateDistinct$.connect(),
           message$.connect(),
-          getCommentS,
-          deleteCommentS,
+          commentChangedS.listen(print),
+          ...controllers,
         ],
       ),
     );
@@ -205,4 +196,33 @@ Stream<CommentsTabMessage> _deleteComment(
       }
     },
   );
+}
+
+Stream<CommentsTabMessage> _addComment(
+  String content,
+  AuthBloc authBloc,
+  RoomCommentsRepository commentsRepository,
+  String roomId,
+) async* {
+  final currentUser = authBloc.currentUser();
+  if (currentUser == null) {
+    yield const UnauthenticatedError();
+  }
+  try {
+    await commentsRepository.add(
+      commentEntity: RoomCommentEntity(
+        null,
+        content,
+        roomId,
+        currentUser.uid,
+        currentUser.avatar,
+        currentUser.fullName,
+        null,
+        null,
+      ),
+    );
+    yield AddCommentSuccess(content);
+  } catch (e) {
+    yield AddCommentFailure(content, e);
+  }
 }

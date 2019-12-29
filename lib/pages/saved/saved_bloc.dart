@@ -175,7 +175,7 @@ class SavedBloc implements BaseBloc {
     FirestoreRoomRepository roomRepository,
   ) {
     return removeFromSaved.flatMap((roomId) {
-      var loginState = authBloc.loginState$.value;
+      final loginState = authBloc.loginState$.value;
       if (loginState is Unauthenticated) {
         return Stream.value(RemovedSaveRoomMessageError(NotLoginError()));
       }

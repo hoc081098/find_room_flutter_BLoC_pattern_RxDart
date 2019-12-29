@@ -166,7 +166,7 @@ class HomeBloc implements BaseBloc {
     LocalDataSource localData,
     ProvinceDistrictWardRepository provinceDistrictWardRepository,
   ) {
-    var seedValue = localData.selectedProvince$.value;
+    final seedValue = localData.selectedProvince$.value;
 
     return localData.selectedProvince$
         .switchMap((province) {
