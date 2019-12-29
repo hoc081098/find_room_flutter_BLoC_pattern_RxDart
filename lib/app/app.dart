@@ -9,6 +9,7 @@ import 'package:find_room/dependency_injection.dart';
 import 'package:find_room/generated/i18n.dart';
 import 'package:find_room/pages/detail/comments/comments_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
+import 'package:find_room/pages/detail/related/related_rooms_tab_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_bloc.dart';
 import 'package:find_room/pages/detail/room_detail_page.dart';
 import 'package:find_room/pages/home/home_bloc.dart';
@@ -233,7 +234,13 @@ class MyApp extends StatelessWidget {
                     authBloc: authBloc,
                   )..getComments.call();
                 },
-                child: RoomDetailPage(),
+                child: BlocProvider<RelatedRoomsTabBloc>(
+                  child: RoomDetailPage(),
+                  blocSupplier: () {
+                    return RelatedRoomsTabBloc(injector.roomRepository)
+                      ..fetch.call();
+                  },
+                ),
               ),
             ),
           );

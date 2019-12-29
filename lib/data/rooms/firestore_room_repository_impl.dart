@@ -195,4 +195,9 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
 
     return _firestore.runTransaction(transactionHandler, timeout: timeout);
   }
+
+  @override
+  Future<List<RoomEntity>> getRelatedRooms() async {
+    return [];
+  }
 }
