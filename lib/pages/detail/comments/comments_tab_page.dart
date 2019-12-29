@@ -88,7 +88,9 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
                 deleteCallback: showDeleteDialog,
                 editCallback: showEditDialog,
               ),
-              separatorBuilder: (context, index) => const Divider(),
+              separatorBuilder: (context, index) => Divider(
+                color: Theme.of(context).dividerColor.withAlpha(128),
+              ),
             ),
           );
         },
@@ -187,12 +189,13 @@ class CommentItemWidget extends StatelessWidget {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actions: <Widget>[
-        IconSlideAction(
-          caption: 'Edit',
-          color: Theme.of(context).primaryColor,
-          icon: Icons.edit,
-          onTap: () => editCallback(comment),
-        ),
+        if (comment.isCurrentUser)
+          IconSlideAction(
+            caption: 'Edit',
+            color: Theme.of(context).primaryColor,
+            icon: Icons.edit,
+            onTap: () => editCallback(comment),
+          ),
       ],
       secondaryActions: <Widget>[
         if (comment.isCurrentUser)

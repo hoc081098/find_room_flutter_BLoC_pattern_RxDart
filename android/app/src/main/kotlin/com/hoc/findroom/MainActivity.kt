@@ -20,9 +20,11 @@ class MainActivity : FlutterActivity() {
           MessageDigest.getInstance("SHA").apply { update(signature.toByteArray()) }
         val something = String(Base64.encode(md.digest(), 0))
         Log.d("[FIND_ROOM]", something)
+        Log.i("Flutter", something)
       }
     } catch (e: Exception) {
       Log.d("[ERROR]", e.toString(), e)
+      Log.i("Flutter", e.toString(), e)
     }
   }
 }
