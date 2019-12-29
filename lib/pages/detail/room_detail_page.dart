@@ -53,6 +53,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
     final bloc = BlocProvider.of<RoomDetailBloc>(context);
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text(S.of(context).detail_title),
         actions: <Widget>[

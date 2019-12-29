@@ -16,6 +16,7 @@ class CommentsTabPages extends StatefulWidget {
 
 class _CommentsTabPagesState extends State<CommentsTabPages> {
   StreamSubscription<CommentsTabMessage> _subscription;
+  final focusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
@@ -35,6 +36,9 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
       }
       if (message is UpdateCommentFailure) {
         _showSnackBar('Update comment failure: ${message.error}');
+      }
+      if (message is MinLengthOfCommentIs3) {
+        _showSnackBar('Min length of comment is 3!');
       }
     }, onError: (e, s) => print('$e $s'));
   }
@@ -60,40 +64,91 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
 
     return Container(
       color: Colors.white,
-      child: StreamBuilder<CommentsTabState>(
-        stream: bloc.state$,
-        initialData: bloc.state$.value,
-        builder: (context, snapshot) {
-          var state = snapshot.data;
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: StreamBuilder<CommentsTabState>(
+              stream: bloc.state$,
+              initialData: bloc.state$.value,
+              builder: (context, snapshot) {
+                var state = snapshot.data;
 
-          if (state.isLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+                if (state.isLoading) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-          if (state.error != null) {
-            return Center(
-              child: Text('Error ${state.error}'),
-            );
-          }
+                if (state.error != null) {
+                  return Center(
+                    child: Text('Error ${state.error}'),
+                  );
+                }
 
-          var comments = state.comments;
-          return Scrollbar(
-            child: ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              itemCount: comments.length,
-              itemBuilder: (context, index) => CommentItemWidget(
-                comment: comments[index],
-                deleteCallback: showDeleteDialog,
-                editCallback: showEditDialog,
-              ),
-              separatorBuilder: (context, index) => Divider(
-                color: Theme.of(context).dividerColor.withAlpha(128),
-              ),
+                var comments = state.comments;
+                return Scrollbar(
+                  child: ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: comments.length,
+                    itemBuilder: (context, index) => CommentItemWidget(
+                      comment: comments[index],
+                      deleteCallback: showDeleteDialog,
+                      editCallback: showEditDialog,
+                    ),
+                    separatorBuilder: (context, index) => Divider(
+                      color: Theme.of(context).dividerColor.withAlpha(128),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 4,
+                )
+              ],
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    expands: false,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      labelText: 'Comment',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(32),
+                        borderSide: const BorderSide(width: 0),
+                      ),
+                      filled: true,
+                    ),
+                    onSubmitted: (_) => bloc.submitAddComment(),
+                    onChanged: bloc.commentChanged,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
+                    maxLines: null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FloatingActionButton(
+                  onPressed: () {
+                    focusNode.unfocus();
+                    bloc.submitAddComment();
+                  },
+                  child: Icon(
+                    Icons.send,
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -258,7 +313,7 @@ class CommentItemWidget extends StatelessWidget {
                         child: Text(
                           comment.updatedAt != null
                               ? 'Edited: ${comment.updatedAt}'
-                              : comment.createdAt,
+                              : (comment.createdAt ?? 'Loading...'),
                           style: Theme.of(context)
                               .textTheme
                               .subtitle

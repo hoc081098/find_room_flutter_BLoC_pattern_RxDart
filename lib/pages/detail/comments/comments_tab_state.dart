@@ -36,6 +36,10 @@ class UpdateCommentFailure implements CommentsTabMessage {
   UpdateCommentFailure(this.comment, this.error);
 }
 
+class MinLengthOfCommentIs3 implements CommentsTabMessage {
+  const MinLengthOfCommentIs3();
+}
+
 ///
 /// PartialChange
 ///

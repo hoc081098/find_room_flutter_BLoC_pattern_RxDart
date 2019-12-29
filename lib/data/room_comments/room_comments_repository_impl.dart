@@ -44,4 +44,15 @@ class RoomCommentsRepositoryImpl implements RoomCommentsRepository {
     var documentSnapshot = await _firestore.document('comments/$byId').get();
     return RoomCommentEntity.fromDocumentSnapshot(documentSnapshot);
   }
+
+  @override
+  Future<void> add({RoomCommentEntity commentEntity}) async {
+    Map<String, dynamic> json = commentEntity.toJson();
+    json.remove('documentID');
+    json['created_at'] = FieldValue.serverTimestamp();
+    json['updated_at'] = null;
+    print(json);
+    await _firestore.collection('comments').add(json);
+    print('done');
+  }
 }

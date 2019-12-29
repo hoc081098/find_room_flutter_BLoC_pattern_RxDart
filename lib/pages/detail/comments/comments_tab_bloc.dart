@@ -18,6 +18,8 @@ class CommentsTabBloc implements BaseBloc {
   final void Function() getComments;
   final void Function(CommentItem) deleteComment;
   final void Function(CommentItem, String) updateComment;
+  final void Function(String) commentChanged;
+  final void Function() submitAddComment;
 
   final ValueStream<CommentsTabState> state$;
   final Stream<CommentsTabMessage> message$;
@@ -28,6 +30,8 @@ class CommentsTabBloc implements BaseBloc {
     this.getComments,
     this.deleteComment,
     this.updateComment,
+    this.commentChanged,
+    this.submitAddComment,
     this.state$,
     this.message$,
     this._disposeBag,
@@ -43,6 +47,8 @@ class CommentsTabBloc implements BaseBloc {
     final getCommentS = PublishSubject<void>();
     final deleteCommentS = PublishSubject<CommentItem>();
     final updateCommentS = PublishSubject<Tuple2<CommentItem, String>>();
+    final commentChangedS = PublishSubject<String>();
+    final submitAddCommentS = PublishSubject<void>();
 
     final initialVS = CommentsTabState.initial();
 
@@ -57,6 +63,16 @@ class CommentsTabBloc implements BaseBloc {
 
     final stateDistinct$ =
         state$.publishValueSeededDistinct(seedValue: initialVS);
+
+    final comment$ = submitAddCommentS
+        .withLatestFrom(commentChangedS, (_, String comment) => comment)
+        .map((comment) {
+      if (comment.length < 3) {
+        return Tuple2(comment, const MinLengthOfCommentIs3());
+      } else {
+        return Tuple2(comment, null);
+      }
+    }).share();
 
     final ConnectableStream<CommentsTabMessage> message$ = Rx.merge(
       [
@@ -76,6 +92,30 @@ class CommentsTabBloc implements BaseBloc {
             );
           },
         ),
+        comment$
+            .map((tuple) => tuple.item2)
+            .where((message) => message != null),
+        comment$
+            .where((tuple) => tuple.item2 == null)
+            .map((tuple) => tuple.item1)
+            .exhaustMap((comment) async* {
+          var currentUser = authBloc.currentUser();
+          if (currentUser == null) {
+            throw 'Fucking...';
+          }
+          await commentsRepository.add(
+            commentEntity: RoomCommentEntity(
+              null,
+              comment,
+              roomId,
+              currentUser.uid,
+              currentUser.avatar,
+              currentUser.fullName,
+              null,
+              null,
+            ),
+          );
+        }),
       ],
     ).publish();
 
@@ -83,6 +123,8 @@ class CommentsTabBloc implements BaseBloc {
       () => getCommentS.add(null),
       deleteCommentS.add,
       (comment, content) => updateCommentS.add(Tuple2(comment, content)),
+      commentChangedS.add,
+      () => submitAddCommentS.add(null),
       stateDistinct$,
       message$,
       DisposeBag(
