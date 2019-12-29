@@ -20,7 +20,7 @@ abstract class FirestoreRoomRepository {
   Future<Map<String, String>> addOrRemoveSavedRoom({
     @required String roomId,
     @required String userId,
-    Duration timeout: const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 10),
   });
 
   Stream<List<RoomEntity>> savedList({@required String uid});
@@ -31,6 +31,6 @@ abstract class FirestoreRoomRepository {
 
   Future<void> increaseViewCount(
     String roomId, {
-    Duration timeout: const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 10),
   });
 }

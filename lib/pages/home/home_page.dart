@@ -434,14 +434,14 @@ class HomeNewestRoomsListItem extends StatelessWidget {
               fit: BoxFit.cover,
               placeholder: (context, url) {
                 return Center(
-                  child: new CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2.0,
                   ),
                 );
               },
               errorWidget: (context, url, error) {
                 return Center(
-                  child: new Icon(
+                  child: Icon(
                     Icons.image,
                     color: Theme.of(context).accentColor,
                     size: 54,
@@ -714,7 +714,7 @@ class HomeBannerSlider extends StatelessWidget {
                           },
                           errorWidget: (context, url, error) {
                             return Center(
-                              child: new Icon(
+                              child: Icon(
                                 Icons.image,
                               ),
                             );
@@ -825,7 +825,7 @@ class HomeMostViewedRoomListItem extends StatelessWidget {
                   fit: BoxFit.cover,
                   placeholder: (context, url) {
                     return Center(
-                      child: new CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2.0,
                       ),
                     );

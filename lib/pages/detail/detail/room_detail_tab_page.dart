@@ -155,7 +155,7 @@ class _ThirdCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder: (context, url) {
                             return Center(
-                              child: new CircularProgressIndicator(
+                              child:  CircularProgressIndicator(
                                 strokeWidth: 2.0,
                               ),
                             );
@@ -611,7 +611,7 @@ class _TopImageSlider extends StatelessWidget {
                         return Container(
                           color: Colors.white,
                           child: Center(
-                            child: new Icon(
+                            child:  Icon(
                               Icons.image,
                               color: Theme.of(context).accentColor,
                             ),

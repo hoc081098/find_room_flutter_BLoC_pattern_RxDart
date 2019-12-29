@@ -199,8 +199,7 @@ class RoomDetailBloc implements BaseBloc {
 
     final userId = loginState is LoggedInUser ? loginState.uid : null;
     if (userId == null) {
-      final error =
-          const AddOrRemovedSavedErrorMessage(const UnauthenticatedError());
+      final error = const AddOrRemovedSavedErrorMessage(UnauthenticatedError());
       return Stream.value(error);
     }
 

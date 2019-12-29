@@ -172,7 +172,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         context: context,
                       );
 
-                      Navigator.pushNamed(
+                      await Navigator.pushNamed(
                         context,
                         routeName,
                         arguments: snapshot.data.profile.uid,

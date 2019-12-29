@@ -117,8 +117,9 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
     if (email == null) return Future.error('email must be not null');
     if (password == null) return Future.error('password must be not null');
     if (address == null) return Future.error('address must be not null');
-    if (phoneNumber == null)
+    if (phoneNumber == null) {
       return Future.error('phoneNumber must be not null');
+    }
     print(
         '[USER_REPO] registerWithEmail fullName=$fullName, email=$email, password=$password'
         'address=$address, phoneNumber=$phoneNumber');
@@ -190,8 +191,9 @@ class FirebaseUserRepositoryImpl implements FirebaseUserRepository {
   }) async {
     if (fullName == null) return Future.error('fullName must be not null');
     if (address == null) return Future.error('address must be not null');
-    if (phoneNumber == null)
+    if (phoneNumber == null) {
       return Future.error('phoneNumber must be not null');
+    }
 
     print('[USER_REPO] updateUserInfo fullName=$fullName, address=$address, '
         'phoneNumber=$phoneNumber, avatar=$avatar');
