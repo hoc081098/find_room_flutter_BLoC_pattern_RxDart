@@ -128,13 +128,51 @@ class RelatedRoomsStateBuilder
 class _$RoomItem extends RoomItem {
   @override
   final String id;
+  @override
+  final String title;
+  @override
+  final String price;
+  @override
+  final String address;
+  @override
+  final String districtName;
+  @override
+  final String image;
+  @override
+  final DateTime createdTime;
+  @override
+  final DateTime updatedTime;
+  @override
+  final String imageUrl;
 
   factory _$RoomItem([void Function(RoomItemBuilder) updates]) =>
       (new RoomItemBuilder()..update(updates)).build();
 
-  _$RoomItem._({this.id}) : super._() {
+  _$RoomItem._(
+      {this.id,
+      this.title,
+      this.price,
+      this.address,
+      this.districtName,
+      this.image,
+      this.createdTime,
+      this.updatedTime,
+      this.imageUrl})
+      : super._() {
     if (id == null) {
       throw new BuiltValueNullFieldError('RoomItem', 'id');
+    }
+    if (title == null) {
+      throw new BuiltValueNullFieldError('RoomItem', 'title');
+    }
+    if (price == null) {
+      throw new BuiltValueNullFieldError('RoomItem', 'price');
+    }
+    if (address == null) {
+      throw new BuiltValueNullFieldError('RoomItem', 'address');
+    }
+    if (districtName == null) {
+      throw new BuiltValueNullFieldError('RoomItem', 'districtName');
     }
   }
 
@@ -148,17 +186,49 @@ class _$RoomItem extends RoomItem {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is RoomItem && id == other.id;
+    return other is RoomItem &&
+        id == other.id &&
+        title == other.title &&
+        price == other.price &&
+        address == other.address &&
+        districtName == other.districtName &&
+        image == other.image &&
+        createdTime == other.createdTime &&
+        updatedTime == other.updatedTime &&
+        imageUrl == other.imageUrl;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(0, id.hashCode));
+    return $jf($jc(
+        $jc(
+            $jc(
+                $jc(
+                    $jc(
+                        $jc(
+                            $jc($jc($jc(0, id.hashCode), title.hashCode),
+                                price.hashCode),
+                            address.hashCode),
+                        districtName.hashCode),
+                    image.hashCode),
+                createdTime.hashCode),
+            updatedTime.hashCode),
+        imageUrl.hashCode));
   }
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('RoomItem')..add('id', id)).toString();
+    return (newBuiltValueToStringHelper('RoomItem')
+          ..add('id', id)
+          ..add('title', title)
+          ..add('price', price)
+          ..add('address', address)
+          ..add('districtName', districtName)
+          ..add('image', image)
+          ..add('createdTime', createdTime)
+          ..add('updatedTime', updatedTime)
+          ..add('imageUrl', imageUrl))
+        .toString();
   }
 }
 
@@ -169,11 +239,51 @@ class RoomItemBuilder implements Builder<RoomItem, RoomItemBuilder> {
   String get id => _$this._id;
   set id(String id) => _$this._id = id;
 
+  String _title;
+  String get title => _$this._title;
+  set title(String title) => _$this._title = title;
+
+  String _price;
+  String get price => _$this._price;
+  set price(String price) => _$this._price = price;
+
+  String _address;
+  String get address => _$this._address;
+  set address(String address) => _$this._address = address;
+
+  String _districtName;
+  String get districtName => _$this._districtName;
+  set districtName(String districtName) => _$this._districtName = districtName;
+
+  String _image;
+  String get image => _$this._image;
+  set image(String image) => _$this._image = image;
+
+  DateTime _createdTime;
+  DateTime get createdTime => _$this._createdTime;
+  set createdTime(DateTime createdTime) => _$this._createdTime = createdTime;
+
+  DateTime _updatedTime;
+  DateTime get updatedTime => _$this._updatedTime;
+  set updatedTime(DateTime updatedTime) => _$this._updatedTime = updatedTime;
+
+  String _imageUrl;
+  String get imageUrl => _$this._imageUrl;
+  set imageUrl(String imageUrl) => _$this._imageUrl = imageUrl;
+
   RoomItemBuilder();
 
   RoomItemBuilder get _$this {
     if (_$v != null) {
       _id = _$v.id;
+      _title = _$v.title;
+      _price = _$v.price;
+      _address = _$v.address;
+      _districtName = _$v.districtName;
+      _image = _$v.image;
+      _createdTime = _$v.createdTime;
+      _updatedTime = _$v.updatedTime;
+      _imageUrl = _$v.imageUrl;
       _$v = null;
     }
     return this;
@@ -194,7 +304,17 @@ class RoomItemBuilder implements Builder<RoomItem, RoomItemBuilder> {
 
   @override
   _$RoomItem build() {
-    final _$result = _$v ?? new _$RoomItem._(id: id);
+    final _$result = _$v ??
+        new _$RoomItem._(
+            id: id,
+            title: title,
+            price: price,
+            address: address,
+            districtName: districtName,
+            image: image,
+            createdTime: createdTime,
+            updatedTime: updatedTime,
+            imageUrl: imageUrl);
     replace(_$result);
     return _$result;
   }

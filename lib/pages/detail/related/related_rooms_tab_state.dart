@@ -28,6 +28,26 @@ abstract class RelatedRoomsState
 abstract class RoomItem implements Built<RoomItem, RoomItemBuilder> {
   String get id;
 
+  String get title;
+
+  String get price;
+
+  String get address;
+
+  String get districtName;
+
+  @nullable
+  String get image;
+
+  @nullable
+  DateTime get createdTime;
+
+  @nullable
+  DateTime get updatedTime;
+
+  @nullable
+  String get imageUrl;
+
   RoomItem._();
 
   factory RoomItem([updates(RoomItemBuilder b)]) = _$RoomItem;

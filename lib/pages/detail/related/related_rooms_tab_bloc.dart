@@ -8,6 +8,7 @@ import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/models/room_entity.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_state.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RelatedRoomsTabBloc implements BaseBloc {
@@ -35,6 +36,7 @@ class RelatedRoomsTabBloc implements BaseBloc {
 
   factory RelatedRoomsTabBloc(
     FirestoreRoomRepository roomsRepo,
+    NumberFormat priceFormat,
     String roomId,
   ) {
     // ignore_for_file: close_sinks
@@ -50,30 +52,27 @@ class RelatedRoomsTabBloc implements BaseBloc {
     /// Input actions to state
     ///
     final fetchChanges = fetchSubject.exhaustMap(
-      (_) {
-        return Rx.defer(() =>
-                Stream.fromFuture(roomsRepo.getRelatedRoomsBy(roomId: roomId)))
-            .map(_toItem)
-            .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
-            .startWith(const LoadingChange())
-            .doOnError((e, s) => messageSubject.add(GetRoomsErrorMessage(e)))
-            .onErrorReturnWith((e) => GetUsersErrorChange(e));
-      },
+      (_) => Rx.defer(() =>
+              Stream.fromFuture(roomsRepo.getRelatedRoomsBy(roomId: roomId)))
+          .map((entities) => _toItem(entities, priceFormat))
+          .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
+          .startWith(const LoadingChange())
+          .doOnError((e, s) => messageSubject.add(GetRoomsErrorMessage(e)))
+          .onErrorReturnWith((e) => GetUsersErrorChange(e)),
     );
     final refreshChanges = refreshSubject
         .throttleTime(const Duration(milliseconds: 600))
         .exhaustMap(
-      (completer) {
-        return Rx.defer(() =>
-                Stream.fromFuture(roomsRepo.getRelatedRoomsBy(roomId: roomId)))
-            .map(_toItem)
-            .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
-            .doOnError((e, s) => messageSubject.add(RefreshFailureMessage(e)))
-            .doOnData((_) => messageSubject.add(const RefreshSuccessMessage()))
-            .onErrorResumeNext(Stream.empty())
-            .doOnDone(() => completer.complete());
-      },
-    );
+          (completer) => Rx.defer(() => Stream.fromFuture(
+                  roomsRepo.getRelatedRoomsBy(roomId: roomId)))
+              .map((entities) => _toItem(entities, priceFormat))
+              .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
+              .doOnError((e, s) => messageSubject.add(RefreshFailureMessage(e)))
+              .doOnData(
+                  (_) => messageSubject.add(const RefreshSuccessMessage()))
+              .onErrorResumeNext(Stream.empty())
+              .doOnDone(() => completer.complete()),
+        );
 
     final initialState = RelatedRoomsState.initial();
     final state$ = Rx.merge([fetchChanges, refreshChanges])
@@ -132,9 +131,24 @@ class RelatedRoomsTabBloc implements BaseBloc {
     return state;
   }
 
-  static List<RoomItem> _toItem(List<RoomEntity> entities) {
+  static List<RoomItem> _toItem(
+    List<RoomEntity> entities,
+    NumberFormat priceFormat,
+  ) {
     return entities
-        .map((e) => RoomItem((b) => b..id = e.id))
+        .map(
+          (e) => RoomItem(
+            (b) => b
+              ..id = e.id
+              ..imageUrl = e.images.isEmpty ? null : e.images.first
+              ..title = e.title
+              ..districtName = e.districtName
+              ..address = e.address
+              ..price = priceFormat.format(e.price)
+              ..createdTime = e.createdAt?.toDate()
+              ..updatedTime = e.updatedAt?.toDate(),
+          ),
+        )
         .toList(growable: false);
   }
 }

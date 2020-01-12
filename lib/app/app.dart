@@ -239,6 +239,7 @@ class MyApp extends StatelessWidget {
                   blocSupplier: () {
                     return RelatedRoomsTabBloc(
                       injector.roomRepository,
+                      injector.priceFormat,
                       roomId,
                     )..fetch.call();
                   },

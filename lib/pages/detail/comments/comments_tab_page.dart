@@ -122,6 +122,33 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
                       }
 
                       final comments = state.comments;
+
+                      if (comments.isEmpty) {
+                        return Container(
+                          constraints: BoxConstraints.expand(),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.comment,
+                                  size: 48,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Empty comments',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .title
+                                      .copyWith(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
                       return Scrollbar(
                         child: ListView.separated(
                           physics: const BouncingScrollPhysics(),
