@@ -13,18 +13,24 @@ class _$CommentsTabState extends CommentsTabState {
   final BuiltList<CommentItem> comments;
   @override
   final Object error;
+  @override
+  final bool isLoggedIn;
 
   factory _$CommentsTabState(
           [void Function(CommentsTabStateBuilder) updates]) =>
       (new CommentsTabStateBuilder()..update(updates)).build();
 
-  _$CommentsTabState._({this.isLoading, this.comments, this.error})
+  _$CommentsTabState._(
+      {this.isLoading, this.comments, this.error, this.isLoggedIn})
       : super._() {
     if (isLoading == null) {
       throw new BuiltValueNullFieldError('CommentsTabState', 'isLoading');
     }
     if (comments == null) {
       throw new BuiltValueNullFieldError('CommentsTabState', 'comments');
+    }
+    if (isLoggedIn == null) {
+      throw new BuiltValueNullFieldError('CommentsTabState', 'isLoggedIn');
     }
   }
 
@@ -42,13 +48,15 @@ class _$CommentsTabState extends CommentsTabState {
     return other is CommentsTabState &&
         isLoading == other.isLoading &&
         comments == other.comments &&
-        error == other.error;
+        error == other.error &&
+        isLoggedIn == other.isLoggedIn;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
-        $jc($jc(0, isLoading.hashCode), comments.hashCode), error.hashCode));
+        $jc($jc($jc(0, isLoading.hashCode), comments.hashCode), error.hashCode),
+        isLoggedIn.hashCode));
   }
 
   @override
@@ -56,7 +64,8 @@ class _$CommentsTabState extends CommentsTabState {
     return (newBuiltValueToStringHelper('CommentsTabState')
           ..add('isLoading', isLoading)
           ..add('comments', comments)
-          ..add('error', error))
+          ..add('error', error)
+          ..add('isLoggedIn', isLoggedIn))
         .toString();
   }
 }
@@ -79,6 +88,10 @@ class CommentsTabStateBuilder
   Object get error => _$this._error;
   set error(Object error) => _$this._error = error;
 
+  bool _isLoggedIn;
+  bool get isLoggedIn => _$this._isLoggedIn;
+  set isLoggedIn(bool isLoggedIn) => _$this._isLoggedIn = isLoggedIn;
+
   CommentsTabStateBuilder();
 
   CommentsTabStateBuilder get _$this {
@@ -86,6 +99,7 @@ class CommentsTabStateBuilder
       _isLoading = _$v.isLoading;
       _comments = _$v.comments?.toBuilder();
       _error = _$v.error;
+      _isLoggedIn = _$v.isLoggedIn;
       _$v = null;
     }
     return this;
@@ -110,7 +124,10 @@ class CommentsTabStateBuilder
     try {
       _$result = _$v ??
           new _$CommentsTabState._(
-              isLoading: isLoading, comments: comments.build(), error: error);
+              isLoading: isLoading,
+              comments: comments.build(),
+              error: error,
+              isLoggedIn: isLoggedIn);
     } catch (_) {
       String _$failedField;
       try {

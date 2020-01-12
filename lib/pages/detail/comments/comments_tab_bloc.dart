@@ -57,9 +57,9 @@ class CommentsTabBloc implements BaseBloc {
       submitAddCommentS
     ];
 
-    final initialVS = CommentsTabState.initial();
+    final initialVS = CommentsTabState.initial(authBloc.currentUser() != null);
 
-    final state$ = getCommentS.exhaustMap((_) {
+    final scannedState$ = getCommentS.exhaustMap((_) {
       return Rx.combineLatest2(
         commentsRepository.commentsFor(roomId: roomId),
         authBloc.loginState$,
@@ -68,8 +68,22 @@ class CommentsTabBloc implements BaseBloc {
       ).startWith(const Loading()).onErrorReturnWith((e) => Error(e));
     }).scan((state, change, _) => change.reducer(state), initialVS);
 
-    final stateDistinct$ =
-        state$.publishValueSeededDistinct(seedValue: initialVS);
+    final state$ = Rx.combineLatest2(
+      scannedState$,
+      authBloc.loginState$,
+      (CommentsTabState state, LoginState loginState) {
+        var isLoggedIn = false;
+        if (loginState == null) {
+          isLoggedIn = false;
+        } else if (loginState is LoggedInUser) {
+          isLoggedIn = true;
+        } else if (loginState is Unauthenticated) {
+          isLoggedIn = false;
+        }
+
+        return state.rebuild((b) => b..isLoggedIn = isLoggedIn);
+      },
+    ).publishValueSeededDistinct(seedValue: initialVS);
 
     final comment$ = submitAddCommentS
         .withLatestFrom(commentChangedS, (_, String comment) => comment)
@@ -116,13 +130,13 @@ class CommentsTabBloc implements BaseBloc {
       (comment, content) => updateCommentS.add(Tuple2(comment, content)),
       commentChangedS.add,
       () => submitAddCommentS.add(null),
-      stateDistinct$,
+      state$,
       message$,
       DisposeBag(
         [
-          stateDistinct$.listen((state) => print(
+          state$.listen((state) => print(
               '$_tag ${state.isLoading} ${state.error} ${state.comments.length}')),
-          stateDistinct$.connect(),
+          state$.connect(),
           message$.connect(),
           commentChangedS.listen(print),
           ...controllers,

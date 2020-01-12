@@ -98,92 +98,97 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
 
     return Container(
       color: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: StreamBuilder<CommentsTabState>(
-              stream: bloc.state$,
-              initialData: bloc.state$.value,
-              builder: (context, snapshot) {
-                final state = snapshot.data;
+      child: StreamBuilder<CommentsTabState>(
+          stream: bloc.state$,
+          initialData: bloc.state$.value,
+          builder: (context, snapshot) {
+            final state = snapshot.data;
 
-                if (state.isLoading) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                if (state.error != null) {
-                  return Center(
-                    child: Text('Error ${state.error}'),
-                  );
-                }
-
-                final comments = state.comments;
-                return Scrollbar(
-                  child: ListView.separated(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: comments.length,
-                    itemBuilder: (context, index) => CommentItemWidget(
-                      comment: comments[index],
-                      deleteCallback: showDeleteDialog,
-                      editCallback: showEditDialog,
-                    ),
-                    separatorBuilder: (context, index) => Divider(
-                      color: Theme.of(context).dividerColor.withAlpha(128),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 4,
-                )
-              ],
-            ),
-            child: Row(
+            return Column(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
-                    controller: commentController,
-                    expands: false,
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      labelText: 'Comment',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(32),
-                        borderSide: const BorderSide(width: 0),
-                      ),
-                      filled: true,
-                    ),
-                    onSubmitted: (_) => bloc.submitAddComment(),
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                    maxLines: null,
+                  child: Builder(
+                    builder: (context) {
+                      if (state.isLoading) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (state.error != null) {
+                        return Center(
+                          child: Text('Error ${state.error}'),
+                        );
+                      }
+
+                      final comments = state.comments;
+                      return Scrollbar(
+                        child: ListView.separated(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: comments.length,
+                          itemBuilder: (context, index) => CommentItemWidget(
+                            comment: comments[index],
+                            deleteCallback: showDeleteDialog,
+                            editCallback: showEditDialog,
+                          ),
+                          separatorBuilder: (context, index) => Divider(
+                            color:
+                                Theme.of(context).dividerColor.withAlpha(128),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(width: 8),
-                FloatingActionButton(
-                  onPressed: () {
-                    focusNode.unfocus();
-                    bloc.submitAddComment();
-                  },
-                  child: Icon(
-                    Icons.send,
-                  ),
-                )
+                if (state.isLoggedIn)
+                  Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 4,
+                        )
+                      ],
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            controller: commentController,
+                            expands: false,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              labelText: 'Comment',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(32),
+                                borderSide: const BorderSide(width: 0),
+                              ),
+                              filled: true,
+                            ),
+                            onSubmitted: (_) => bloc.submitAddComment(),
+                            keyboardType: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                            maxLines: null,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FloatingActionButton(
+                          onPressed: () {
+                            focusNode.unfocus();
+                            bloc.submitAddComment();
+                          },
+                          child: Icon(
+                            Icons.send,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
               ],
-            ),
-          )
-        ],
-      ),
+            );
+          }),
     );
   }
 

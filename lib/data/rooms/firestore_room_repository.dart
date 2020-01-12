@@ -34,5 +34,5 @@ abstract class FirestoreRoomRepository {
     Duration timeout = const Duration(seconds: 10),
   });
 
-  Future<List<RoomEntity>> getRelatedRooms();
+  Future<List<RoomEntity>> getRelatedRoomsBy({@required String roomId});
 }

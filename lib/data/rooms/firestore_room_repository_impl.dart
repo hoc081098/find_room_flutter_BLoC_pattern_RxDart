@@ -197,7 +197,32 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
   }
 
   @override
-  Future<List<RoomEntity>> getRelatedRooms() async {
-    return [];
+  Future<List<RoomEntity>> getRelatedRoomsBy({String roomId}) async {
+    if (roomId == null) {
+      throw ArgumentError.notNull('roomId');
+    }
+    final room = await _firestore
+        .document('motelrooms/$roomId')
+        .get()
+        .then((snapshot) => RoomEntity.fromDocumentSnapshot(snapshot));
+
+    const deltaPrice = 500000;
+    const limit = 21;
+
+    return (await _firestore
+            .collection('motelrooms')
+            .where('approve', isEqualTo: true)
+            .where('category', isEqualTo: room.category)
+            .where('district', isEqualTo: room.district)
+            .where('price', isGreaterThanOrEqualTo: room.price - deltaPrice)
+            .where('price', isLessThanOrEqualTo: room.price + deltaPrice)
+            .orderBy('price', descending: false)
+            .orderBy('count_view', descending: true)
+            .limit(limit)
+            .getDocuments()
+            .then(_toEntities))
+        .item1
+        .where((room) => room.id != roomId)
+        .toList(growable: false);
   }
 }

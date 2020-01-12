@@ -116,16 +116,19 @@ abstract class CommentsTabState
   @nullable
   Object get error;
 
+  bool get isLoggedIn;
+
   CommentsTabState._();
 
   factory CommentsTabState([updates(CommentsTabStateBuilder b)]) =
       _$CommentsTabState;
 
-  factory CommentsTabState.initial() => CommentsTabState(
+  factory CommentsTabState.initial(bool isLoggedIn) => CommentsTabState(
         (b) => b
           ..isLoading = true
           ..error = null
-          ..comments = ListBuilder<CommentItem>(),
+          ..comments = ListBuilder<CommentItem>()
+          ..isLoggedIn = isLoggedIn,
       );
 }
 

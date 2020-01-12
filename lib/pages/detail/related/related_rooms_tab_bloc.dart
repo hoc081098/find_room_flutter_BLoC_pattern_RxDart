@@ -33,7 +33,10 @@ class RelatedRoomsTabBloc implements BaseBloc {
     @required this.message$,
   });
 
-  factory RelatedRoomsTabBloc(FirestoreRoomRepository roomsRepo) {
+  factory RelatedRoomsTabBloc(
+    FirestoreRoomRepository roomsRepo,
+    String roomId,
+  ) {
     // ignore_for_file: close_sinks
 
     ///
@@ -48,7 +51,8 @@ class RelatedRoomsTabBloc implements BaseBloc {
     ///
     final fetchChanges = fetchSubject.exhaustMap(
       (_) {
-        return Rx.defer(() => Stream.fromFuture(roomsRepo.getRelatedRooms()))
+        return Rx.defer(() =>
+                Stream.fromFuture(roomsRepo.getRelatedRoomsBy(roomId: roomId)))
             .map(_toItem)
             .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
             .startWith(const LoadingChange())
@@ -60,7 +64,8 @@ class RelatedRoomsTabBloc implements BaseBloc {
         .throttleTime(const Duration(milliseconds: 600))
         .exhaustMap(
       (completer) {
-        return Rx.defer(() => Stream.fromFuture(roomsRepo.getRelatedRooms()))
+        return Rx.defer(() =>
+                Stream.fromFuture(roomsRepo.getRelatedRoomsBy(roomId: roomId)))
             .map(_toItem)
             .map<PartialStateChange>((items) => GetUsersSuccessChange(items))
             .doOnError((e, s) => messageSubject.add(RefreshFailureMessage(e)))

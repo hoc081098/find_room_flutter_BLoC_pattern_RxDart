@@ -237,8 +237,10 @@ class MyApp extends StatelessWidget {
                 child: BlocProvider<RelatedRoomsTabBloc>(
                   child: RoomDetailPage(),
                   blocSupplier: () {
-                    return RelatedRoomsTabBloc(injector.roomRepository)
-                      ..fetch.call();
+                    return RelatedRoomsTabBloc(
+                      injector.roomRepository,
+                      roomId,
+                    )..fetch.call();
                   },
                 ),
               ),
