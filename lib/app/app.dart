@@ -22,6 +22,7 @@ import 'package:find_room/pages/login_register/forgot_password/forgot_password_b
 import 'package:find_room/pages/login_register/forgot_password/forgot_password_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/login_register/register/register_page.dart';
+import 'package:find_room/pages/post/post_room_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
 import 'package:find_room/pages/setting/setting_page.dart';
@@ -89,6 +90,9 @@ class MyApp extends StatelessWidget {
         userRepository: Injector.of(context).userRepository,
       );
     },
+    '/post_room': (context) {
+      return const PostRoomPage();
+    }
   };
 
   final RouteFactory onGenerateRoute = (routerSettings) {
@@ -390,7 +394,8 @@ class MyDrawer extends StatelessWidget {
             leading: Icon(Icons.home),
           ),
           DrawerSavedListTile(navigator),
-          Divider(),
+          DrawerPostListTile(navigator),
+          const Divider(),
           DrawerUserProfileTile(navigator),
           DrawerLoginLogoutTile(navigator),
         ],
@@ -417,20 +422,8 @@ class DrawerUserHeader extends StatelessWidget {
         final loginState = snapshot.data;
 
         if (loginState is LoggedInUser) {
-          return UserAccountsDrawerHeader(
-            currentAccountPicture:
-                loginState.avatar == null || loginState.avatar.isEmpty
-                    ? const CircleAvatar(
-                        child: Icon(Icons.image),
-                      )
-                    : CircleAvatar(
-                        backgroundImage:
-                            CachedNetworkImageProvider(loginState.avatar),
-                        backgroundColor: Colors.white,
-                      ),
-            accountEmail: Text(loginState.email),
-            accountName: Text(loginState.fullName ?? ''),
-            onDetailsPressed: () {
+          return GestureDetector(
+            onTap: () {
               drawerControllerState.close();
               navigator.currentState.pushNamedAndRemoveUntil(
                 '/user_profile',
@@ -438,23 +431,39 @@ class DrawerUserHeader extends StatelessWidget {
                 arguments: loginState.uid,
               );
             },
+            child: UserAccountsDrawerHeader(
+              currentAccountPicture:
+                  loginState.avatar == null || loginState.avatar.isEmpty
+                      ? const CircleAvatar(
+                          child: Icon(Icons.image),
+                        )
+                      : CircleAvatar(
+                          backgroundImage:
+                              CachedNetworkImageProvider(loginState.avatar),
+                          backgroundColor: Colors.white,
+                        ),
+              accountEmail: Text(loginState.email),
+              accountName: Text(loginState.fullName ?? ''),
+            ),
           );
         }
 
         if (loginState is Unauthenticated) {
-          return UserAccountsDrawerHeader(
-            currentAccountPicture: CircleAvatar(
-              child: const Icon(Icons.image),
-            ),
-            accountEmail: Text(S.of(context).login_now),
-            accountName: Container(),
-            onDetailsPressed: () {
+          return GestureDetector(
+            onTap: () {
               drawerControllerState.close();
               navigator.currentState.pushNamedAndRemoveUntil(
                 '/login',
                 ModalRoute.withName('/'),
               );
             },
+            child: UserAccountsDrawerHeader(
+              currentAccountPicture: CircleAvatar(
+                child: const Icon(Icons.image),
+              ),
+              accountEmail: Text(S.of(context).login_now),
+              accountName: Container(),
+            ),
           );
         }
 
@@ -499,6 +508,53 @@ class DrawerSavedListTile extends StatelessWidget {
               );
             },
             leading: const Icon(Icons.bookmark),
+          );
+        }
+
+        return Container(
+          width: 0,
+          height: 0,
+        );
+      },
+    );
+  }
+}
+
+class DrawerPostListTile extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigator;
+
+  const DrawerPostListTile(this.navigator, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final ValueStream<LoginState> loginState$ = authBloc.loginState$;
+    final DrawerControllerState drawerControllerState = RootDrawer.of(context);
+
+    return StreamBuilder<LoginState>(
+      stream: loginState$,
+      initialData: loginState$.value,
+      builder: (context, snapshot) {
+        final loginState = snapshot.data;
+
+        if (loginState is Unauthenticated) {
+          return Container(
+            width: 0,
+            height: 0,
+          );
+        }
+
+        if (loginState is LoggedInUser) {
+          return ListTile(
+            title: Text('Post room'),
+            onTap: () {
+              drawerControllerState.close();
+              navigator.currentState.pushNamedAndRemoveUntil(
+                '/post_room',
+                ModalRoute.withName('/'),
+              );
+            },
+            leading: const Icon(Icons.add),
           );
         }
 
