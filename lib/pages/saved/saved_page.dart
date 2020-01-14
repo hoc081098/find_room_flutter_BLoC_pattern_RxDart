@@ -91,7 +91,10 @@ class _SavedPageState extends State<SavedPage> {
         ),
       ),
       body: SafeArea(
-        child: StreamBuilder<SavedListState>(
+        child: Container(
+          constraints: BoxConstraints.expand(),
+          color: Colors.white,
+          child: StreamBuilder<SavedListState>(
             stream: _savedBloc.savedListState$,
             initialData: _savedBloc.savedListState$.value,
             builder: (context, snapshot) {
@@ -150,26 +153,29 @@ class _SavedPageState extends State<SavedPage> {
                   );
                 },
               );
-            }),
+            },
+          ),
+        ),
       ),
     );
   }
 
   static EdgeInsets _getItemPadding(int length, int index) {
     EdgeInsets padding;
+    const margin = 6.0;
     if (length > 1) {
       if (index == 0) {
-        padding = const EdgeInsets.fromLTRB(4, 4, 4, 2);
+        padding = const EdgeInsets.fromLTRB(margin, margin, margin, margin / 2);
       } else if (index == length - 1) {
-        padding = const EdgeInsets.fromLTRB(4, 2, 4, 4);
+        padding = const EdgeInsets.fromLTRB(margin, 2, margin, margin);
       } else {
         padding = const EdgeInsets.symmetric(
-          vertical: 2,
-          horizontal: 4,
+          vertical: margin / 2,
+          horizontal: margin,
         );
       }
     } else {
-      padding = const EdgeInsets.all(4);
+      padding = const EdgeInsets.all(margin);
     }
     return padding;
   }
@@ -252,163 +258,172 @@ class _SavedRoomListItemState extends State<SavedRoomListItem>
     final currentLocale =
         BlocProvider.of<LocaleBloc>(context).locale$.value.languageCode;
 
+    final textRemoved = Text(
+      s.removed,
+      style: themeData.textTheme.title.copyWith(fontSize: 14),
+    );
     final background = Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            SizedBox(width: 16.0),
-            Icon(
+            const SizedBox(width: 16.0),
+            const Icon(
               Icons.delete,
               size: 28.0,
+              color: Colors.black54,
             ),
-            Text(
-              s.removed,
-              style: themeData.textTheme.subhead,
-            ),
-            Spacer(),
-            Text(
-              s.removed,
-              style: themeData.textTheme.subhead,
-            ),
-            SizedBox(width: 16.0),
-            Icon(
+            const SizedBox(width: 16.0),
+            textRemoved,
+            const Spacer(),
+            textRemoved,
+            const SizedBox(width: 16.0),
+            const Icon(
               Icons.delete,
               size: 28.0,
+              color: Colors.black54,
             ),
+            const SizedBox(width: 16.0),
           ],
         ),
       ),
     );
 
+    const radius = 6.0;
+    const sizedBox = SizedBox(height: 4);
+    final dateFormat = DateFormat.yMMMMd(currentLocale).add_Hms();
+
     final content = Container(
       margin: widget.margin,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(radius),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade300,
+            color: Colors.grey.shade400,
             blurRadius: 10,
-            spreadRadius: 2,
+            offset: Offset(2, 2),
           )
         ],
       ),
-      child: Row(
-        children: <Widget>[
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(4),
-              bottomLeft: Radius.circular(4),
-            ),
-            child: CachedNetworkImage(
-              width: 128,
-              height: 128,
-              fit: BoxFit.cover,
-              imageUrl: item.image,
-              placeholder: (context, url) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                );
-              },
-              errorWidget: (context, url, error) {
-                return Container(
-                  color: Colors.black12,
-                  width: 128,
-                  height: 128,
-                  child: Center(
-                    child: Icon(
-                      Icons.image,
-                      color: Theme.of(context).accentColor,
-                      size: 32,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Material(
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                '/room_detail',
+                arguments: item.id,
+              );
+            },
+            child: Row(
               children: <Widget>[
-                Text(
-                  item.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    fontSize: 14,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w600,
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(radius),
+                    bottomLeft: Radius.circular(radius),
+                  ),
+                  child: CachedNetworkImage(
+                    width: 128,
+                    height: 128,
+                    fit: BoxFit.cover,
+                    imageUrl: item.image,
+                    placeholder: (context, url) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      );
+                    },
+                    errorWidget: (context, url, error) {
+                      return Container(
+                        color: Colors.black12,
+                        width: 128,
+                        height: 128,
+                        child: Center(
+                          child: Icon(
+                            Icons.image,
+                            color: Theme.of(context).accentColor,
+                            size: 32,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                Text(
-                  item.price,
-                  textAlign: TextAlign.left,
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: themeData.accentColor,
-                    fontSize: 12.0,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Text(
-                  item.address,
-                  textAlign: TextAlign.left,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: Colors.black87,
-                    fontSize: 12,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Text(
-                  item.districtName,
-                  maxLines: 1,
-                  textAlign: TextAlign.left,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.subtitle.copyWith(
-                    color: Colors.black87,
-                    fontSize: 12,
-                    fontFamily: 'SF-Pro-Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        DateFormat.yMMMMd(currentLocale)
-                            .add_Hms()
-                            .format(item.savedTime),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      sizedBox,
+                      Text(
+                        item.title,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: themeData.textTheme.subtitle.copyWith(
-                          color: Colors.black54,
-                          fontSize: 12,
-                          fontFamily: 'SF-Pro-Text',
-                          fontWeight: FontWeight.w400,
+                        style: themeData.textTheme.title.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    Icon(Icons.bookmark),
-                  ],
+                      sizedBox,
+                      Text(
+                        item.price,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        style: themeData.textTheme.subtitle.copyWith(
+                          color: themeData.accentColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      sizedBox,
+                      Text(
+                        '${item.address} - ${item.districtName}' * 5,
+                        textAlign: TextAlign.left,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            themeData.textTheme.subtitle.copyWith(fontSize: 12),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              dateFormat.format(item.savedTime),
+                              maxLines: 1,
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle.copyWith(
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.bookmark,
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ],
+                      ),
+                      sizedBox,
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
 
