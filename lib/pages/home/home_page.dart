@@ -344,6 +344,11 @@ class HomeHeaderItem extends StatelessWidget {
               ),
             ),
             MaterialButton(
+              color: Theme.of(context).accentColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              elevation: 0,
               onPressed: () {
                 Navigator.pushNamed(
                   context,
