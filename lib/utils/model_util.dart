@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:built_collection/built_collection.dart';
 
 const kListStringEquality = ListEquality<String>();
 
@@ -27,3 +28,7 @@ Map<String, dynamic> withId(DocumentSnapshot doc) => CombinedMapView([
       doc.data,
       <String, dynamic>{'documentID': doc.documentID}
     ]);
+
+extension ToBuiltList<T> on Iterable<T> {
+  BuiltList<T> toBuiltList() => BuiltList.of(this);
+}

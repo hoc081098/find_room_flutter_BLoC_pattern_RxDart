@@ -1,3 +1,4 @@
+import 'package:find_room/data/categories/firestore_categories_repository.dart';
 import 'package:find_room/data/local/local_data_source.dart';
 import 'package:find_room/data/room_comments/room_comments_repository.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
@@ -10,6 +11,7 @@ class Injector extends InheritedWidget {
   final FirebaseUserRepository userRepository;
   final FirestoreRoomRepository roomRepository;
   final RoomCommentsRepository roomCommentsRepository;
+  final FirestoreCategoriesRepository categoriesRepository;
   final NumberFormat priceFormat;
   final bool debug;
   final LocalDataSource localDataSource;
@@ -23,6 +25,7 @@ class Injector extends InheritedWidget {
     @required this.localDataSource,
     @required Widget child,
     @required this.roomCommentsRepository,
+    @required this.categoriesRepository,
   }) : super(key: key, child: child);
 
   static Injector of(BuildContext context) =>
@@ -39,6 +42,7 @@ class Injector extends InheritedWidget {
           userRepository == other.userRepository &&
           roomRepository == other.roomRepository &&
           roomCommentsRepository == other.roomCommentsRepository &&
+          categoriesRepository == other.categoriesRepository &&
           priceFormat == other.priceFormat &&
           debug == other.debug &&
           localDataSource == other.localDataSource;
@@ -48,6 +52,7 @@ class Injector extends InheritedWidget {
       userRepository.hashCode ^
       roomRepository.hashCode ^
       roomCommentsRepository.hashCode ^
+      categoriesRepository.hashCode ^
       priceFormat.hashCode ^
       debug.hashCode ^
       localDataSource.hashCode;

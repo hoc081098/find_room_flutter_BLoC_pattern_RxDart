@@ -29,6 +29,7 @@ dependencies:
   distinct_value_connectable_stream: ^1.0.3
   rxdart: ^0.23.1
   disposebag: ^1.0.0+1
+  stream_loader: ^0.1.0
 
   # widgets & plugin
   flutter_swiper: ^1.1.6
