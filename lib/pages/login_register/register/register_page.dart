@@ -251,7 +251,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     if (message is RegisterMessageError) {
       final error = message.error;
-      print('[DEBUG] error=$error');
+      // print('[DEBUG] error=$error');
 
       if (error is NetworkError) {
         _showSnackBar(s.network_error);
@@ -277,7 +277,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       ///
       if (error is UnknownError) {
-        print('[DEBUG] error=${error.error}');
+        // print('[DEBUG] error=${error.error}');
         _showSnackBar(s.error_occurred);
       }
     }

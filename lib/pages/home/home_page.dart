@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showMessage(HomeMessage message) {
-    print('[DEBUG] home_message=$message');
+    // print('[DEBUG] home_message=$message');
     final s = S.of(context);
 
     if (message is ChangeSelectedProvinceMessage) {
@@ -187,7 +187,7 @@ class HomeSelectedProvince extends StatelessWidget {
       initialData: selectedProvinceAndAllProvinces$.value,
       stream: selectedProvinceAndAllProvinces$,
       builder: (context, snapshot) {
-        print('[DEBUG] province $snapshot');
+        // print('[DEBUG] province $snapshot');
 
         final Tuple2<Province, List<Province>> data = snapshot.data;
         final themeData = Theme.of(context);

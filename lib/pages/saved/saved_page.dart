@@ -44,7 +44,7 @@ class _SavedPageState extends State<SavedPage> {
   }
 
   void _showMessageResult(SavedMessage message) {
-    print('[DEBUG] saved_message=$message');
+    // print('[DEBUG] saved_message=$message');
     final s = S.of(context);
 
     if (message is RemovedSaveRoomMessage) {

@@ -155,7 +155,7 @@ class FirestoreRoomRepositoryImpl implements FirestoreRoomRepository {
       return Stream.error('uid must be not null');
     }
 
-    Query query = _firestore
+    final Query query = _firestore
         .collection('motelrooms')
         .where('user', isEqualTo: _firestore.document('users/$uid'))
         .where('approve', isEqualTo: true)

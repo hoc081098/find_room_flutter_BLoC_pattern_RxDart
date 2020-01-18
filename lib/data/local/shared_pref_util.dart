@@ -60,10 +60,10 @@ class SharedPrefUtil implements LocalDataSource {
     ]);
     final result = list.reduce((acc, e) => acc && e);
     if (result) {
-      print('[DEBUG] saveSelectedProvince(province=$province) [success]');
+      // print('[DEBUG] saveSelectedProvince(province=$province) [success]');
       _selectedProvinceController.add(province);
     } else {
-      print('[DEBUG] saveSelectedProvince(province=$province) [error]');
+      // print('[DEBUG] saveSelectedProvince(province=$province) [error]');
     }
     return result;
   }

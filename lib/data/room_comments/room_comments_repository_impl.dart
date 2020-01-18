@@ -47,7 +47,7 @@ class RoomCommentsRepositoryImpl implements RoomCommentsRepository {
 
   @override
   Future<void> add({RoomCommentEntity commentEntity}) async {
-    Map<String, dynamic> json = commentEntity.toJson();
+    final Map<String, dynamic> json = commentEntity.toJson();
     json.remove('documentID');
     json['created_at'] = FieldValue.serverTimestamp();
     json['updated_at'] = null;

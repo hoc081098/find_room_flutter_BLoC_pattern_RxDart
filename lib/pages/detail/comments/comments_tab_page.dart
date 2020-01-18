@@ -24,8 +24,7 @@ class _CommentsTabPagesState extends State<CommentsTabPages> {
     super.didChangeDependencies();
 
     if (_subscription == null) {
-      var bloc = BlocProvider.of<CommentsTabBloc>(context);
-      print(bloc);
+      final bloc = BlocProvider.of<CommentsTabBloc>(context);
 
       commentController
           .addListener(() => bloc.commentChanged(commentController.text));

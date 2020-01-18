@@ -18,7 +18,7 @@ class BlocProvider<T extends BaseBloc> extends StatefulWidget {
   _BlocProviderState<T> createState() => _BlocProviderState<T>();
 
   static T of<T extends BaseBloc>(BuildContext context) {
-    _BlocProviderInheritedWidget<T> provider = context
+    final provider = context
         .dependOnInheritedWidgetOfExactType<_BlocProviderInheritedWidget<T>>();
     if (provider == null) {
       throw StateError(
@@ -50,7 +50,7 @@ class _BlocProviderState<T extends BaseBloc> extends State<BlocProvider<T>> {
   @override
   void dispose() {
     _bloc.dispose();
-    print('[DEBUG] Bloc disposed');
+    print('[DEBUG] Bloc ${_bloc.runtimeType} disposed');
     super.dispose();
   }
 }

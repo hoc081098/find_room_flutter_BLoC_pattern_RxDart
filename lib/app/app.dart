@@ -22,6 +22,7 @@ import 'package:find_room/pages/login_register/forgot_password/forgot_password_b
 import 'package:find_room/pages/login_register/forgot_password/forgot_password_page.dart';
 import 'package:find_room/pages/login_register/login_page.dart';
 import 'package:find_room/pages/login_register/register/register_page.dart';
+import 'package:find_room/pages/post/post_room_bloc.dart';
 import 'package:find_room/pages/post/post_room_page.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_page.dart';
@@ -91,7 +92,14 @@ class MyApp extends StatelessWidget {
       );
     },
     '/post_room': (context) {
-      return const PostRoomPage();
+      final categoriesRepository = Injector.of(context).categoriesRepository;
+      return BlocProvider<PostRoomCategoriesBloc>(
+        blocSupplier: () => PostRoomCategoriesBloc(categoriesRepository)..fetch(),
+        child: BlocProvider<PostRoomBloc>(
+          blocSupplier: () => PostRoomBloc(),
+          child: const PostRoomPage(),
+        ),
+      );
     }
   };
 
@@ -291,7 +299,7 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (context) => S.of(context).app_title,
           theme: appTheme,
           builder: (BuildContext context, Widget child) {
-            print('[DEBUG] App builder');
+            // print('[DEBUG] App builder');
             return Scaffold(
               drawer: MyDrawer(
                 navigator: child.key as GlobalKey<NavigatorState>,
@@ -331,7 +339,7 @@ class _BodyChildState extends State<BodyChild> {
   @override
   void initState() {
     super.initState();
-    print('[DEBUG] _BodyChildState initState');
+    // print('[DEBUG] _BodyChildState initState');
 
     _subscription = widget.authBloc.message$.listen((message) {
       final s = S.of(context);
@@ -340,7 +348,7 @@ class _BodyChildState extends State<BodyChild> {
           _showSnackBar(s.logout_success);
         }
         if (message is UserLogoutMessageError) {
-          print('[DEBUG] logout error=${message.error}');
+          // print('[DEBUG] logout error=${message.error}');
           _showSnackBar(s.logout_error);
         }
       }
@@ -349,7 +357,7 @@ class _BodyChildState extends State<BodyChild> {
 
   @override
   void dispose() {
-    print('[DEBUG] _BodyChildState dispose');
+    // print('[DEBUG] _BodyChildState dispose');
     _subscription.cancel();
 
     super.dispose();
@@ -357,7 +365,7 @@ class _BodyChildState extends State<BodyChild> {
 
   @override
   Widget build(BuildContext context) {
-    print('[DEBUG] _BodyChildState build');
+    // print('[DEBUG] _BodyChildState build');
     return widget.child;
   }
 
@@ -378,7 +386,7 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('[DEBUG] MyDrawer build');
+    // print('[DEBUG] MyDrawer build');
 
     return Drawer(
       child: ListView(

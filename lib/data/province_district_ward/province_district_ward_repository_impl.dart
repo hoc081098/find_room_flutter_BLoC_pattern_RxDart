@@ -12,7 +12,7 @@ class ProvinceDistrictWardRepositoryImpl
 
   @override
   Future<List<ProvinceEntity>> getAllProvinces() {
-    List<ProvinceEntity> Function(QuerySnapshot) mapper = (querySnapshot) {
+    final List<ProvinceEntity> Function(QuerySnapshot) mapper = (querySnapshot) {
       return querySnapshot.documents.map((documentSnapshot) {
         return ProvinceEntity.fromDocumentSnapshot(documentSnapshot);
       }).toList();

@@ -23,7 +23,7 @@ class _RelatedRoomsTabPageState extends State<RelatedRoomsTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    var bloc = BlocProvider.of<RelatedRoomsTabBloc>(context);
+    final bloc = BlocProvider.of<RelatedRoomsTabBloc>(context);
 
     return Container(
       color: Colors.white,
