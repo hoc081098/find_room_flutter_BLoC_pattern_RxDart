@@ -1,12 +1,17 @@
 import 'package:find_room/models/district_entity.dart';
 import 'package:find_room/models/province_entity.dart';
 import 'package:find_room/models/ward_entity.dart';
+import 'package:built_collection/built_collection.dart';
 
 abstract class ProvinceDistrictWardRepository {
-  Future<List<ProvinceEntity>> getAllProvinces();
+  Stream<BuiltList<ProvinceEntity>> getAllProvinces();
 
-  Future<List<DistrictEntity>> getAllDistrictByProvince(
-      ProvinceEntity province);
+  Stream<BuiltList<DistrictEntity>> getAllDistrictByProvince(
+    ProvinceEntity province,
+  );
 
-  Future<List<WardEntity>> getAllWardByDistrict(DistrictEntity district);
+  Stream<BuiltList<WardEntity>> getAllWardByProvinceAndDistrict(
+    ProvinceEntity province,
+    DistrictEntity district,
+  );
 }

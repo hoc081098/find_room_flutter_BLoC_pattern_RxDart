@@ -1,5 +1,6 @@
 import 'package:find_room/data/categories/firestore_categories_repository.dart';
 import 'package:find_room/data/local/local_data_source.dart';
+import 'package:find_room/data/province_district_ward/province_district_ward_repository.dart';
 import 'package:find_room/data/room_comments/room_comments_repository.dart';
 import 'package:find_room/data/rooms/firestore_room_repository.dart';
 import 'package:find_room/data/user/firebase_user_repository.dart';
@@ -15,6 +16,7 @@ class Injector extends InheritedWidget {
   final NumberFormat priceFormat;
   final bool debug;
   final LocalDataSource localDataSource;
+  final ProvinceDistrictWardRepository provinceDistrictWardRepository;
 
   Injector({
     Key key,
@@ -26,6 +28,7 @@ class Injector extends InheritedWidget {
     @required Widget child,
     @required this.roomCommentsRepository,
     @required this.categoriesRepository,
+    @required this.provinceDistrictWardRepository,
   }) : super(key: key, child: child);
 
   static Injector of(BuildContext context) =>
@@ -45,7 +48,9 @@ class Injector extends InheritedWidget {
           categoriesRepository == other.categoriesRepository &&
           priceFormat == other.priceFormat &&
           debug == other.debug &&
-          localDataSource == other.localDataSource;
+          localDataSource == other.localDataSource &&
+          provinceDistrictWardRepository ==
+              other.provinceDistrictWardRepository;
 
   @override
   int get hashCode =>
@@ -55,5 +60,6 @@ class Injector extends InheritedWidget {
       categoriesRepository.hashCode ^
       priceFormat.hashCode ^
       debug.hashCode ^
-      localDataSource.hashCode;
+      localDataSource.hashCode ^
+      provinceDistrictWardRepository.hashCode;
 }

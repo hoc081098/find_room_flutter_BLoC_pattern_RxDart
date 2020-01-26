@@ -1,5 +1,6 @@
 ﻿import 'dart:async';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:collection/collection.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
@@ -170,7 +171,7 @@ class HomeBloc implements BaseBloc {
 
     return localData.selectedProvince$
         .switchMap((province) {
-          final convert = (List<ProvinceEntity> provinceEntities) {
+          final convert = (BuiltList<ProvinceEntity> provinceEntities) {
             return provinceEntities.map((entity) {
               return Province(
                 name: entity.name,
@@ -179,8 +180,8 @@ class HomeBloc implements BaseBloc {
             }).toList();
           };
 
-          return Stream.fromFuture(
-                  provinceDistrictWardRepository.getAllProvinces())
+          return provinceDistrictWardRepository
+              .getAllProvinces()
               .map(convert)
               .map((provinces) => Tuple2(province, provinces))
               .startWith(Tuple2(province, [province]));

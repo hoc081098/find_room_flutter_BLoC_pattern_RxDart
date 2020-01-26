@@ -73,6 +73,7 @@ Future<void> main() async {
       localDataSource: localDataSource,
       roomCommentsRepository: roomCommentsRepository,
       categoriesRepository: categoriesRepository,
+      provinceDistrictWardRepository: provinceDistrictWardRepository,
       child: BlocProvider<AuthBloc>(
         blocSupplier: () => authBloc,
         child: BlocProvider<HomeBloc>(
