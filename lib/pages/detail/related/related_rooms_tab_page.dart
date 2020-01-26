@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_bloc.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_state.dart';
 import 'package:flutter/material.dart';

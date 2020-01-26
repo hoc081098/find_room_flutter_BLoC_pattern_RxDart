@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {

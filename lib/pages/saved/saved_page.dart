@@ -7,7 +7,7 @@ import 'package:find_room/app/app_locale_bloc.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/auth_bloc/user_login_state.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:find_room/pages/saved/saved_bloc.dart';
 import 'package:find_room/pages/saved/saved_state.dart';
 import 'package:flutter/material.dart';

@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/auth_bloc/auth_bloc.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_bloc.dart';
 import 'package:find_room/pages/user_profile/update_user_info/update_user_info_state.dart';
 import 'package:find_room/pages/user_profile/user_profile_page.dart';

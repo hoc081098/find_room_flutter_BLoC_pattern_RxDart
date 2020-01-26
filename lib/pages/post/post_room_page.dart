@@ -20,7 +20,7 @@ class _PostRoomPageState extends State<PostRoomPage> {
   Widget build(BuildContext context) {
     final steps = <Step>[
       Step(
-        title: Text('Category'),
+        title: Text('Select a category'),
         content: const _SelectCategoryStep(),
         isActive: currentStep == 0,
       ),
@@ -87,14 +87,9 @@ class _PostRoomPageState extends State<PostRoomPage> {
   }
 }
 
-class _SelectCategoryStep extends StatefulWidget {
-  const _SelectCategoryStep({ Key key }) : super(key: key);
+class _SelectCategoryStep extends StatelessWidget {
+  const _SelectCategoryStep({Key key}) : super(key: key);
 
-  @override
-  __SelectCategoryStepState createState() => __SelectCategoryStepState();
-}
-
-class __SelectCategoryStepState extends State<_SelectCategoryStep> {
   @override
   Widget build(BuildContext context) {
     final postRoomBloc = BlocProvider.of<PostRoomBloc>(context);
@@ -107,6 +102,7 @@ class __SelectCategoryStepState extends State<_SelectCategoryStep> {
       initialData: state$.value,
       builder: (context, snapshot) {
         final state = snapshot.data;
+
         if (state.isLoading) {
           return Center(
             child: CircularProgressIndicator(),
@@ -123,11 +119,13 @@ class __SelectCategoryStepState extends State<_SelectCategoryStep> {
               children: [
                 for (final category in state.content)
                   ListTile(
-                    leading:
-                        category.id == selectedId ? Icon(Icons.check) : Icon(null),
+                    leading: category.id == selectedId
+                        ? Icon(Icons.check)
+                        : Icon(null),
                     selected: category.id == selectedId,
                     title: Text(category.name),
-                    onTap: () => postRoomBloc.selectedCategoryIdChanged(category.id),
+                    onTap: () =>
+                        postRoomBloc.selectedCategoryIdChanged(category.id),
                   ),
               ],
             );

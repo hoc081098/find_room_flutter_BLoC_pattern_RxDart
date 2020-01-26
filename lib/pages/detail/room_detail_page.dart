@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:find_room/pages/detail/comments/comments_tab_page.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_page.dart';
 import 'package:find_room/pages/detail/related/related_rooms_tab_page.dart';

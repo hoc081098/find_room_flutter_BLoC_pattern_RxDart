@@ -1,8 +1,7 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:find_room/data/categories/firestore_categories_repository.dart';
 import 'package:find_room/models/category_entity.dart';
-import 'package:find_room/utils/model_util.dart';
 
 class FirestoreCategoriesRepositoryImpl
     implements FirestoreCategoriesRepository {

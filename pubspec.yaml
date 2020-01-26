@@ -26,9 +26,9 @@ dependencies:
   flutter_facebook_login: ^3.0.0
 
   # rxdart
-  distinct_value_connectable_stream: ^1.0.3
+  distinct_value_connectable_stream: ^1.0.3+1
   rxdart: ^0.23.1
-  disposebag: ^1.0.0+1
+  disposebag: ^1.1.1+1
   stream_loader: ^0.1.0
 
   # widgets & plugin
@@ -47,7 +47,8 @@ dependencies:
   tuple: ^1.0.3
   collection: ^1.14.11
   path: ^1.6.4
-  built_value: ^7.0.0
+  built_value: ^7.0.8
+  built_collection: ^4.3.2
   sealed_unions: ^3.0.2+2
   json_serializable: ^3.2.3 #flutter packages pub run build_runner build
 
@@ -55,7 +56,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.1
-  built_value_generator: ^7.0.0
+  built_value_generator: ^7.0.8
   pedantic: ^1.8.0
 
 flutter:
@@ -77,3 +78,5 @@ flutter:
           weight: 600
         - asset: assets/fonts/SF-Pro-Text-Bold.ttf
           weight: 700
+flutter_intl:
+  enabled: true

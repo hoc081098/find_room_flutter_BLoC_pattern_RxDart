@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:find_room/bloc/bloc_provider.dart';
-import 'package:find_room/generated/i18n.dart';
+import 'package:find_room/generated/l10n.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_bloc.dart';
 import 'package:find_room/pages/detail/detail/room_detail_tab_state.dart';
 import 'package:flutter/cupertino.dart';
