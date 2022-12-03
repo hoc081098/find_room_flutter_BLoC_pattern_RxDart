@@ -63,7 +63,7 @@ class _SavedPageState extends State<SavedPage> {
   }
 
   _showSnackBar(String message) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: Duration(seconds: 2),
         content: Text(message),

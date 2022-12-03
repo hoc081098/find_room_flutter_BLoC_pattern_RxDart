@@ -28,19 +28,19 @@ class _SettingPageState extends State<SettingPage> {
     final s = S.of(context);
 
     if (result.item1) {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(s.change_language_success),
         ),
       );
     } else if (result.item2 != null) {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(s.change_language_error(result.item2)),
         ),
       );
     } else {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(s.change_language_failure),
         ),

@@ -236,7 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   _showSnackBar(message) {
-    Scaffold.of(context, nullOk: true)?.showSnackBar(
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),
