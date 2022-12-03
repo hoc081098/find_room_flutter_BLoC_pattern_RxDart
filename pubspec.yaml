@@ -42,7 +42,7 @@ dependencies:
   cached_network_image: ^2.0.0-rc.1
 
   # utils
-  intl: ^0.16.0
+  intl: ^0.17.0-nullsafety.2
   tuple: ^1.0.3
   collection: ^1.14.11
   path: ^1.6.4
