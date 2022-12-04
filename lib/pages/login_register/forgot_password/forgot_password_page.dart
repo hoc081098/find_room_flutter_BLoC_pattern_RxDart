@@ -169,7 +169,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   _showSnackBar(String message) {
-    Scaffold.of(context, nullOk: true)?.showSnackBar(
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),

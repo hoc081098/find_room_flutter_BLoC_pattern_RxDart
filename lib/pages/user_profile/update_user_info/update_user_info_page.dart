@@ -53,7 +53,7 @@ class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
   }
 
   _showSnackBar(message) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),

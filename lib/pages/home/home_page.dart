@@ -165,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _showSnackBar(String message) {
-    Scaffold.of(context, nullOk: true)?.showSnackBar(
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
         duration: Duration(seconds: 2),
         content: Text(message),

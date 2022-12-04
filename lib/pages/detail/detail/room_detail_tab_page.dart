@@ -270,7 +270,7 @@ class _ThirdCard extends StatelessWidget {
                         if (await canLaunch(url)) {
                           await launch(url);
                         } else {
-                          Scaffold.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Cannot launch call'),
                               duration: const Duration(seconds: 2),
@@ -290,7 +290,7 @@ class _ThirdCard extends StatelessWidget {
                         if (await canLaunch(url)) {
                           await launch(url);
                         } else {
-                          Scaffold.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Cannot launch sms'),
                               duration: const Duration(seconds: 2),

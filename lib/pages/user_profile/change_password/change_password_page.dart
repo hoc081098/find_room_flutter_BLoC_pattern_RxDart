@@ -190,7 +190,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   _showSnackBar(String message) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),

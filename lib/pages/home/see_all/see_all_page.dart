@@ -51,7 +51,7 @@ class _SeeAllPageState extends State<SeeAllPage> {
   }
 
   _showSnackBar(String message) {
-    Scaffold.of(context, nullOk: true)?.showSnackBar(
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(
